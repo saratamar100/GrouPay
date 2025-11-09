@@ -4,19 +4,18 @@
   --background: #ffffff;
   --foreground: #171717;
   --primary: #067c80;
-
 }
 
-
-*{
+* {
   box-sizing: border-box;
 }
 body {
+  background-color: #f0fdfa; /* ירקרק-מנטה בהיר */
   background: var(--background);
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
 }
 
-html{
+html {
   padding: 0;
 }
