@@ -1,0 +1,347 @@
+:root {
+  --primary-color: #0d9488;
+  --primary-dark: #075953;
+  --secondary-color: #34d399;
+  --text-color: #1a202c;
+  --white: #ffffff;
+  --bg-light: #f0fdfa;
+  --grey-text: #6b7280;
+  --footer-dark: #1f2937;
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(40px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.hero {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  max-width: 1200px;
+  margin: 2rem auto;
+  padding: 4rem 3rem 2rem 3rem;
+  min-height: auto;
+  gap: 3rem;
+  direction: rtl;
+  background-color: var(--white);
+  border-radius: 36px;
+  box-shadow: 0 25px 60px -15px rgba(13, 148, 136, 0.15);
+  animation: fadeInUp 0.8s ease-out;
+  position: relative;
+}
+
+.heroContent {
+  flex: 1;
+  text-align: right;
+}
+
+.heroImageContainer {
+  flex: 0.7;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+.heroImage {
+  max-width: 450px;
+  height: auto;
+  object-fit: contain;
+}
+
+.title {
+  font-size: 3.5rem;
+  font-weight: 800;
+  color: var(--text-color);
+  line-height: 1.2;
+  margin-bottom: 1.5rem;
+}
+.title span {
+  color: var(--primary-color);
+}
+.subtitle {
+  font-size: 1.2rem;
+  color: var(--grey-text);
+  max-width: 550px;
+  margin-bottom: 2.5rem;
+  line-height: 1.7;
+}
+.ctaContainer {
+  display: flex;
+  gap: 1.5rem;
+  justify-content: flex-start;
+}
+
+.ctaButton {
+  background-color: var(--primary-color);
+  color: var(--white);
+  border: none;
+  border-radius: 10px;
+  padding: 16px 36px;
+  font-size: 1.15rem;
+  font-weight: 700;
+  cursor: pointer;
+  text-decoration: none;
+  transition: all 0.3s ease;
+  box-shadow: 0 8px 20px -8px rgba(13, 148, 136, 0.4);
+}
+
+.ctaButton:hover {
+  background-color: var(--primary-dark);
+  transform: translateY(-6px) scale(1.05);
+  box-shadow: 0 15px 30px -10px rgba(13, 148, 136, 0.5);
+}
+
+.secondaryButton {
+  background-color: var(--bg-light);
+  color: var(--primary-color);
+  border: 2px solid #99f6e4;
+  box-shadow: none;
+}
+.secondaryButton:hover {
+  background-color: var(--white);
+  border-color: var(--primary-dark);
+  color: var(--primary-dark);
+  transform: translateY(-2px);
+}
+
+.divider {
+  position: relative;
+  width: 100%;
+  overflow: hidden;
+  line-height: 0;
+  margin-top: -1px;
+}
+.divider svg {
+  position: relative;
+  display: block;
+  width: calc(100% + 1.3px);
+  height: 120px;
+}
+.dividerShapeFill {
+  fill: var(--bg-light);
+}
+
+.mainContentSection {
+  background-color: var(--bg-light);
+  padding: 4rem 2rem 6rem 2rem;
+  position: relative;
+  z-index: -1;
+}
+
+.featuresTitle {
+  font-size: 3rem;
+  font-weight: 700;
+  color: var(--text-color);
+  text-align: center;
+  margin-bottom: 1.5rem;
+  animation: fadeInUp 0.5s ease-out;
+}
+
+.featuresSubtitle {
+  font-size: 1.25rem;
+  color: var(--grey-text);
+  margin-bottom: 4rem;
+  text-align: center;
+  max-width: 800px;
+  margin-left: auto;
+  margin-right: auto;
+  animation: fadeInUp 0.7s ease-out;
+}
+
+.featuresGrid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 2rem;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.featureCard {
+  background: var(--white);
+  padding: 2.5rem 2rem;
+  border-radius: 20px;
+  text-align: right;
+  border: 1px solid #e0f2f1;
+  box-shadow: 0 10px 30px -15px rgba(0, 0, 0, 0.08);
+  transition: transform 0.4s ease, box-shadow 0.4s ease;
+  animation: fadeInUp 0.8s ease-out backwards;
+}
+
+.featureCard:hover {
+  transform: translateY(-12px) scale(1.04);
+  box-shadow: 0 20px 40px -15px rgba(13, 148, 136, 0.2);
+}
+
+.featureIcon {
+  font-size: 3rem;
+  color: var(--primary-color);
+  margin-bottom: 1.5rem;
+  display: block;
+}
+
+.featureCard h3 {
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: var(--text-color);
+  margin-bottom: 0.75rem;
+}
+
+.featureCard p {
+  font-size: 1rem;
+  color: var(--grey-text);
+  line-height: 1.6;
+}
+
+.featureRow,
+.featureRowReversed,
+.featureContent,
+.featureVisual {
+  display: none;
+}
+
+.testimonialSection {
+  padding: 8rem 0;
+  text-align: center;
+}
+
+.testimonialCard {
+  max-width: 800px;
+  margin: 0 auto;
+  position: relative;
+  background-color: var(--white);
+  padding: 4rem;
+  border-radius: 36px;
+  box-shadow: 0 20px 60px -20px rgba(0, 0, 0, 0.2);
+  animation: fadeInUp 1.2s ease-out;
+  transition: transform 0.4s ease;
+}
+
+.testimonialCard:hover {
+  transform: translateY(-10px);
+}
+
+.testimonialQuote {
+  font-size: 2rem;
+  font-weight: 500;
+  color: var(--text-color);
+  line-height: 1.6;
+  margin-bottom: 2rem;
+}
+.testimonialQuote::before {
+  content: "“";
+  display: block;
+  font-size: 6rem;
+  color: var(--secondary-color);
+  font-weight: 800;
+  line-height: 0.8;
+  margin-bottom: 1rem;
+}
+.testimonialAuthor {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: var(--primary-dark);
+}
+.testimonialAuthor span {
+  font-weight: 400;
+  color: var(--grey-text);
+}
+
+.finalCtaSection {
+  padding: 8rem 0 5rem 0;
+  text-align: center;
+  animation: fadeInUp 1.2s ease-out;
+}
+.finalCtaTitle {
+  font-size: 3.2rem;
+  font-weight: 700;
+  color: var(--text-color);
+  margin-bottom: 1.5rem;
+}
+
+.footer {
+  padding: 5rem 2rem;
+  background-color: var(--footer-dark);
+  color: #a5f3fc;
+  text-align: center;
+  direction: rtl;
+  margin-top: -1px;
+  position: relative;
+}
+
+.footerNav {
+  display: flex;
+  justify-content: center;
+  gap: 3rem;
+  list-style: none;
+  padding: 0;
+  margin-bottom: 2rem;
+}
+.footerNavLink {
+  color: var(--white);
+  text-decoration: none;
+  font-weight: 500;
+  font-size: 1.05rem;
+  transition: color 0.2s ease;
+}
+.footerNavLink:hover {
+  color: var(--secondary-color);
+}
+.footerCopyright {
+  font-size: 0.95rem;
+  color: #94a3b8;
+}
+
+@media (max-width: 900px) {
+  .hero {
+    flex-direction: column-reverse;
+    text-align: center;
+    padding: 3rem 1.5rem 2rem 1.5rem;
+    margin: 1rem;
+    border-radius: 24px;
+  }
+  .heroContent {
+    text-align: center;
+  }
+  .ctaContainer {
+    justify-content: center;
+  }
+  .title {
+    font-size: 2.5rem;
+  }
+  .subtitle {
+    font-size: 1.1rem;
+  }
+
+  .featuresGrid {
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+  }
+  .featureCard {
+    text-align: center;
+  }
+
+  .testimonialCard {
+    padding: 2.5rem;
+    border-radius: 28px;
+  }
+  .testimonialQuote {
+    font-size: 1.5rem;
+  }
+  .testimonialQuote::before {
+    font-size: 4rem;
+  }
+  .finalCtaTitle {
+    font-size: 2.5rem;
+  }
+  .footerNav {
+    flex-direction: column;
+    gap: 1rem;
+  }
+}
