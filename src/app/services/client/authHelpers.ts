@@ -7,7 +7,6 @@ export async function signInWithGoogle(): Promise<User | null> {
   try {
     const result = await signInWithPopup(auth, provider);
     const user = result.user;
-    console.log("משתמש מחובר:", user.displayName, user.email);
     return user;
   } catch (error: unknown) {
     console.error("שגיאה בהתחברות עם גוגל:", error);

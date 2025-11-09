@@ -1,4 +1,4 @@
-import { addUser } from "@/app/services/server/users";
+import { addUser } from "@/app/services/server/login";
 
 export async function POST(request: Request) {
   const userData = await request.json();
