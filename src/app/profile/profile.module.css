@@ -1,0 +1,101 @@
+.pageRoot {
+  padding-top: 24px;
+  padding-bottom: 24px;
+}
+@media (min-width: 600px) {
+  .pageRoot {
+    padding-top: 48px;
+    padding-bottom: 48px;
+  }
+}
+.card {
+  border-radius: 16px;
+  background: #ffffff;
+  padding: 24px;
+  border: 1px solid rgba(6, 124, 128, 0.2);
+}
+@media (min-width: 600px) {
+  .card {
+    padding: 40px;
+  }
+}
+.title {
+  font-weight: 900 !important;
+  font-size: 2rem !important;
+  color: var(--mui-palette-primary-main, #067c80);
+  margin-bottom: 32px !important;
+  text-align: center;
+}
+.divider {
+  margin-bottom: 16px !important;
+  border-color: rgba(6, 124, 128, 0.25) !important;
+}
+.fieldRoot :global(.MuiOutlinedInput-root) {
+  border-radius: 8px;
+  transition: background-color 0.2s ease;
+}
+.fieldRoot :global(.MuiOutlinedInput-notchedOutline) {
+  border-color: rgba(6, 124, 128, 0.4) !important;
+  border-width: 2px;
+}
+.fieldRoot:hover :global(.MuiOutlinedInput-notchedOutline) {
+  border-color: rgba(6, 124, 128, 0.55) !important;
+}
+.fieldRoot :global(.Mui-focused .MuiOutlinedInput-notchedOutline) {
+  border-color: #067c80 !important;
+  border-width: 2px;
+}
+.fieldRoot :global(.Mui-error .MuiOutlinedInput-notchedOutline) {
+  border-color: rgba(6, 124, 128, 0.4) !important;
+}
+.fieldRoot :global(.MuiFormHelperText-root.Mui-error) {
+  color: transparent !important;
+}
+.editable :global(.MuiOutlinedInput-root) {
+  background: #f5fbfb;
+}
+.locked :global(.MuiOutlinedInput-root) {
+  background: #ffffff;
+  cursor: default;
+}
+.locked :global(.MuiOutlinedInput-input) {
+  pointer-events: none;
+  user-select: none;
+}
+.locked :global(.Mui-focused .MuiOutlinedInput-notchedOutline) {
+  border-color: rgba(6, 124, 128, 0.4) !important;
+}
+.locked :global(.MuiOutlinedInput-root:hover .MuiOutlinedInput-notchedOutline) {
+  border-color: rgba(6, 124, 128, 0.4) !important;
+}
+.fieldBlock {
+  display: block;
+}
+.errorText {
+  margin-top: 4px;
+  display: block;
+}
+.ctaRow {
+  margin-top: 40px;
+  justify-content: center !important;
+}
+.primaryButton {
+  min-width: 220px;
+  font-size: 1.1rem !important;
+  padding: 16px 36px !important;
+  font-weight: 800 !important;
+  border-radius: 999px !important;
+  box-shadow: 0 6px 14px rgba(6, 124, 128, 0.25) !important;
+  background-color: #067c80 !important;
+  transition: transform 0.2s ease, background-color 0.2s ease;
+}
+.primaryButton:hover {
+  background-color: #09999d !important;
+  transform: translateY(-2px);
+}
+.bottomAlert {
+  margin-top: 28px !important;
+  border-color: rgba(6, 124, 128, 0.25) !important;
+  background-color: #f5fbfb !important;
+  font-weight: 500;
+}
