@@ -1,4 +1,5 @@
 import { getDb } from "./services/server/mongo";
+import Header from "./components/Header/Header"; 
 
 export default async function Home() {
   const db = await getDb();
@@ -7,7 +8,10 @@ export default async function Home() {
 
   return (
     <>
+      <Header />  
       <h1>Hello world</h1>
     </>
   );
 }
+
+
