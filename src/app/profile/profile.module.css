@@ -1,101 +1,99 @@
 .pageRoot {
-  padding-top: 24px;
-  padding-bottom: 24px;
+  padding-block: 32px;
 }
 @media (min-width: 600px) {
-  .pageRoot {
-    padding-top: 48px;
-    padding-bottom: 48px;
-  }
+  .pageRoot { padding-block: 48px; }
 }
+
 .card {
   border-radius: 16px;
+  padding: 40px;
+  box-shadow: 0 6px 18px rgba(6,124,128,0.15);
+  transition: background 0.3s ease, border-color 0.3s ease;
+}
+.cardView {
   background: #ffffff;
-  padding: 24px;
-  border: 1px solid rgba(6, 124, 128, 0.2);
+  border-top: 6px solid #d5e8e8;
 }
-@media (min-width: 600px) {
-  .card {
-    padding: 40px;
-  }
+.cardEdit {
+  background: #f3fafa;
+  border-top: 6px solid #067c80;
 }
+
 .title {
   font-weight: 900 !important;
   font-size: 2rem !important;
-  color: var(--mui-palette-primary-main, #067c80);
-  margin-bottom: 32px !important;
+  color: var(--primary);
   text-align: center;
+  margin-bottom: 32px !important;
 }
-.divider {
-  margin-bottom: 16px !important;
-  border-color: rgba(6, 124, 128, 0.25) !important;
+
+.fieldBlock { margin-bottom: 20px; }
+
+.fieldLabel {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-weight: 600;
+  color: #066e72;
+  margin-bottom: 6px;
 }
-.fieldRoot :global(.MuiOutlinedInput-root) {
-  border-radius: 8px;
-  transition: background-color 0.2s ease;
+
+.fieldIcon {
+  font-size: 1.2rem;
+  color: var(--primary);
+  opacity: 0.9;
+  transition: color 0.3s ease, transform 0.2s ease;
 }
-.fieldRoot :global(.MuiOutlinedInput-notchedOutline) {
-  border-color: rgba(6, 124, 128, 0.4) !important;
-  border-width: 2px;
+.editActive .fieldIcon { color: #055e61; transform: scale(1.05); }
+
+.fieldText {
+  padding: 12px 0;
+  font-size: 1rem;
+  color: #333;
+  border-bottom: 1px solid rgba(0,0,0,0.08);
 }
-.fieldRoot:hover :global(.MuiOutlinedInput-notchedOutline) {
-  border-color: rgba(6, 124, 128, 0.55) !important;
+
+.fieldInput {
+  width: 100%;
+  font-size: 1rem;
+  padding: 10px 12px;
+  border: none;
+  border-radius: 6px;
+  background: #e6f5f5;
+  color: #064243;
+  outline: none;
+  transition: background 0.2s ease;
 }
-.fieldRoot :global(.Mui-focused .MuiOutlinedInput-notchedOutline) {
-  border-color: #067c80 !important;
-  border-width: 2px;
-}
-.fieldRoot :global(.Mui-error .MuiOutlinedInput-notchedOutline) {
-  border-color: rgba(6, 124, 128, 0.4) !important;
-}
-.fieldRoot :global(.MuiFormHelperText-root.Mui-error) {
-  color: transparent !important;
-}
-.editable :global(.MuiOutlinedInput-root) {
-  background: #f5fbfb;
-}
-.locked :global(.MuiOutlinedInput-root) {
-  background: #ffffff;
-  cursor: default;
-}
-.locked :global(.MuiOutlinedInput-input) {
-  pointer-events: none;
-  user-select: none;
-}
-.locked :global(.Mui-focused .MuiOutlinedInput-notchedOutline) {
-  border-color: rgba(6, 124, 128, 0.4) !important;
-}
-.locked :global(.MuiOutlinedInput-root:hover .MuiOutlinedInput-notchedOutline) {
-  border-color: rgba(6, 124, 128, 0.4) !important;
-}
-.fieldBlock {
-  display: block;
-}
+.fieldInput:focus { background: #d2f0f0; }
+
 .errorText {
-  margin-top: 4px;
+  margin-top: 6px;
   display: block;
+  color: #d32f2f;
+  font-size: 0.85rem;
 }
 .ctaRow {
-  margin-top: 40px;
-  justify-content: center !important;
+  margin-top: 36px;
+  display: flex;
+  justify-content: center;
 }
-.primaryButton {
-  min-width: 220px;
-  font-size: 1.1rem !important;
-  padding: 16px 36px !important;
-  font-weight: 800 !important;
-  border-radius: 999px !important;
-  box-shadow: 0 6px 14px rgba(6, 124, 128, 0.25) !important;
-  background-color: #067c80 !important;
-  transition: transform 0.2s ease, background-color 0.2s ease;
+
+.fabInline {
+  width: 64px;
+  height: 64px;
+  border: none;
+  border-radius: 50%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  background: var(--primary);
+  cursor: pointer;
+  box-shadow: 0 6px 14px rgba(0,0,0,0.25);
+  transition: background-color .25s ease, transform .2s ease, box-shadow .2s ease;
 }
-.primaryButton:hover {
-  background-color: #09999d !important;
-  transform: translateY(-2px);
-}
-.bottomAlert {
-  margin-top: 28px !important;
-  border-color: rgba(6, 124, 128, 0.25) !important;
-  background-color: #f5fbfb !important;
-  font-weight: 500;
-}
+.fabInline:hover { transform: translateY(-3px); }
+.fabEdit { background-color: #067c80; }  
+.fabSave { background-color: #09999d; } 
+.fabDisabled { opacity: .5; cursor: not-allowed; box-shadow: none; transform: none !important; }

@@ -1,6 +1,6 @@
 export async function updateUserProfile(payload: any) {
   try {
-    const res = await fetch("/api/update-profile", {
+    const res = await fetch("/api/profile", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(payload),
