@@ -1,4 +1,6 @@
-export const addUser = async (userData: any): Promise<boolean> => {
+import { User } from "@/app/types/types";
+
+export const addUser = async (userData: any): Promise<User | null> => {
   try {
     const response = await fetch("/api/login", {
       method: "POST",
@@ -7,13 +9,15 @@ export const addUser = async (userData: any): Promise<boolean> => {
       },
       body: JSON.stringify(userData),
     });
+
     if (!response.ok) {
       console.error("Failed to add user:", response.statusText);
-      return false;
+      return null;
     }
-    return true;
+    const newUser: User = await response.json();
+    return newUser;
   } catch (error) {
     console.error("Error adding user:", error);
-    return false;
+    return null;
   }
 };
