@@ -1,14 +1,13 @@
 type UserId = string;
 type GroupId = string;
 type ActionId = string;
-
 export interface User {
   id: UserId;
   name: string;
-  passwordHash: string;
   email: string;
+  photoURL: string;
   phone: string;
-  groupIds: GroupId[];
+   groupIds: GroupId[];
 }
 
 export interface Group {
