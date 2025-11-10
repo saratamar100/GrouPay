@@ -3,11 +3,11 @@ import { getDb } from "@/app/services/server/mongo";
 import { ObjectId } from "mongodb";
 
 export async function GET(
-  req: NextRequest,
-  { params }: { params: { id: string } }
+  _req: NextRequest,
+  context: { params: Promise<{ id: string }> }  
 ) {
   try {
-   const { id } = await params;  
+  const { id } = await context.params;       
     const db = await getDb("groupay_db");
     const groups = db.collection("group");
     const users = db.collection("user")
