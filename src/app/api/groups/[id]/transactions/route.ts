@@ -2,13 +2,17 @@ import { NextRequest, NextResponse } from "next/server";
 import { getDb } from "@/app/services/server/mongo";
 import { ObjectId } from "mongodb";
 
-export async function GET(_req: NextRequest, context: { params: Promise<{ id: string }> }) {
+export async function GET(
+  _req: NextRequest,
+  context: { params: Promise<{ id: string }> }
+) {
   try {
     const { id } = await context.params;
-    if (!id) return NextResponse.json({ error: "Missing group ID" }, { status: 400 });
+    if (!id)
+      return NextResponse.json({ error: "Missing group ID" }, { status: 400 });
 
     const db = await getDb("groupay_db");
-    const transactions = db.collection("transactions");
+    const transactions = db.collection("transaction");
 
     const query = ObjectId.isValid(id)
       ? { $or: [{ groupId: new ObjectId(id) }, { groupId: id }] }
@@ -21,18 +25,35 @@ export async function GET(_req: NextRequest, context: { params: Promise<{ id: st
   }
 }
 
-export async function POST(req: NextRequest, context: { params: Promise<{ id: string }> }) {
+export async function POST(
+  req: NextRequest,
+  context: { params: Promise<{ id: string }> }
+) {
   try {
     const { id } = await context.params;
     if (!id || !ObjectId.isValid(id)) {
-      return NextResponse.json({ error: "Missing/invalid group ID" }, { status: 400 });
+      return NextResponse.json(
+        { error: "Missing/invalid group ID" },
+        { status: 400 }
+      );
     }
 
     const body = await req.json();
-    const { name, type, amount, payerId, split = [], date, receiptUrl = null } = body ?? {};
+    const {
+      name,
+      type,
+      amount,
+      payerId,
+      split = [],
+      date,
+      receiptUrl = null,
+    } = body ?? {};
 
     if (!name || !type || amount == null || !payerId || !date) {
-      return NextResponse.json({ error: "Missing required fields" }, { status: 400 });
+      return NextResponse.json(
+        { error: "Missing required fields" },
+        { status: 400 }
+      );
     }
 
     const db = await getDb("groupay_db");
@@ -81,4 +102,3 @@ export async function POST(req: NextRequest, context: { params: Promise<{ id: st
     return NextResponse.json({ error: "Server error" }, { status: 500 });
   }
 }
-
