@@ -46,3 +46,21 @@ export async function POST(request: Request) {
     );
   }
 }
+
+export async function GET() {
+  try {
+    const db = await getDb("groupay_db");
+    const groupsCollection = db.collection("group");
+    const groups = await groupsCollection.find({}).toArray();
+
+    return NextResponse.json(groups, { status: 200 });
+  }
+    catch (error) {
+    console.error("Error fetching groups:", error);
+    return NextResponse.json(
+      { message: "Internal Server Error" },
+      { status: 500 }
+    );
+  }
+}
+      
