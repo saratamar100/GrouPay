@@ -1,0 +1,47 @@
+
+ .container {
+  padding-top: 40px;
+  padding-bottom: 40px;
+  direction: rtl;
+  text-align: right;
+}
+
+.title {
+  color: var(--primary);
+  margin-bottom: 30px;
+  font-weight: 700;
+}
+
+.twoColumnWrapper {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 32px;
+  margin-top: 32px;
+}
+
+.halfWidthCard {
+  flex: 1 1 calc(50% - 16px);
+  min-width: 300px;
+}
+
+.fullWidthCardWrapper {
+  margin-bottom: 32px;
+}
+
+.paperCard {
+  padding: 30px;
+  border-radius: 12px;
+  border-right: 5px solid var(--primary);
+  transition: transform 0.3s ease-in-out;
+  height: 100%;
+}
+
+.paperCard:hover {
+  transform: translateY(-5px);
+}
+
+.textBody {
+  line-height: 1.8;
+  color: #4f4f4f;
+  font-size: 1.05rem;
+}

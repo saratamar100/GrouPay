@@ -1,7 +1,7 @@
 import { getDb } from "../../services/server/mongo";
 import { User } from "@/app/types/types";
 import { CreateGroupForm } from "../../components/Groups/CreateGroupForm";
-// import Header from "../../components/Header/Header";
+import Header from "../../components/Header/Header";
 import { WithId, Document } from "mongodb";
 
 async function getAllUsers(): Promise<User[]> {
@@ -32,10 +32,8 @@ export default async function CreateGroupPage() {
 
   return (
     <div>
-      {/* <Header /> */}
+      <Header />
       <main>
-        <h1>Create New Group</h1>
-
         {/* 2. העברת המשתמשים כ-prop לקומפוננטת הטופס */}
         {/* אנו מעבירים 'allUsers' כדי שהטופס יוכל להציג רשימה לבחירה */}
         <CreateGroupForm allUsers={allUsers} />
