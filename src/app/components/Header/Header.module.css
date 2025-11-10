@@ -1,0 +1,34 @@
+
+.appBar {
+  background-color: var(--primary) !important;
+}
+
+.toolbar {
+  display: flex;
+  justify-content: space-between;
+  padding: 0 24px;
+}
+
+.navContainer {
+  display: flex;
+  align-items: center;
+  direction: rtl;
+}
+
+.navButton {
+  margin-left: 24px;
+  font-size: 1rem;
+  font-weight: 400;
+  margin-right: 0;
+  color: white !important;
+}
+
+.navButton:last-child {
+  margin-left: 0;
+}
+
+.logo {
+  color: white;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+}
