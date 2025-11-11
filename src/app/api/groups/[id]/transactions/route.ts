@@ -8,7 +8,7 @@ export async function GET(_req: NextRequest, context: { params: Promise<{ id: st
     if (!id) return NextResponse.json({ error: "Missing group ID" }, { status: 400 });
 
     const db = await getDb("groupay_db");
-    const transactions = db.collection("transactions");
+    const transactions = db.collection("transaction");
 
     const query = ObjectId.isValid(id)
       ? { $or: [{ groupId: new ObjectId(id) }, { groupId: id }] }
@@ -29,6 +29,7 @@ export async function POST(req: NextRequest, context: { params: Promise<{ id: st
     }
 
     const body = await req.json();
+    console.log(body)
     const { name, type, amount, payerId, split = [], date, receiptUrl = null } = body ?? {};
 
     if (!name || !type || amount == null || !payerId || !date) {
@@ -37,7 +38,7 @@ export async function POST(req: NextRequest, context: { params: Promise<{ id: st
 
     const db = await getDb("groupay_db");
     const groups = db.collection("group");
-    const transactions = db.collection("transactions");
+    const transactions = db.collection("transaction");
 
     // Ensure group exists
     const group = await groups.findOne({ _id: new ObjectId(id) });

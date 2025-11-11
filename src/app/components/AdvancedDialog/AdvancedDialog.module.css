@@ -1,0 +1,230 @@
+.dialogPaper {
+  direction: rtl;
+  padding: 8px;
+  border-radius: 14px !important;
+  border: 1.5px solid #bee9e5;
+  box-shadow: 0 8px 32px #bee9e54a;
+  background: #ffffff;
+  font-family: "Heebo", "Arial", sans-serif;
+}
+
+.dialogTitle {
+  font-weight: 800 !important;
+  color: #047680;
+  text-align: center;
+  letter-spacing: 0.01em;
+  margin-bottom: 2px;
+}
+
+.dialogContent { padding-top: 4px !important; }
+
+.topRows { display: grid; gap: 10px; margin: 6px 0 14px; }
+.topRow {
+  display: grid;
+  gap: 12px;
+  grid-template-columns: 1fr 1fr;
+}
+
+.input :global(.MuiInputBase-root) {
+  background: #fafdff;
+  border-radius: 8px;
+  border: 1.2px solid #bee9e5;
+  transition: border-color .15s, background-color .15s, box-shadow .15s;
+}
+.input :global(.MuiInputBase-root:hover) {
+  border-color: #98d9d3;
+}
+.input :global(.MuiInputBase-root.Mui-focused) {
+  border-color: #1bc1a5;
+  background: #f4fdfe;
+  box-shadow: 0 0 0 3px rgba(27, 193, 165, 0.15);
+}
+
+.grid {
+  display: grid;
+  gap: 16px;
+  grid-template-columns: 1fr 1fr 1fr;
+}
+
+.sectionCard {
+  background: #fff;
+  border-radius: 12px;
+  border: 1.3px solid #bee9e5;
+  box-shadow: 0 4px 24px #bee9e528, 0 1px 2px #bee9e533;
+  padding: 10px 10px 12px;
+}
+
+.sectionHeader {
+  font-weight: 800;
+  color: #055e64;
+  font-size: 1.05rem;
+  margin: 2px 0 8px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.sectionBody { padding: 2px 2px 4px; }
+
+.selectAllRow {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: #0a5664;
+  margin-bottom: 6px;
+}
+
+.memberList {
+  max-height: 300px;
+  overflow-y: auto;
+  padding-right: 0;
+  margin-right: -4px;
+  scrollbar-gutter: stable both-edges;
+}
+.memberList::-webkit-scrollbar {
+  width: 10px;
+}
+.memberList::-webkit-scrollbar-thumb {
+  background: #bee9e5;
+  border-radius: 8px;
+  border: 2px solid #ffffff;
+}
+.memberList::-webkit-scrollbar-track {
+  background: #f5fbfb;
+}
+
+.memberItemStack {
+  padding: 6px 6px;
+  border-radius: 8px;
+  transition: background .15s, box-shadow .15s, border .15s;
+  display: grid;
+  grid-template-rows: auto auto;
+  row-gap: 2px;
+}
+.memberItemStack:hover {
+  background: #fafdff;
+  box-shadow: inset 0 0 0 1px #bee9e5;
+}
+
+.itemAmountAbove {
+  font-weight: 800;
+  font-size: .95rem;
+  color: #055e64;
+  text-align: left;
+  min-height: 20px;
+  font-variant-numeric: tabular-nums;
+}
+
+.rowContent {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.memberItem {
+  padding: 6px 6px;
+  border-radius: 8px;
+  transition: background .15s, box-shadow .15s, border .15s;
+}
+.memberItem:hover {
+  background: #fafdff;
+  box-shadow: inset 0 0 0 1px #bee9e5;
+}
+
+.secondary {
+  left: 8px !important;
+  right: auto !important;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.secondary :global(.MuiListItemSecondaryAction-root) {
+  position: static; 
+}
+
+.amountField :global(.MuiInputBase-root) {
+  width: 110px;
+  background: #fafdff;
+  border: 1.1px solid #bee9e5;
+  border-radius: 7px;
+  transition: border-color .15s, background-color .15s, box-shadow .15s;
+}
+.amountField :global(.MuiInputBase-root:hover) {
+  border-color: #98d9d3;
+}
+.amountField :global(.MuiInputBase-root.Mui-focused) {
+  border-color: #1bc1a5;
+  background: #f4fdfe;
+  box-shadow: 0 0 0 3px rgba(27, 193, 165, 0.15);
+}
+
+.equalAmount {
+  min-width: 84px;
+  display: inline-block;
+  text-align: left;
+  font-weight: 700;
+  color: #055e64;
+  font-variant-numeric: tabular-nums;
+}
+
+.radioRow {
+  display: flex;
+  gap: 12px;
+  margin: 4px 0 10px;
+  flex-wrap: wrap;
+}
+
+.helpText {
+  margin: 6px 2px 10px;
+  color: #0a5664;
+}
+
+.totalsRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  margin-top: 8px;
+  padding-top: 8px;
+  border-top: 1px dashed #bee9e5;
+  color: #09555b;
+  font-size: 0.95rem;
+  flex-wrap: wrap;
+}
+.splitOk { color: #09555b; }
+.splitBad { color: #c62828; }
+
+.fileBtn {
+  width: 100%;
+  background: linear-gradient(90deg,#eef8f8,#bee9e5) !important;
+  color: #055e64 !important;
+  border-radius: 10px !important;
+  border: 1.5px solid #bee9e5 !important;
+  font-weight: 800 !important;
+  letter-spacing: 0.02em;
+  box-shadow: 0 6px 24px #bee9e537;
+}
+.fileBtn:hover {
+  background: #bee9e5 !important;
+  color: #013438 !important;
+}
+
+.fileName { margin-top: 8px; color: #055e64; }
+
+.actions { padding: 10px 16px 16px !important; }
+
+.confirmBtn {
+  background: linear-gradient(90deg,#bee9e5 65%,#eef8f8 100%) !important;
+  color: #055e64 !important;
+  border: 1.5px solid #bee9e5 !important;
+  border-radius: 10px !important;
+  font-weight: 800 !important;
+  box-shadow: 0 6px 15px #bee9e595 !important;
+  transition: transform .12s ease, box-shadow .12s ease;
+}
+.confirmBtn:hover {
+  background: linear-gradient(90deg,#8edcd8 80%,#bee9e5 100%) !important;
+  color: #013438 !important;
+  transform: translateY(-1px);
+  box-shadow: 0 8px 18px #8edcd899 !important;
+}
