@@ -5,6 +5,11 @@ import { User } from "../types/types";
 
 const LoginPage = () => {
   const loginStore = useLoginStore();
+  const user = loginStore.loggedUser;
+  if (user) {
+    window.location.href = "/groups";
+    return null;
+  }
   const handleLogin = (user: User) => {
     loginStore.setLoggedUser(user);
   };
