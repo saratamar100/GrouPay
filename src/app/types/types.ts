@@ -7,7 +7,6 @@ export interface User {
   email: string;
   photoURL: string;
   phone: string;
-   groupIds: GroupId[];
 }
 
 export interface Group {
