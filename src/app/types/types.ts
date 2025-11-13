@@ -1,13 +1,19 @@
 type UserId = string;
 type GroupId = string;
 type ActionId = string;
+type Status = "pending" | "completed";
 export interface User {
   id: UserId;
   name: string;
   email: string;
   photoURL: string;
   phone: string;
-   groupIds: GroupId[];
+}
+
+export interface GroupShort {
+  id: GroupId;
+  name: string;
+  balance: number;
 }
 export type Member = {
   id: UserId;
