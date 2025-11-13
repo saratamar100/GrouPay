@@ -1,3 +1,4 @@
+// src/app/api/groups/[groupId]/expense/route.ts
 import { NextRequest, NextResponse } from "next/server";
 import { getDb } from "@/app/services/server/mongo";
 import { ObjectId } from "mongodb";
@@ -10,6 +11,7 @@ export async function POST(
     const { groupId } = await context.params;
     const body = await req.json();
     const { name, amount, payer, split, receiptUrl, members } = body;
+    console.log("Received expense data:", body);
 
     if (!groupId || !ObjectId.isValid(groupId)) {
       return NextResponse.json(
@@ -31,18 +33,14 @@ export async function POST(
         { status: 400 }
       );
     }
-
-    if (!payer ||
-      typeof payer !== "object" ||
-      !payer.id ||
-      typeof payer.id !== "string" ||
-      !payer.name ||
-      typeof payer.name !== "string") {
+    
+    if (!payer || typeof payer !== "string" || payer.trim().length === 0) {
       return NextResponse.json(
-        { error: "Payer is required and must be a string" },
+        { error: "Payer is required and must be a non-empty string (payerId)" },
         { status: 400 }
       );
     }
+
 
     if (!members || !Array.isArray(members) || members.length === 0) {
       return NextResponse.json(
@@ -83,6 +81,7 @@ export async function POST(
 
     const newExpense = {
       name: name.trim(),
+      groupId: new ObjectId(groupId),
       amount: Number(amount),
       payer,
       split: finalSplit,
@@ -115,4 +114,32 @@ export async function POST(
   }
 }
 
+
+
+export async function GET(
+  req: NextRequest,
+  context: { params: Promise<{ groupId: string }> }
+) {
+  try {
+    const { groupId } = await context.params;
+    if (!groupId || !ObjectId.isValid(groupId)) {
+      return NextResponse.json(
+        { error: "Invalid or missing groupId" },
+        { status: 400 }
+      );
+    }
+    const db = await getDb("groupay_db");
+    const expenses = db.collection("expense");
+    const expenseList = await expenses
+      .find({ groupId: new ObjectId(groupId) })
+      .toArray();
+    return NextResponse.json(expenseList, { status: 200 });
+  } catch (error) {
+    console.error("Error fetching expenses:", error);
+    return NextResponse.json(
+      { error: "Server error while fetching expenses" },
+      { status: 500 }
+    );
+  }   
+}
 

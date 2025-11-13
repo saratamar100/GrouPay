@@ -8,45 +8,58 @@ export async function GET(
 ) {
   try {
     const { groupId } = await context.params;
+
+    if (!groupId || !ObjectId.isValid(groupId)) {
+      return NextResponse.json({ error: "groupId לא חוקי" }, { status: 400 });
+    }
+
     const db = await getDb("groupay_db");
     const groups = db.collection("group");
-    const expenses = db.collection("expense");
+    const expensesCol = db.collection("expense");
 
     const group = await groups.findOne(
       { _id: new ObjectId(groupId) },
-      { projection: { actionIds: 1, name: 1, members: 1 } }
+      { projection: { name: 1, members: 1, expenses: 1 } }
     );
 
     if (!group) {
       return NextResponse.json({ error: "הקבוצה לא נמצאה" }, { status: 404 });
     }
 
-    let expensesList = [];
-   if (Array.isArray(group.actionIds) && group.actionIds.length > 0) {
-    const objectIds = group.actionIds.map((id: string) => new ObjectId(id));
+    const expenseIdValues = Array.isArray(group.expenses) ? group.expenses : [];
+    const expenseObjectIds: ObjectId[] = expenseIdValues
+      .map((id: any) => {
+        if (id instanceof ObjectId) return id;
+        if (typeof id === "string" && ObjectId.isValid(id)) return new ObjectId(id);
+        return null;
+      })
+      .filter((id: ObjectId | null): id is ObjectId => id !== null);
+    let expensesList: any[] = [];
+    if (expenseObjectIds.length > 0) {
+      expensesList = await expensesCol
+        .find(
+          { _id: { $in: expenseObjectIds } },
+          { projection: { groupId: 0 } }
+        )
+        .toArray();
 
-  expensesList = await expenses
-    .find(
-      { _id: { $in: objectIds } },
-      {
-        projection: {
-          groupId: 0,
-        },
-      }
-    )
-    .toArray();
-}
-
+      expensesList = expensesList.map((e) => ({
+        id: e._id.toString(),
+        name: e.name ?? "",
+        amount: typeof e.amount === "number" ? e.amount : Number(e.amount ?? 0),
+        payer: e.payer ?? null,
+        split: Array.isArray(e.split) ? e.split : [],
+        date: e.date ?? null,
+        receiptUrl: e.receiptUrl ?? null,
+      }));
+    }
 
     return NextResponse.json(
       {
-        group: {
-          id: group._id,
-          name: group.name,
-          members: group.members,
-          expenses: expensesList,
-
-        },
+        id: group._id.toString(),
+        name: group.name ?? "",
+        members: Array.isArray(group.members) ? group.members : [],
+        expenses: expensesList,
       },
       { status: 200 }
     );

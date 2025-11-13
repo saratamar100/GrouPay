@@ -9,29 +9,59 @@ export interface User {
   phone: string;
    groupIds: GroupId[];
 }
+type Status = "pending" | "completed";
 
-export interface Group {
+export interface User {
+  id: UserId;
+  name: string;
+  email: string;
+  photoURL: string;
+  phone: string;
+}
+
+export interface GroupShort {
   id: GroupId;
   name: string;
-  memberIds: UserId[];
-  actionIds: ActionId[];
+  balance: number;
+}
+export interface Debt {
+  member: Member;
+  amount: number;
+}
+export interface GroupTransactions {
+  debts: Debt[];
+  payments: Payment[];
 }
 
 interface SplitDetail {
   userId: UserId;
   amount: number;
 }
-
-export type ActionType = "expense" | "payment";
-
-export interface Transactionaction {
-  id: ActionId;
-  groupId: GroupId;
+export type Member = {
+  id: UserId;
   name: string;
-  type: ActionType;
+};
+export interface Group {
+  id: GroupId;
+  name: string;
+  members: Member[];
+  expenses: Expense[];
+}
+export interface Expense {
+  id: ActionId;
+  name: string;
   amount: number;
-  payerId: UserId;
+  payer: Member;
   split: SplitDetail[];
   date: Date;
   receiptUrl?: string | null;
+}
+
+export interface Payment {
+  id: ActionId;
+  amount: number;
+  payer: Member;
+  payee: Member;
+  date: Date;
+  status: Status;
 }

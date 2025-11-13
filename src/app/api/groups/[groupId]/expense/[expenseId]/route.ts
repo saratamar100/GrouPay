@@ -11,6 +11,34 @@ function isNonEmptyArray(a: any): boolean {
   return Array.isArray(a) && a.length > 0;
 }
 
+export async function GET(
+  _req: NextRequest,
+  context: { params: Promise<{ groupId: string; expenseId: string }> }
+) {
+  try {
+    const { groupId, expenseId } = await context.params;
+    if (!groupId || !ObjectId.isValid(groupId)) {
+      return NextResponse.json({ error: "Invalid or missing groupId" }, { status: 400 });
+    }
+    if (!expenseId || !ObjectId.isValid(expenseId)) {
+      return NextResponse.json({ error: "Invalid or missing expenseId" }, { status: 400 });
+    }
+    const db = await getDb("groupay_db");
+    const expenses = db.collection("expense");
+    const expense = await expenses.findOne(
+      { _id: new ObjectId(expenseId), groupId: new ObjectId(groupId) },
+      { projection: { groupId: 0 } }
+    );
+    if (!expense) {
+      return NextResponse.json({ error: "Expense not found in the specified group" }, { status: 404 });
+    }
+    return NextResponse.json({ expense }, { status: 200 });
+  } catch (error) {
+    console.error("Error fetching expense:", error);
+    return NextResponse.json({ error: "Server error while fetching expense" }, { status: 500 });
+  }
+}
+
 export async function PUT(
   req: NextRequest,
   context: { params: Promise<{ groupId: string; expenseId: string }> }
@@ -118,13 +146,14 @@ export async function PUT(
   }
 }
 
+
 export async function DELETE(
   _req: NextRequest,
   context: { params: Promise<{ groupId: string; expenseId: string }> }
 ) {
   try {
     const { groupId, expenseId } = await context.params;
-
+    console.log(`Deleting expense ${expenseId} from group ${groupId}`);
     if (!groupId || !ObjectId.isValid(groupId)) {
       return NextResponse.json({ error: "Invalid or missing groupId" }, { status: 400 });
     }
@@ -132,26 +161,32 @@ export async function DELETE(
       return NextResponse.json({ error: "Invalid or missing expenseId" }, { status: 400 });
     }
 
+    const gid = new ObjectId(groupId);
+    const eid = new ObjectId(expenseId);
+
     const db = await getDb("groupay_db");
     const groups = db.collection("group");
     const expenses = db.collection("expense");
 
     const group = await groups.findOne(
-      { _id: new ObjectId(groupId), expenses: { $in: [expenseId] } },
+      { _id: gid, expenses: eid },
       { projection: { _id: 1 } }
     );
     if (!group) {
-      return NextResponse.json({ error: "Expense does not belong to the specified group" }, { status: 404 });
+      return NextResponse.json(
+        { error: "Expense does not belong to the specified group" },
+        { status: 404 }
+      );
     }
 
-    const delRes = await expenses.deleteOne({ _id: new ObjectId(expenseId) });
+    const delRes = await expenses.deleteOne({ _id: eid });
     if (delRes.deletedCount === 0) {
       return NextResponse.json({ error: "Expense not found" }, { status: 404 });
     }
 
     await groups.updateOne(
-      { _id: new ObjectId(groupId) },
-      { $pull: { expenses: expenseId } }
+      { _id: gid },
+      { $pull: { expenses: eid } }
     );
 
     return NextResponse.json({ message: "Expense deleted successfully" }, { status: 200 });
