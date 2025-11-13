@@ -16,7 +16,6 @@ import {
   getGroupExpenses
 } from "@/app/services/client/groupService";
 
-// local draft type compatible with your Expense
 type DraftExpense = Omit<Expense, "id" | "payer"> & { id: "DRAFT"; payer: Member };
 
 export function useGroupData(groupId: any) {
@@ -43,8 +42,17 @@ export function useGroupData(groupId: any) {
 
   const startDraftExpense = useCallback(() => {
     if (!group) return;
-    const defaultPayer = group.members[0];
-    
+
+
+const raw = localStorage.getItem("login-storage");
+const parsed = JSON.parse(raw!);
+const user = parsed.state.loggedUser;
+
+const defaultPayer: Member = {
+  id: user._id,
+  name: user.name,
+};
+
     setDraft({
       id: "DRAFT",
       name: "",
