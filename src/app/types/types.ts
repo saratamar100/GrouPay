@@ -2,6 +2,7 @@ type UserId = string;
 type GroupId = string;
 type ActionId = string;
 type Status = "pending" | "completed";
+
 export interface User {
   id: UserId;
   name: string;
@@ -9,7 +10,6 @@ export interface User {
   photoURL: string;
   phone: string;
 }
-type Status = "pending" | "completed";
 
 export interface GroupShort {
   id: GroupId;
