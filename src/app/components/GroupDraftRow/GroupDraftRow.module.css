@@ -1,0 +1,78 @@
+:root {
+  --line: #d1e6e8;
+  --line-weak: #e3f0f2;
+}
+
+
+
+.row {
+  background: transparent;
+  border: none;
+  padding: 0;
+}
+
+.card {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  direction: rtl;
+  border: 1.5px solid var(--line);
+  border-radius: 12px;
+  background: linear-gradient(90deg, #f6fffe 0%, #ffffff 100%);
+  box-shadow: 0 2px 8px #bee9e528;
+  padding: 14px 16px;
+  transition: box-shadow .18s, border-color .18s;
+}
+
+.card:hover {
+  border-color: #88d7d1;
+  box-shadow: 0 6px 20px #bee9e545;
+}
+
+/* Inputs area */
+.inputs {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 14px;
+}
+
+.nameInput {
+  flex: 1;
+  min-width: 180px;
+}
+
+.amountInput input {
+  text-align: center;
+  font-weight: 700;
+  width: 90px;
+}
+
+/* Controls (left side in RTL) */
+.controls {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start; /* pushes everything to visual left */
+  gap: 10px;
+  margin-right: auto;
+}
+
+.actions {
+  display: flex;
+  gap: 8px;
+}
+
+.advancedBtn {
+  border-radius: 8px !important;
+  border: 1.2px solid var(--line-weak) !important;
+  background: #fafdff !important;
+  color: #0a5664 !important;
+  padding: 6px !important;
+  width: 34px;
+  height: 34px;
+}
+
+.advancedBtn:hover {
+  border-color: #9fded8 !important;
+  background: #ffffff !important;
+}

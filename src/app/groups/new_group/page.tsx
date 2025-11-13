@@ -11,7 +11,7 @@ async function getAllUsers(): Promise<User[]> {
 
     const users: User[] = usersDocs.map((doc: WithId<Document>) => {
       return {
-        id: doc.id || doc._id.toString(),
+        id: doc.id  || doc._id.toString(),
         name: doc.name,
         email: doc.email,
         phone: doc.phone,

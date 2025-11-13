@@ -4,15 +4,15 @@ import { ObjectId } from "mongodb";
 
 export async function GET(
   _req: NextRequest,
-  context: { params: Promise<{ id: string }> }  
+  context: { params: Promise<{ groupId: string }> }  
 ) {
   try {
-  const { id } = await context.params;       
+  const { groupId } = await context.params;       
     const db = await getDb("groupay_db");
     const groups = db.collection("group");
     const users = db.collection("user")
     
-    const group = await groups.findOne({ _id: new ObjectId(id) });
+    const group = await groups.findOne({ _id: new ObjectId(groupId) });
     if (!group) {
       return NextResponse.json({ error: "הקבוצה לא נמצאה" }, { status: 404 });
     }
@@ -41,7 +41,7 @@ export async function GET(
 
     return NextResponse.json(
       {
-        groupId: id,
+        groupId: groupId,
         members,
       },
       { status: 200 }

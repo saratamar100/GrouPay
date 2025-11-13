@@ -9,6 +9,7 @@ export interface User {
   photoURL: string;
   phone: string;
 }
+type Status = "pending" | "completed";
 
 export interface GroupShort {
   id: GroupId;
