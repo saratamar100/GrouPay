@@ -1,3 +1,4 @@
+import { group } from "console";
 import { getDb } from "./mongo";
 import { User } from "@/app/types/types";
 
@@ -7,9 +8,9 @@ export async function addUser(user: User): Promise<boolean> {
   const existingUser = await users.findOne({ email: user.email });
   if (existingUser) {
     console.log("User already exists:", user.email);
-    return false; 
+    return false;
   }
-  await users.insertOne(user);
+  await users.insertOne({ ...user, groupId: [] });
   console.log("User added:", user.email);
   return true;
 }

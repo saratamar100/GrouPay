@@ -15,7 +15,7 @@ async function getAllUsers(): Promise<User[]> {
         name: doc.name,
         email: doc.email,
         phone: doc.phone,
-        photoURL: doc.photoURL ||  null,
+        photoURL: doc.photoURL || null,
       };
     });
 
