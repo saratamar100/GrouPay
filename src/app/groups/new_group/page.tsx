@@ -15,8 +15,7 @@ async function getAllUsers(): Promise<User[]> {
         name: doc.name,
         email: doc.email,
         phone: doc.phone,
-        passwordHash: doc.passwordHash,
-        groupIds: doc.groupIds,
+        photoURL: doc.photoURL || null,
       };
     });
 
@@ -34,8 +33,6 @@ export default async function CreateGroupPage() {
     <div>
       <Header />
       <main>
-        {/* 2. העברת המשתמשים כ-prop לקומפוננטת הטופס */}
-        {/* אנו מעבירים 'allUsers' כדי שהטופס יוכל להציג רשימה לבחירה */}
         <CreateGroupForm allUsers={allUsers} />
       </main>
     </div>
