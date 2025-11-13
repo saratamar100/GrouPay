@@ -1,19 +1,21 @@
 import { addUser } from "@/app/services/server/login";
 
 export async function POST(request: Request) {
-  const userData = await request.json();
-  const isAdded = addUser(userData);
+  const userData: {
+    name: string;
+    email: string;
+    photoURL: string;
+    phone: string;
+  } = await request.json();
+  const [isAdded, user] = await addUser(userData);
   if (!isAdded) {
-    return new Response(JSON.stringify({ message: "Failed to create user" }), {
+    return new Response(JSON.stringify(user), {
       headers: { "Content-Type": "application/json" },
-      status: 500,
+      status: 200,
     });
   }
-  return new Response(
-    JSON.stringify({ message: "User created", user: userData }),
-    {
-      headers: { "Content-Type": "application/json" },
-      status: 201,
-    }
-  );
+  return new Response(JSON.stringify(user), {
+    headers: { "Content-Type": "application/json" },
+    status: 201,
+  });
 }
