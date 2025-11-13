@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { Group, User } from "@/app/types/types";
+import { Group, User, Member } from "@/app/types/types";
 import { getDb } from "../../services/server/mongo";
 
 export async function POST(request: Request) {
@@ -17,20 +17,23 @@ export async function POST(request: Request) {
     const groupsCollection = db.collection("group");
     const usersCollection = db.collection("user");
 
+    const users = await usersCollection
+      .find({ id: { $in: memberIds } })
+      .toArray();
+
+    const members: Member[] = users.map((user: any) => ({
+      id: user.id,
+      name: user.name,
+    }));
+
     const newGroupData = {
       name: name,
-      memberIds: memberIds,
-      actionIds: [],
+      members: members,
+      expenses: [],
     };
 
     const insertResult = await groupsCollection.insertOne(newGroupData);
-
     const newGroupId = insertResult.insertedId.toString();
-
-    await usersCollection.updateMany(
-      { id: { $in: memberIds } },
-      { $push: { groupIds: newGroupId } }
-    );
 
     const createdGroup: Group = {
       ...newGroupData,
@@ -54,8 +57,7 @@ export async function GET() {
     const groups = await groupsCollection.find({}).toArray();
 
     return NextResponse.json(groups, { status: 200 });
-  }
-    catch (error) {
+  } catch (error) {
     console.error("Error fetching groups:", error);
     return NextResponse.json(
       { message: "Internal Server Error" },
@@ -63,4 +65,3 @@ export async function GET() {
     );
   }
 }
-      
