@@ -4,16 +4,12 @@ import { ObjectId } from "mongodb";
 import { Debt, Member } from "@/app/types/types";
 
 async function getCurrentUserId(): Promise<string> {
-  return "69109ab9cb8aa2c1b27a7998"; //fake id
+  return "69109ab9cb8aa2c1b27a7998";
 }
-
-//69145dd74147b8868f0ac107
-//6915bcca68404fc5b93d5b30
-//69109ab9cb8aa2c1b27a7998
 
 export async function GET(
   _req: NextRequest,
-  context: { params: { id: string } }
+  context: { params: Promise<{ id: string }> }
 ) {
   try {
     const params = await context.params;
@@ -53,7 +49,6 @@ export async function GET(
     if (otherUserObjectIds.length === 0) {
       return NextResponse.json([], { status: 200 });
     }
-
     const usersCollection = db.collection("user");
     const otherUsers = await usersCollection
       .find({ _id: { $in: otherUserObjectIds } })
@@ -67,7 +62,6 @@ export async function GET(
     const finalDebts: Debt[] = myDebtsEntry.debts
       .map((debt: any) => {
         const memberIdString = debt.id.toString();
-
         const memberName = userMap.get(memberIdString) || "משתמש לא ידוע";
 
         return {
@@ -79,6 +73,7 @@ export async function GET(
         };
       })
       .filter((d: Debt) => d.amount !== 0);
+
     return NextResponse.json(finalDebts, { status: 200 });
   } catch (e) {
     console.error("GET Group Balance Error:", e);
