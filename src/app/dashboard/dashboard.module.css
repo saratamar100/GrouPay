@@ -1,0 +1,85 @@
+/* DashboardTest.module.css */
+
+/* עיצוב כללי של אזור הקבוצות */
+.groupsContainer {
+  /* מרווחים ושוליים, בהתאם למיקום הקומפוננטה ב layout הראשי שלך */
+  padding: 20px;
+  max-width: 900px;
+  margin: 0 auto;
+}
+
+.groupsHeader {
+  font-size: 1.8rem;
+  color: #004d40; /* ירוק כהה לכותרת */
+  margin-bottom: 25px;
+  text-align: right;
+  padding-bottom: 5px;
+}
+
+/* רשימת הקבוצות (מכילה את כל המלבנים) */
+.groupsList {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px; /* רווח בין המלבנים */
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  direction: rtl; /* יישור מימין לשמאל */
+}
+
+/* 🧱 עיצוב המלבן של כל קבוצה (Group Card) 🧱 */
+.groupItem {
+  background-color: #ffffff;
+  border-radius: 8px;
+  /* צל עדין */
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1), 0 1px 2px rgba(0, 0, 0, 0.06);
+  padding: 20px;
+  /* שני מלבנים בשורה, עם רווח של 20px בין כולם */
+  width: calc(50% - 10px); 
+  min-height: 100px;
+  box-sizing: border-box; 
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  text-align: right;
+  /* קו גבול דק כהה יותר, כמו בקופסאות בתמונה */
+  border: 1px solid #e0f2f1;
+  cursor: pointer;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.groupItem:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+}
+
+.groupName {
+  font-size: 1.2rem;
+  font-weight: bold;
+  color: #00796b; /* צבע כותרת הקבוצה */
+  margin-bottom: 15px;
+}
+
+/* איזון החשבון */
+.groupBalance {
+  font-size: 1.1rem;
+  font-weight: 500;
+}
+
+/* 🟢 עיצוב ליתרה חיובית (זכות) 🟢 */
+.credit {
+  color: #2e7d32; /* ירוק */
+  font-weight: 700;
+  /* המלבן בתמונה הוא בצבע בהיר יותר */
+  padding: 3px 6px;
+  border-radius: 4px;
+}
+
+/* 🔴 עיצוב ליתרה שלילית (חובה) 🔴 */
+.debt {
+  color: #c62828; /* אדום */
+  font-weight: 700;
+  /* המלבן בתמונה הוא בצבע בהיר יותר */
+  padding: 3px 6px;
+  border-radius: 4px;
+}
