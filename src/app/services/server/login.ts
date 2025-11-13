@@ -1,16 +1,13 @@
-import { group } from "console";
 import { getDb } from "./mongo";
 import { User } from "@/app/types/types";
 
-export async function addUser(user: User): Promise<boolean> {
+export async function addUser(user: any): Promise<[boolean, User]> {
   const db = await getDb("groupay_db");
   const users = db.collection("user");
   const existingUser = await users.findOne({ email: user.email });
   if (existingUser) {
-    console.log("User already exists:", user.email);
-    return false;
+    return [false, existingUser];
   }
-  await users.insertOne({ ...user, groupId: [] });
-  console.log("User added:", user.email);
-  return true;
+  const result = await users.insertOne({ ...user, groupId: [] });
+  return [true, { id: result.insertedId.toString(), ...user } ];
 }
