@@ -4,10 +4,10 @@ import { ObjectId } from "mongodb";
 
 export async function GET(
   _req: NextRequest,
-  context: { params: Promise<{ id: string }> }
+  context: { params: Promise<{ groupId: string }> }
 ) {
   try {
-    const { id } = await context.params;
+    const { groupId: id } = await context.params;
     if (!id)
       return NextResponse.json({ error: "Missing group ID" }, { status: 400 });
 
@@ -27,10 +27,10 @@ export async function GET(
 
 export async function POST(
   req: NextRequest,
-  context: { params: Promise<{ id: string }> }
+  context: { params: Promise<{ groupId: string }> }
 ) {
   try {
-    const { id } = await context.params;
+    const { groupId: id } = await context.params;
     if (!id || !ObjectId.isValid(id)) {
       return NextResponse.json(
         { error: "Missing/invalid group ID" },
