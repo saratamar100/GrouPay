@@ -3,8 +3,8 @@ import { GroupBalanceDisplay } from "@/app/components/Groups/GroupBalanceDisplay
 export default async function GroupBalancePage({
   params,
 }: {
-  params: { id: string };
+  params: { groupId: string };
 }) {
-  const groupId = (await params).id;
+  const groupId = (await params).groupId;
   return <GroupBalanceDisplay groupId={groupId} />;
 }

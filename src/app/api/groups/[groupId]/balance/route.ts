@@ -9,11 +9,11 @@ async function getCurrentUserId(): Promise<string> {
 
 export async function GET(
   _req: NextRequest,
-  context: { params: Promise<{ id: string }> }
+  context: { params: Promise<{ groupId: string }> }
 ) {
   try {
     const params = await context.params;
-    const groupId = params.id;
+    const groupId = params.groupId;
 
     const currentUserId = await getCurrentUserId();
 
