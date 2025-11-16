@@ -1,14 +1,22 @@
-import type { Expense } from "@/app/types/types";
+import { useMemo } from "react";
+import type { Expense, Member } from "@/app/types/types";
 import { GroupExpenseRow } from "../GroupExpenseRow/GroupExpenseRow";
 import { Paper, Typography } from "@mui/material";
+import styles from "./GroupExpensesList.module.css";
 
 export function GroupExpensesList({
   expenses,
   onDelete,
+  onEdit,
+  members,
 }: {
   expenses: Expense[];
   onDelete: (id: string) => void;
+  onEdit?: (id: string) => void;
+  members: Member[];
 }) {
+  const nameById = useMemo(() => new Map(members.map((m) => [m.id, m.name])), [members]);
+
   if (!expenses || expenses.length === 0) {
     return (
       <Paper elevation={0} sx={{ p: 1, opacity: 0.8, mt: 1 }}>
@@ -18,10 +26,17 @@ export function GroupExpensesList({
   }
 
   return (
-    <div style={{ marginTop: 8 }}>
+    <div className={styles.list}>
       {expenses.map((e, idx) => (
-        <GroupExpenseRow key={e.id || `${e.name}-${idx}`} e={e} onDelete={onDelete} />
+        <GroupExpenseRow
+          key={e.id}
+          e={e}
+          onDelete={onDelete}
+          onEdit={onEdit}
+          payerName={e.payer.name}
+        />
       ))}
     </div>
   );
 }
+

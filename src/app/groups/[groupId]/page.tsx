@@ -1,22 +1,19 @@
 "use client";
+
 import { useParams } from "next/navigation";
+import Link from "next/link";
 import { useEffect, useMemo } from "react";
 import { useGroupData } from "@/app/hooks/useGroupData";
 import { GroupExpensesList } from "@/app/components/GroupExpensesList/GroupExpensesList";
 import { GroupDraftRow } from "@/app/components/GroupDraftRow/GroupDraftRow";
+import AdvancedExpense from "@/app/components/AdvancedExpense/AdvancedExpense";
+import ExpenseDetails from "@/app/components/ExpenseDetails/ExpenseDetails";
+import { formatILS } from "@/app/utils/money";
 import styles from "./GroupPage.module.css";
-import  Header from "@/app/components/Header/Header";
-import { CircularProgress, Container,Typography } from "@mui/material";
+import Header from "@/app/components/Header/Header";
+import { CircularProgress, Container } from "@mui/material";
+import { useRouter } from "next/navigation";
 
-
-export function formatILS(value: number) {
-  return value.toLocaleString("he-IL", {
-    style: "currency",
-    currency: "ILS",
-    minimumFractionDigits: 2,
-    maximumFractionDigits: 2,
-  });
-}
 
 export default function GroupPage() {
   const route = useParams<{ id?: string; groupId?: string }>();
@@ -30,77 +27,136 @@ export default function GroupPage() {
     addFromDraft,
     deleteExpense,
     reload,
+    openAdvancedForDraft,
+    openAdvancedForExisting,
+    closeAdvanced,
+    handleAdvancedSave,
   } = useGroupData(groupId);
 
   useEffect(() => {
+    const login = localStorage.getItem('login-storage')
+    if(!login)  window.location.href = "/login";
+
     if (groupId) reload();
   }, [reload, groupId]);
-
-  const expenses = Array.isArray(state?.group?.expenses) ? state.group!.expenses : [];
+  
+  
+  const members = state.group?.members || [];
+  const expenses = Array.isArray(state?.group?.expenses)
+  ? state.group!.expenses
+  : [];
 
   const totalExpenses = useMemo(
     () => expenses.reduce((sum, e) => sum + (Number(e.amount) || 0), 0),
     [expenses]
   );
 
-  if (!groupId) return <div style={{ padding: 24, color: "crimson" }}>חסר מזהה קבוצה בנתיב</div>;
-  if (state.loading){
-     return (
-        <Container maxWidth="lg" style={{ textAlign: "center", padding: "2rem" }}>
-          <CircularProgress aria-label="טוען..." />
-        </Container>
+  if (!groupId) {
+    return (
+      <div style={{ padding: 24, color: "crimson" }}>
+        חסר מזהה קבוצה בנתיב
+      </div>
     );
   }
-  if (state.error || !state.group)
-    return <div style={{ padding: 24, color: "crimson" }}>{state.error || "הקבוצה לא נמצאה"}</div>;
+
+  if (state.loading) {
+    return (
+      <Container maxWidth="lg" style={{ textAlign: "center", padding: "2rem" }}>
+        <CircularProgress aria-label="טוען..." />
+      </Container>
+    );
+  }
+
+  if (state.error || !state.group) {
+    return (
+      <div style={{ padding: 24, color: "crimson" }}>
+        {state.error || "הקבוצה לא נמצאה"}
+      </div>
+    );
+  }
+
 
   return (
-    <div className={styles.pageRoot}>
-      <Header/>
-       <main className={styles.main}>
+    <>
+      <Header />
+      <div className={styles.pageRoot}>
+        <div className={styles.layout}>
+          <main className={styles.main}>
             <div className={styles.topBar}>
-              <div className={styles.total} aria-label="סך הכל הוצאות">
-                <span>סך הכל:</span>
-                <strong>
-                  {formatILS(Number.isFinite(totalExpenses) ? totalExpenses : 0)}
-                </strong>
+              <div className={styles.total}>
+                <span>סה״כ:</span>
+                <strong dir="ltr">{formatILS(totalExpenses)}</strong>
               </div>
               <div className={styles.breadcrumb}>
-              <span className={styles.bcCurrent}>{state.group.name}</span>
-                <span className={styles.bcSep} aria-hidden>
-                  ‹
-                </span>
-                <span className={styles.linkLike}>הקבוצות שלי</span>
+                <span className={styles.bcCurrent}>{state.group.name}</span>
+                <span className={styles.bcSep}>‹</span>
+                <Link href="/groups" className={styles.linkLike}>
+                  הקבוצות שלי
+                </Link>
               </div>
-            </div><Typography variant="h4" className={styles.title} component="h1">
-              {state.group.name}
-            </Typography>
-        
-          <div className={styles.cardsWrap}>
-            <GroupExpensesList expenses={expenses} onDelete={deleteExpense} />
-          </div>
+            </div>
 
-          {state.draft && (
-            <GroupDraftRow
-              draft={state.draft}
-              onChange={updateDraftField}
-              onConfirm={() => addFromDraft()}
-              onCancel={cancelDraft}
-              disabled={state.saving}
-            />
-          )}
+            <h1 className={styles.title}>{state.group.name}</h1>
+          
+            <p className={styles.balanceRow}>
+              <Link
+                href={`/groups/${groupId}/balance`}
+                className={styles.balanceLinkText}
+              >
+                היתרות שלי
+              </Link>
+            </p>
 
-          <div className={styles.addRow}>
-            <button
-              className={styles.fabAdd}
-              onClick={startDraftExpense}
-              disabled={state.saving}
-              aria-label="הוספת הוצאה"
-            >
-              +
-            </button>
-          </div>
-        </main>
-    </div>
+            <div className={styles.cardsWrap}>
+              <GroupExpensesList
+                expenses={expenses}
+                onDelete={deleteExpense}
+                onEdit={openAdvancedForExisting}
+                members={members}
+              />
+            </div>
+
+
+            {state.draft && (
+              <GroupDraftRow
+                draft={state.draft}
+                onChange={updateDraftField}
+                onConfirm={() => addFromDraft()}
+                onCancel={cancelDraft}
+                onAdvanced={openAdvancedForDraft}
+                disabled={state.saving}
+              />
+            )}
+
+            <div className={styles.addRow}>
+              <button
+                className={styles.fabAdd}
+                onClick={startDraftExpense}
+                disabled={state.saving}
+                aria-label="הוספת הוצאה"
+              >
+                +
+              </button>
+            </div>
+
+          </main>
+        </div>
+
+        <AdvancedExpense
+          open={state.adv.open}
+          title={state.adv.mode === "existing" ? "עריכת הוצאה" : "הגדרות מתקדמות"}
+          name={state.adv.name}
+          amount={state.adv.amount}
+          members={state.group?.members || []}
+          initialSplit={state.adv.split}
+          initialReceiptUrl={state.adv.receiptUrl}
+          onClose={closeAdvanced}
+          onSave={handleAdvancedSave}
+        />
+
+
+
+      </div>
+    </>
   );
 }

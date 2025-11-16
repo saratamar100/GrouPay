@@ -1,4 +1,3 @@
-// src/app/api/groups/[groupId]/expense/route.ts
 import { NextRequest, NextResponse } from "next/server";
 import { getDb } from "@/app/services/server/mongo";
 import { ObjectId } from "mongodb";
@@ -115,31 +114,82 @@ export async function POST(
 }
 
 
-
 export async function GET(
   req: NextRequest,
   context: { params: Promise<{ groupId: string }> }
 ) {
   try {
     const { groupId } = await context.params;
+
     if (!groupId || !ObjectId.isValid(groupId)) {
       return NextResponse.json(
         { error: "Invalid or missing groupId" },
         { status: 400 }
       );
     }
+
     const db = await getDb("groupay_db");
-    const expenses = db.collection("expense");
-    const expenseList = await expenses
+    const expensesCol = db.collection("expense");
+    const groupsCol = db.collection("group");
+
+    const group = await groupsCol.findOne(
+      { _id: new ObjectId(groupId) },
+      { projection: { members: 1 } }
+    );
+
+    if (!group) {
+      return NextResponse.json(
+        { error: "Group not found" },
+        { status: 404 }
+      );
+    }
+
+    const members = group.members || [];
+
+    const memberMap = new Map<string, string>(
+      members.map((m: any) => [m.id.toString(), m.name])
+    );
+
+    const expenseList = await expensesCol
       .find({ groupId: new ObjectId(groupId) })
       .toArray();
-    return NextResponse.json(expenseList, { status: 200 });
+
+    const normalizedExpenses = expenseList.map((e: any) => {
+      const payerId = e.payer?.toString?.() ?? e.payer;
+
+      return {
+        id: e._id.toString(),
+        name: e.name,
+        groupId: e.groupId.toString(),
+        amount: e.amount,
+        date: e.date,
+        receiptUrl: e.receiptUrl ?? null,
+
+        payer: payerId
+          ? {
+              id: payerId,
+              name: memberMap.get(payerId) || "Unknown",
+            }
+          : null,
+
+        split: (e.split || []).map((s: any) => {
+          const userId = s.userId?.toString?.() ?? s.userId;
+
+          return {
+            id: userId,
+            name: memberMap.get(userId) || "Unknown",
+            amount: s.amount,
+          };
+        }),
+      };
+    });
+
+    return NextResponse.json(normalizedExpenses, { status: 200 });
   } catch (error) {
     console.error("Error fetching expenses:", error);
     return NextResponse.json(
       { error: "Server error while fetching expenses" },
       { status: 500 }
     );
-  }   
+  }
 }
-

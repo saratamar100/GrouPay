@@ -9,60 +9,81 @@
   align-items: center;
   justify-content: space-between;
   direction: rtl;
-  border: 1.5px solid var(--line);
-  border-radius: 12px;
-  background: linear-gradient(90deg, #f6fffe 0%, #ffffff 100%);
-  box-shadow: 0 2px 8px #bee9e528;
-  padding: 14px 16px;
-  transition: box-shadow .18s, border-color .18s;
+  border: 1.5px solid rgba(6, 124, 128, 0.12);
+  border-radius: 16px;
+  background: #fdfefe;
+  box-shadow: 0 6px 14px rgba(6, 124, 128, 0.08);
+  padding: 16px 18px;
+  transition: border-color 0.18s ease, box-shadow 0.18s ease, transform 0.18s ease;
 }
 
 .card:hover {
-  border-color: #88d7d1;
-  box-shadow: 0 6px 20px #bee9e545;
+  border-color: rgba(6, 124, 128, 0.4);
+  box-shadow: 0 10px 24px rgba(6, 124, 128, 0.18);
+  transform: translateY(-1px);
 }
 
 .left {
   display: flex;
   align-items: center;
-  gap: 8px;
-  justify-content: flex-start; 
-  margin-right: auto; 
+  gap: 10px;
+  justify-content: flex-start;
+  margin-right: auto;
 }
 
 .right {
   display: flex;
-  align-items: center;
-  gap: 10px;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 4px;
 }
 
 .name {
-  color: var(--brand-2);
-  font-weight: 700;
-  letter-spacing: .01em;
+  color: #067c80;
+  font-weight: 800;
+  letter-spacing: 0.01em;
+  font-size: 1.05rem;
 }
+
+.payer {
+  color: #4b757f;
+  font-size: 0.86rem !important;
+}
+
 .amount {
   font-weight: 800;
-  color: #055e64;
+  color: #067c80;
   direction: ltr;
+  font-size: 1.1rem;
 }
 
 .advancedBtn {
-  border-radius: 8px !important;
-  border: 1.2px solid var(--line-weak) !important;
-  background: #fafdff !important;
-  color: #0a5664 !important;
+  border-radius: 10px !important;
+  border: 1.2px solid rgba(6, 124, 128, 0.18) !important;
+  background: transparent !important;
+  color: #067c80 !important;
   padding: 6px !important;
-  width: 34px;
-  height: 34px;
-  order: 1; 
+  width: 36px;
+  height: 36px;
+  order: 1;
+  transition: all 0.15s ease !important;
+}
+
+.advancedBtn:hover {
+  background: rgba(6, 124, 128, 0.2) !important;
+  border-color: rgba(6, 124, 128, 0.4) !important;
 }
 
 .deleteBtn {
-  border-radius: 10px !important;
-  border: 1.4px solid #cfe7e5 !important;
+  border-radius: 12px !important;
+  border: 1.4px solid rgba(6, 124, 128, 0.18) !important;
   background: #ffffff !important;
-  padding: 6px !important;
-  color: #0a5664 !important;
-  order: 2; 
+  padding: 6px 8px !important;
+  color: #067c80 !important;
+  order: 2;
+  transition: box-shadow 0.15s ease !important;
+}
+
+.deleteBtn:hover {
+  box-shadow: 0 4px 10px rgba(6, 124, 128, 0.25);
 }

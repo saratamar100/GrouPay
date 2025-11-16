@@ -2,40 +2,37 @@
 import type { Expense } from "@/app/types/types";
 import { IconButton, Paper, Typography } from "@mui/material";
 import DeleteOutlineIcon from "@mui/icons-material/DeleteOutline";
-import TuneOutlinedIcon from "@mui/icons-material/TuneOutlined";
+import EditOutlinedIcon from "@mui/icons-material/EditOutlined";
+import {formatILS} from "@/app/utils/money"
 import styles from "./GroupExpenseRow.module.css";
 
-export const toMoney = (value: string) => {
-  const clean = value.replace(/[^\d.]/g, "");
-  const parts = clean.split(".");
-  const normalized = parts.length <= 1 ? clean : `${parts[0]}.${parts.slice(1).join("")}`;
-  return Number(normalized || 0);
-};
-export const formatILS = (value: number) => {
-  return value.toLocaleString("he-IL", {
-    style: "currency",
-    currency: "ILS",
-    minimumFractionDigits: 2,
-    maximumFractionDigits: 2,
-  });
-};
+
 
 export function GroupExpenseRow({
   e,
   onDelete,
-  onAdvanced,
+  onEdit,
+  payerName,
 }: {
   e: Expense;
   onDelete: (id: string) => void;
-  onAdvanced?: (id: string) => void;
+  onEdit?: (id: string) => void;
+  payerName?: string;
 }) {
+  
   return (
     <Paper elevation={0} className={styles.row}>
-      <div className={styles.card}>
+      <div className={styles.card}
+>
         <div className={styles.right}>
           <Typography variant="body1" className={styles.name}>
             {e.name}
           </Typography>
+          {payerName && (
+            <Typography variant="body2" className={styles.payer}>
+              {`שילם/ה: ${payerName}`}
+            </Typography>
+          )}
         </div>
 
         <div className={styles.left}>
@@ -43,19 +40,16 @@ export function GroupExpenseRow({
             {formatILS(Number(e.amount) || 0)}
           </Typography>
 
-          {/* advanced icon on far left */}
           <IconButton
             size="small"
-            aria-label={`אפשרויות מתקדמות עבור ${e.name}`}
             className={styles.advancedBtn}
-            onClick={() => onAdvanced?.(e.id)}
+            onClick={() => {onEdit?.(e.id);}}
           >
-            <TuneOutlinedIcon fontSize="small" />
+            <EditOutlinedIcon fontSize="small" />
           </IconButton>
 
           <IconButton
             size="small"
-            aria-label={`מחיקת ${e.name}`}
             onClick={() => onDelete(e.id)}
             className={styles.deleteBtn}
           >

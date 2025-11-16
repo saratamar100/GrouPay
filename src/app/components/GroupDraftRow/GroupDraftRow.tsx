@@ -67,11 +67,11 @@ export function GroupDraftRow({
 
           <div className={styles.actions}>
             <Button
-              variant="outlined"
+              variant="contained"
               onClick={onConfirm}
               disabled={disabled}
               size="small"
-              color="primary"
+              className={styles.primaryBtn}
             >
               אישור
             </Button>
@@ -79,7 +79,7 @@ export function GroupDraftRow({
               variant="outlined"
               onClick={onCancel}
               size="small"
-              color="inherit"
+              className={styles.secondaryBtn}
             >
               ביטול
             </Button>
