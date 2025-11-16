@@ -9,7 +9,6 @@ export interface User {
   photoURL: string;
   phone: string;
 }
-
 export interface GroupShort {
   id: GroupId;
   name: string;

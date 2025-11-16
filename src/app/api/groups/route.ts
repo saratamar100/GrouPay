@@ -7,7 +7,7 @@ export async function POST(request: Request) {
     const body = await request.json();
     const { name, memberIds } = body as { name: string; memberIds: string[] };
 
-    if (!name || !memberIds || memberIds.length === 0) {
+    if (!name || !memberIds ||  memberIds.length === 0) {
       return NextResponse.json(
         { message: "Name and at least one memberId are required" },
         { status: 400 }
