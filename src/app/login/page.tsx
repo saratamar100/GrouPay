@@ -17,15 +17,16 @@ const LoginPage = () => {
   return (
     <div className={styles.container}>
       <div className={styles.card}>
-        <h1 className={styles.title}>ברוכה הבאה 👋</h1>
-        <p className={styles.subtitle}>התחברי עם החשבון שלך כדי להמשיך</p>
+        <h1 className={styles.title}>ברוכים הבאים</h1>
+        <p className={styles.subtitle}>התחבר/י עם החשבון שלך כדי להמשיך</p>
 
         <div className={styles.buttonWrapper}>
           <GoogleLoginButton onLogIn={handleLogin} />
         </div>
 
         <p className={styles.note}>
-          בלחיצה על התחברות את מאשרת את תנאי השימוש שלנו
+          בלחיצה על "התחברות" את/ מאשר/ת את
+          <span className={styles.link}>תנאי השימוש שלנו</span>
         </p>
       </div>
     </div>
