@@ -1,0 +1,130 @@
+:root {
+  --primary-color: #0d9488;
+  --secondary-color: #34d399;
+  --bg-light: #f0fdfa;
+  --card-bg: #ffffff;
+  --text-dark: #042f2e;
+  --text-light: #52525b;
+  --border-color: #e5e7eb;
+  --debt-color: #ef4444;
+  --credit-color: #10b981;
+}
+
+.pageContainer {
+  background-color: var(--bg-light);
+  padding: 2rem;
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+}
+.balanceCard {
+  width: 100%;
+  max-width: 800px;
+  background-color: var(--card-bg);
+  border-radius: 16px;
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05);
+  padding: 1.5rem 2rem;
+  direction: rtl;
+}
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid var(--border-color);
+  padding-bottom: 1rem;
+  margin-bottom: 1.5rem;
+}
+.header h2 {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--text-dark);
+}
+.totalBalance {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: var(--text-light);
+}
+.totalBalance span:first-child {
+  margin-left: 0.5rem;
+}
+.positive {
+  color: var(--credit-color);
+}
+.negative {
+  color: var(--debt-color);
+}
+
+/* ★ הסרנו את .listSection ו- .sectionTitle ★ */
+
+.transactionsList {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+.transactionRow {
+  display: grid;
+  grid-template-columns: 1fr 2fr 1fr 1fr;
+  align-items: center;
+  gap: 1rem;
+  padding: 1rem;
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+  background-color: #fafcfe; /* רקע בהיר לכל שורה */
+}
+.amount {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--text-dark);
+  text-align: right;
+}
+.name {
+  font-size: 1rem;
+  font-weight: 500;
+  color: var(--text-light);
+  text-align: right;
+}
+.status {
+  font-size: 1rem;
+  font-weight: 600;
+  text-align: center;
+}
+.statusDebt {
+  color: var(--debt-color);
+}
+.statusCredit {
+  color: var(--credit-color);
+}
+
+.actionButton {
+  padding: 0.5rem 1rem;
+  font-size: 0.9rem;
+  font-weight: 600;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+.payButton {
+  background-color: var(--card-bg);
+  color: var(--primary-color);
+  border: 2px solid var(--primary-color);
+}
+.payButton:hover {
+  background-color: var(--bg-light);
+}
+.receiveButton {
+  background-color: var(--primary-color);
+  color: var(--white);
+  border: 2px solid var(--primary-color);
+}
+.receiveButton:hover {
+  background-color: var(--secondary-color);
+  border-color: var(--secondary-color);
+}
+.emptyState {
+  text-align: center;
+  padding: 1.5rem;
+  color: var(--text-light);
+  font-size: 1.1rem;
+}

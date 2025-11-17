@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getDb } from "@/app/services/server/mongo";
 import { ObjectId } from "mongodb";
+import { calculateTotalDebt } from "@/app/services/server/debtsService";
 
 export async function POST(
   req: NextRequest,
@@ -32,14 +33,13 @@ export async function POST(
         { status: 400 }
       );
     }
-    
+
     if (!payer || typeof payer !== "string" || payer.trim().length === 0) {
       return NextResponse.json(
         { error: "Payer is required and must be a non-empty string (payerId)" },
         { status: 400 }
       );
     }
-
 
     if (!members || !Array.isArray(members) || members.length === 0) {
       return NextResponse.json(
@@ -93,8 +93,9 @@ export async function POST(
     const groups = db.collection("group");
     await groups.updateOne(
       { _id: new ObjectId(groupId) },
-      { $push: { expenses: result.insertedId} }
+      { $push: { expenses: result.insertedId } }
     );
+    calculateTotalDebt(groupId);
 
     return NextResponse.json(
       {
@@ -112,7 +113,6 @@ export async function POST(
     );
   }
 }
-
 
 export async function GET(
   req: NextRequest,
