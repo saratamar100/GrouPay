@@ -1,15 +1,18 @@
-// services/dashboardService.ts
-export interface GroupBalance {
-  groupId: string;
-  groupName: string;
-  balance: number;
-}
+import { GroupShort } from "@/app/types/types";
 
-export async function getUserGroups(userId: string): Promise<GroupBalance[]> {
+export async function getUserGroups(userId: string): Promise<GroupShort[]> {
   const res = await fetch(`/api/dashboard?userId=${userId}`);
   if (!res.ok) {
     throw new Error("Failed to fetch user groups");
   }
-  const data: GroupBalance[] = await res.json();
-  return data;
+
+  const data = await res.json();
+
+  const groups: GroupShort[] = data.map((g: any) => ({
+    id: g.groupId,
+    name: g.groupName,
+    balance: g.balance,
+  }));
+
+  return groups;
 }

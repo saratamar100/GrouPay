@@ -1,0 +1,140 @@
+/* 
+.groupsContainer {
+  padding: 20px;
+  max-width: 900px;
+  margin: 0 auto;
+}
+
+.groupsHeader {
+  font-size: 1.8rem;
+  color: #004d40; 
+  margin-bottom: 25px;
+  text-align: right;
+  padding-bottom: 5px;
+}
+
+.groupsList {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px; 
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  direction: rtl; 
+}
+
+.groupItem {
+  background-color: #ffffff;
+  border-radius: 8px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1), 0 1px 2px rgba(0, 0, 0, 0.06);
+  padding: 20px;
+  width: calc(50% - 10px); 
+  min-height: 100px;
+  box-sizing: border-box; 
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  text-align: right;
+  border: 1px solid #e0f2f1;
+  cursor: pointer;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.groupItem:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+}
+
+.groupName {
+  font-size: 1.2rem;
+  font-weight: bold;
+  color: #00796b; 
+  margin-bottom: 15px;
+}
+
+.groupBalance {
+  font-size: 1.1rem;
+  font-weight: 500;
+}
+
+.credit {
+  color: #2e7d32; 
+  font-weight: 700;
+  padding: 3px 6px;
+  border-radius: 4px;
+}
+
+.debt {
+  color: #c62828; 
+  font-weight: 700;
+  padding: 3px 6px;
+  border-radius: 4px;
+} */
+.pageRoot {
+  direction: rtl;
+  font-family: "Heebo", "Arial", sans-serif;
+  padding: 24px 8px;
+  background: #eef8f8;
+  min-height: 100vh;
+}
+
+.main {
+  background: none;
+  min-height: 66vh;
+  text-align: right;
+  padding: 20px;
+}
+
+.topBar {
+  display: flex;
+  flex-direction: row-reverse;
+  align-items: center;
+  justify-content: flex-end;
+  margin-bottom: 13px;
+  gap: 16px;
+}
+
+.total {
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+  color: #09555b;
+  background: #fafdff;
+  border-radius: 6px;
+  padding: 5px 12px 5px 8px;
+  border: 2px solid #067c80;
+  box-shadow: 0 0 4px #067c8044;
+}
+
+.title {
+  text-align: center;
+  font-weight: 800;
+  font-size: 2rem;
+  margin: 0 0 20px;
+  color: #047680;
+  letter-spacing: 0.01em;
+}
+
+.groupsGrid {
+  display: grid;
+  gap: 16px;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  justify-content: flex-end; 
+  margin-top: 12px;
+}
+
+.groupCard {
+  border-radius: 12px;
+  min-height: 100px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  text-align: right;
+  border: 1px solid #e0f2f1;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.groupCard:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(0,0,0,0.12);
+}
