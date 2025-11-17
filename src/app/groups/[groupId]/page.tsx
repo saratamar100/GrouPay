@@ -2,22 +2,27 @@
 
 import { useParams } from "next/navigation";
 import Link from "next/link";
-import { useEffect, useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useGroupData } from "@/app/hooks/useGroupData";
 import { GroupExpensesList } from "@/app/components/GroupExpensesList/GroupExpensesList";
 import { GroupDraftRow } from "@/app/components/GroupDraftRow/GroupDraftRow";
 import AdvancedExpense from "@/app/components/AdvancedExpense/AdvancedExpense";
-import ExpenseDetails from "@/app/components/ExpenseDetails/ExpenseDetails";
 import { formatILS } from "@/app/utils/money";
 import styles from "./GroupPage.module.css";
 import Header from "@/app/components/Header/Header";
 import { CircularProgress, Container } from "@mui/material";
-import { useRouter } from "next/navigation";
+import {getUserFromLocal} from "@/app/utils/storage"
+
 
 
 export default function GroupPage() {
   const route = useParams<{ id?: string; groupId?: string }>();
   const groupId = (route.groupId ?? route.id) as string | undefined;
+  const userLog = getUserFromLocal()
+  const loggedUserId = userLog?.id;
+
+  console.log(`user ${loggedUserId}`)
+
 
   const {
     state,
@@ -32,6 +37,10 @@ export default function GroupPage() {
     closeAdvanced,
     handleAdvancedSave,
   } = useGroupData(groupId);
+
+
+  const [isMembersOpen, setIsMembersOpen] = useState(false);
+
 
   useEffect(() => {
     const login = localStorage.getItem('login-storage')
@@ -50,6 +59,9 @@ export default function GroupPage() {
     () => expenses.reduce((sum, e) => sum + (Number(e.amount) || 0), 0),
     [expenses]
   );
+  
+
+  
 
   if (!groupId) {
     return (
@@ -96,7 +108,11 @@ export default function GroupPage() {
               </div>
             </div>
 
-            <h1 className={styles.title}>{state.group.name}</h1>
+
+            <h1 className={styles.title}
+              onClick={() => setIsMembersOpen(true)}
+              style={{ cursor: "pointer" }}
+            >{state.group.name}</h1>
           
             <p className={styles.balanceRow}>
               <Link
@@ -138,8 +154,32 @@ export default function GroupPage() {
                 +
               </button>
             </div>
-
           </main>
+
+
+          {isMembersOpen && (
+            <div className={styles.sidebar}>
+              <button
+                className={styles.sidebarClose}
+                onClick={() => setIsMembersOpen(false)}
+                aria-label="סגירת רשימת חברים"
+              >
+                ×
+              </button>
+              <h2 className={styles.sidebarTitle}>חברי הקבוצה</h2>
+              <ul className={styles.membersList}>
+                {members.filter(m=>m.id!=loggedUserId).map((m) => (
+                  <li key={m.id} className={styles.memberItem}>
+                    <span className={styles.memberName}>{m.name}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
+
+
+
+
         </div>
 
         <AdvancedExpense
