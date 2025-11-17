@@ -30,25 +30,24 @@ export async function GET(
     const group = await groupsCollection.findOne({
       _id: new ObjectId(groupId),
     });
-    if (!group || !group.group_debts) {
+    if (!group || !group.group_debts || typeof group.group_debts !== "object") {
       return NextResponse.json(
         { error: "Group or debts not found" },
         { status: 404 }
       );
     }
 
-    const myDebtsEntry = group.group_debts.find((d: any) =>
-      d.id.equals(new ObjectId(currentUserId))
-    );
+    const myDebtsArray = group.group_debts[currentUserId];
 
-    if (!myDebtsEntry || !myDebtsEntry.debts) {
+    if (!myDebtsArray || myDebtsArray.length === 0) {
       return NextResponse.json([], { status: 200 });
     }
 
-    const otherUserObjectIds = myDebtsEntry.debts.map((d: any) => d.id);
+    const otherUserObjectIds = myDebtsArray.map((d: any) => d.id);
     if (otherUserObjectIds.length === 0) {
       return NextResponse.json([], { status: 200 });
     }
+
     const usersCollection = db.collection("user");
     const otherUsers = await usersCollection
       .find({ _id: { $in: otherUserObjectIds } })
@@ -59,7 +58,7 @@ export async function GET(
       userMap.set(user._id.toString(), user.name);
     });
 
-    const finalDebts: Debt[] = myDebtsEntry.debts
+    const finalDebts: Debt[] = myDebtsArray
       .map((debt: any) => {
         const memberIdString = debt.id.toString();
         const memberName = userMap.get(memberIdString) || "משתמש לא ידוע";
