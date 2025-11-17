@@ -43,11 +43,24 @@ export async function GET(
         )
         .toArray();
 
+
+      const members = group.members || [];
+
+      const memberMap = new Map<string, string>(
+        members.map((m: any) => [m.id.toString(), m.name])
+      );
+
+
       expensesList = expensesList.map((e) => ({
         id: e._id.toString(),
         name: e.name ?? "",
         amount: typeof e.amount === "number" ? e.amount : Number(e.amount ?? 0),
-        payer: e.payer ?? null,
+        payer: e.payer
+          ? {
+              id: e.payer,
+              name: memberMap.get(e.payer) || "Unknown",
+            }
+          : null,        
         split: Array.isArray(e.split) ? e.split : [],
         date: e.date ?? null,
         receiptUrl: e.receiptUrl ?? null,

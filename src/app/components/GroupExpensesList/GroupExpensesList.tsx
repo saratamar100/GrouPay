@@ -15,7 +15,6 @@ export function GroupExpensesList({
   onEdit?: (id: string) => void;
   members: Member[];
 }) {
-  const nameById = useMemo(() => new Map(members.map((m) => [m.id, m.name])), [members]);
 
   if (!expenses || expenses.length === 0) {
     return (
@@ -25,9 +24,11 @@ export function GroupExpensesList({
     );
   }
 
+  console.log(expenses)
+
   return (
     <div className={styles.list}>
-      {expenses.map((e, idx) => (
+      {expenses.map((e) => (
         <GroupExpenseRow
           key={e.id}
           e={e}

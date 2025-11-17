@@ -1,7 +1,7 @@
 "use client";
 import type { Expense, Member } from "@/app/types/types";
 import { Paper, TextField, IconButton, Button, Tooltip } from "@mui/material";
-import TuneOutlinedIcon from "@mui/icons-material/TuneOutlined";
+import MoreHorizIcon from '@mui/icons-material/MoreHoriz';
 import styles from "./GroupDraftRow.module.css";
 
 export type DraftExpense = Omit<Expense, "id">;
@@ -61,7 +61,7 @@ export function GroupDraftRow({
               className={styles.advancedBtn}
               onClick={onAdvanced}
             >
-              <TuneOutlinedIcon fontSize="small" />
+              <MoreHorizIcon fontSize="small" />
             </IconButton>
           </Tooltip>
 
