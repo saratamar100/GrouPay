@@ -3,6 +3,7 @@
 import { useEffect, useState, useMemo } from "react";
 import { Debt } from "@/app/types/types";
 import styles from "./GroupBalanceDisplay.module.css";
+import { getUserFromLocal } from "@/app/utils/storage";
 
 interface GroupBalanceDisplayProps {
   groupId: string;
@@ -16,11 +17,26 @@ export function GroupBalanceDisplay({ groupId }: GroupBalanceDisplayProps) {
   useEffect(() => {
     if (!groupId) return;
 
+    const currentUser = getUserFromLocal();
+
+    if (!currentUser || !currentUser.id) {
+      setError("לא זוהה משתמש מחובר.");
+      setIsLoading(false);
+      return;
+    }
+
+    const currentUserId = currentUser.id;
+
     async function fetchBalance() {
       setIsLoading(true);
       setError(null);
       try {
-        const res = await fetch(`/api/groups/${groupId}/balance`);
+        const res = await fetch(
+          `/api/groups/${groupId}/balance?userId=${currentUserId}`
+        );
+        if (!res.ok) {
+          throw new Error("Failed to fetch group balance");
+        }
         if (!res.ok) {
           throw new Error("Failed to fetch group balance");
         }

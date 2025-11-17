@@ -11,18 +11,15 @@ import { formatILS } from "@/app/utils/money";
 import styles from "./GroupPage.module.css";
 import Header from "@/app/components/Header/Header";
 import { CircularProgress, Container } from "@mui/material";
-import {getUserFromLocal} from "@/app/utils/storage"
-
-
+import { getUserFromLocal } from "@/app/utils/storage";
 
 export default function GroupPage() {
   const route = useParams<{ id?: string; groupId?: string }>();
   const groupId = (route.groupId ?? route.id) as string | undefined;
-  const userLog = getUserFromLocal()
+  const userLog = getUserFromLocal();
   const loggedUserId = userLog?.id;
 
-  console.log(`user ${loggedUserId}`)
-
+  console.log(`user ${loggedUserId}`);
 
   const {
     state,
@@ -38,36 +35,28 @@ export default function GroupPage() {
     handleAdvancedSave,
   } = useGroupData(groupId);
 
-
   const [isMembersOpen, setIsMembersOpen] = useState(false);
 
-
   useEffect(() => {
-    const login = localStorage.getItem('login-storage')
-    if(!login)  window.location.href = "/login";
+    const login = localStorage.getItem("login-storage");
+    if (!login) window.location.href = "/login";
 
     if (groupId) reload();
   }, [reload, groupId]);
-  
-  
+
   const members = state.group?.members || [];
   const expenses = Array.isArray(state?.group?.expenses)
-  ? state.group!.expenses
-  : [];
+    ? state.group!.expenses
+    : [];
 
   const totalExpenses = useMemo(
     () => expenses.reduce((sum, e) => sum + (Number(e.amount) || 0), 0),
     [expenses]
   );
-  
-
-  
 
   if (!groupId) {
     return (
-      <div style={{ padding: 24, color: "crimson" }}>
-        חסר מזהה קבוצה בנתיב
-      </div>
+      <div style={{ padding: 24, color: "crimson" }}>חסר מזהה קבוצה בנתיב</div>
     );
   }
 
@@ -87,7 +76,6 @@ export default function GroupPage() {
     );
   }
 
-
   return (
     <>
       <Header />
@@ -102,18 +90,20 @@ export default function GroupPage() {
               <div className={styles.breadcrumb}>
                 <span className={styles.bcCurrent}>{state.group.name}</span>
                 <span className={styles.bcSep}>‹</span>
-                <Link href="/groups" className={styles.linkLike}>
+                <Link href="/dashboard" className={styles.linkLike}>
                   הקבוצות שלי
                 </Link>
               </div>
             </div>
 
-
-            <h1 className={styles.title}
+            <h1
+              className={styles.title}
               onClick={() => setIsMembersOpen(true)}
               style={{ cursor: "pointer" }}
-            >{state.group.name}</h1>
-          
+            >
+              {state.group.name}
+            </h1>
+
             <p className={styles.balanceRow}>
               <Link
                 href={`/groups/${groupId}/balance`}
@@ -131,7 +121,6 @@ export default function GroupPage() {
                 members={members}
               />
             </div>
-
 
             {state.draft && (
               <GroupDraftRow
@@ -156,7 +145,6 @@ export default function GroupPage() {
             </div>
           </main>
 
-
           {isMembersOpen && (
             <div className={styles.sidebar}>
               <button
@@ -168,23 +156,23 @@ export default function GroupPage() {
               </button>
               <h2 className={styles.sidebarTitle}>חברי הקבוצה</h2>
               <ul className={styles.membersList}>
-                {members.filter(m=>m.id!=loggedUserId).map((m) => (
-                  <li key={m.id} className={styles.memberItem}>
-                    <span className={styles.memberName}>{m.name}</span>
-                  </li>
-                ))}
+                {members
+                  .filter((m) => m.id != loggedUserId)
+                  .map((m) => (
+                    <li key={m.id} className={styles.memberItem}>
+                      <span className={styles.memberName}>{m.name}</span>
+                    </li>
+                  ))}
               </ul>
             </div>
           )}
-
-
-
-
         </div>
 
         <AdvancedExpense
           open={state.adv.open}
-          title={state.adv.mode === "existing" ? "עריכת הוצאה" : "הגדרות מתקדמות"}
+          title={
+            state.adv.mode === "existing" ? "עריכת הוצאה" : "הגדרות מתקדמות"
+          }
           name={state.adv.name}
           amount={state.adv.amount}
           members={state.group?.members || []}
@@ -193,9 +181,6 @@ export default function GroupPage() {
           onClose={closeAdvanced}
           onSave={handleAdvancedSave}
         />
-
-
-
       </div>
     </>
   );
