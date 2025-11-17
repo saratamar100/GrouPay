@@ -49,7 +49,7 @@ export const calculateTotalDebt = async (groupId: string) => {
   }
 
   // const settlements: { from: string; to: string; amount: number }[] = [];
-  const debts: Record<string, { id: string; amount: number }[]> = {};
+  const debts: Record<string, { id: ObjectId; amount: number }[]> = {};
 
   let i = 0,
     j = 0;
@@ -67,9 +67,9 @@ export const calculateTotalDebt = async (groupId: string) => {
     const from = debtor.userId;
     const to = creditor.userId;
     if (!debts[to]) debts[to] = [];
-    debts[to].push({ id: from, amount: payAmount });
+    debts[to].push({ id: new ObjectId(from), amount: payAmount });
     if (!debts[from]) debts[from] = [];
-    debts[from].push({ id: to, amount: -payAmount });
+    debts[from].push({ id: new ObjectId(to), amount: -payAmount });
 
     debtor.amount -= payAmount;
     creditor.amount -= payAmount;
@@ -80,6 +80,6 @@ export const calculateTotalDebt = async (groupId: string) => {
   const groupsCollection = db.collection("group");
   await groupsCollection.updateOne(
     { _id: new ObjectId(groupId) },
-    { $set: { group_debts:debts } }
+    { $set: { group_debts: debts } }
   );
 };
