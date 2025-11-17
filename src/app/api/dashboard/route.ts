@@ -304,7 +304,12 @@ export async function GET(request: Request) {
 
         if (!Array.isArray(userDebtsArray)) {
           console.log("No debts found for this user in group");
-          return null;
+          const balance = 0;
+          return {
+            groupId: group._id,
+            groupName: group.name,
+            balance,
+          };
         }
 
         console.log("Calculating balance");
