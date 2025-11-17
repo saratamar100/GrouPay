@@ -3,19 +3,27 @@ import { getDb } from "@/app/services/server/mongo";
 import { ObjectId } from "mongodb";
 import { Debt, Member } from "@/app/types/types";
 
-async function getCurrentUserId(): Promise<string> {
-  return "69109ab9cb8aa2c1b27a7998";
-}
-
 export async function GET(
-  _req: NextRequest,
+  req: NextRequest,
   context: { params: Promise<{ groupId: string }> }
 ) {
   try {
     const params = await context.params;
     const groupId = params.groupId;
 
-    const currentUserId = await getCurrentUserId();
+    const { searchParams } = new URL(req.url);
+    const currentUserId = searchParams.get("userId"); 
+
+    if (
+      !ObjectId.isValid(groupId) ||
+      !currentUserId ||
+      !ObjectId.isValid(currentUserId)
+    ) {
+      return NextResponse.json(
+        { error: "Invalid Group or User ID format" },
+        { status: 400 }
+      );
+    }
 
     if (!ObjectId.isValid(groupId) || !ObjectId.isValid(currentUserId)) {
       return NextResponse.json(

@@ -3,12 +3,12 @@
 import { useState, FormEvent, useMemo } from "react";
 import { useRouter } from "next/navigation";
 import { User } from "@/app/types/types";
+import { getUserFromLocal } from "@/app/utils/storage";
 
 import styles from "./CreateGroupForm.module.css";
 
 interface CreateGroupFormProps {
   allUsers: User[];
-  // currentUserId: string; //  להוסיף בעתיד
 }
 
 export function CreateGroupForm({ allUsers }: CreateGroupFormProps) {
@@ -21,6 +21,9 @@ export function CreateGroupForm({ allUsers }: CreateGroupFormProps) {
 
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  const currentUser = getUserFromLocal();
+  const currentUserId = currentUser?.id;
 
   const selectedUsers = useMemo(() => {
     return selectedMemberIds
@@ -41,7 +44,8 @@ export function CreateGroupForm({ allUsers }: CreateGroupFormProps) {
       (user) =>
         (user.name.toLowerCase().includes(value.toLowerCase()) ||
           user.email.toLowerCase().includes(value.toLowerCase())) &&
-        !selectedMemberIds.includes(user.id)
+        !selectedMemberIds.includes(user.id) &&
+        user.id !== currentUserId
     );
 
     setSuggestions(filteredSuggestions.slice(0, 5));
@@ -59,15 +63,22 @@ export function CreateGroupForm({ allUsers }: CreateGroupFormProps) {
 
   const handleSubmit = async (event: FormEvent) => {
     event.preventDefault();
+    setIsLoading(true);
+    setError(null);
+
+    if (!currentUserId) {
+      setError("לא ניתן לזהות משתמש מחובר. אנא התחבר/י שוב.");
+      setIsLoading(false);
+      return;
+    }
 
     if (groupName.trim() === "") {
       setError("יש להזין שם קבוצה.");
       return;
     }
-    if (selectedMemberIds.length === 0) {
-      setError("יש לבחור לפחות משתתף אחד.");
-      return;
-    }
+    const finalMemberIds = Array.from(
+      new Set([...selectedMemberIds, currentUserId])
+    );
 
     setIsLoading(true);
     setError(null);
@@ -80,7 +91,7 @@ export function CreateGroupForm({ allUsers }: CreateGroupFormProps) {
         },
         body: JSON.stringify({
           name: groupName,
-          memberIds: selectedMemberIds,
+          memberIds: finalMemberIds,
         }),
       });
 
@@ -90,7 +101,7 @@ export function CreateGroupForm({ allUsers }: CreateGroupFormProps) {
       }
 
       const createdGroup = await response.json();
-      router.push(`/group/${createdGroup.id}`);
+      router.push(`/groups/${createdGroup.id}`);
     } catch (err: any) {
       setError(err.message);
     } finally {
