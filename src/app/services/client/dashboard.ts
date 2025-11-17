@@ -16,3 +16,5 @@ export async function getUserGroups(userId: string): Promise<GroupShort[]> {
 
   return groups;
 }
+
+
