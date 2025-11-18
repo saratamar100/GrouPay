@@ -3,8 +3,20 @@
 import Link from "next/link";
 import styles from "./LandingPage.module.css";
 import Image from "next/image";
+import { useLoginStore } from "@/app/store/loginStore";
+import { User } from "@/app/types/types";
+import GoogleLoginButton from "../GoogleLoginButton/GoogleLoginButton";
 
 export function LandingPage() {
+  const loginStore = useLoginStore();
+  const user = loginStore.loggedUser;
+  if (user) {
+    window.location.href = "/dashboard";
+    return null;
+  }
+  const handleLogin = (user: User) => {
+    loginStore.setLoggedUser(user);
+  };
   return (
     <>
       <section className={styles.hero}>
@@ -17,17 +29,10 @@ export function LandingPage() {
             בטיולים, עם שותפים או באירועים, כדי שכולם יקבלו את הכסף בחזרה.
             בקלות.
           </p>
-          <div className={styles.ctaContainer}>
-            <Link href="/register" className={styles.ctaButton}>
-              התחילו עכשיו (בחינם)
-            </Link>
-            <Link
-              href="/login"
-              className={`${styles.ctaButton} ${styles.secondaryButton}`}
-            >
-              התחברות
-            </Link>
+         <div className={styles.ctaContainer}>
+          <GoogleLoginButton onLogIn={handleLogin} />
           </div>
+
         </div>
         <div className={styles.heroImageContainer}>
           <Image
