@@ -1,6 +1,11 @@
 "use client";
 
-import Link from "next/link";
+import {
+  FaInstagram,
+  FaFacebook,
+  FaLinkedin,
+  FaWhatsapp,
+} from "react-icons/fa6";
 import styles from "./LandingPage.module.css";
 import Image from "next/image";
 import { useLoginStore } from "@/app/store/loginStore";
@@ -29,10 +34,9 @@ export function LandingPage() {
             בטיולים, עם שותפים או באירועים, כדי שכולם יקבלו את הכסף בחזרה.
             בקלות.
           </p>
-         <div className={styles.ctaContainer}>
-          <GoogleLoginButton onLogIn={handleLogin} />
+          <div className={styles.ctaContainer}>
+            <GoogleLoginButton onLogIn={handleLogin} />
           </div>
-
         </div>
         <div className={styles.heroImageContainer}>
           <Image
@@ -115,47 +119,42 @@ export function LandingPage() {
             </cite>
           </div>
         </div>
-
-        <div className={styles.finalCtaSection}>
-          <h2 className={styles.finalCtaTitle}>מוכנים לסגור חשבון?</h2>
-          <p className={styles.subtitle}></p>
-          <Link
-            href="/register"
-            className={styles.ctaButton}
-            style={{ marginTop: "1.5rem" }}
-          >
-            בואו נתחיל
-          </Link>
-        </div>
       </section>
-
-      {/* ★ פוטר (Footer) ★ */}
       <footer className={styles.footer}>
-        <ul className={styles.footerNav}>
-          <li>
-            <Link href="/features" className={styles.footerNavLink}>
-              פיצ'רים
-            </Link>
-          </li>
-          <li>
-            <Link href="/pricing" className={styles.footerNavLink}>
-              תמחור
-            </Link>
-          </li>
-          <li>
-            <Link href="/about" className={styles.footerNavLink}>
-              אודות
-            </Link>
-          </li>
-          <li>
-            <Link href="/contact" className={styles.footerNavLink}>
-              צור קשר
-            </Link>
-          </li>
-        </ul>
-        <p className={styles.footerCopyright}>
-          © 2025 Groupay. כל הזכויות שמורות.
-        </p>
+        <div className={styles["social-icons"]}>
+          <a
+            href="#"
+            target="_blank"
+            rel="noopener noreferrer"
+            aria-label="Instagram"
+          >
+            <FaInstagram />
+          </a>
+          <a
+            href="#"
+            target="_blank"
+            rel="noopener noreferrer"
+            aria-label="Facebook"
+          >
+            <FaFacebook />
+          </a>
+          <a
+            href="#"
+            target="_blank"
+            rel="noopener noreferrer"
+            aria-label="LinkedIn"
+          >
+            <FaLinkedin />
+          </a>
+          <a
+            href="#"
+            target="_blank"
+            rel="noopener noreferrer"
+            aria-label="WhatsApp"
+          >
+            <FaWhatsapp />
+          </a>
+        </div>
       </footer>
     </>
   );
