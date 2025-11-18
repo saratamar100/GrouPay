@@ -3,6 +3,7 @@
 import { useEffect } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { Container, CircularProgress, Typography } from "@mui/material";
+import {joinGroup} from "@/app/services/client/linkService"
 
 export default function JoinGroupPage() {
   const params = useParams<{ groupId: string }>();
@@ -14,10 +15,10 @@ export default function JoinGroupPage() {
 
     const run = async () => {
       const raw = localStorage.getItem("login-storage");
+      const next = `/groups/${groupId}/join`; 
 
       if (!raw) {
-        const next = `/${groupId}/join`;
-        router.replace(`/login?next=${encodeURIComponent(next)}`);
+        router.replace(`/?next=${encodeURIComponent(next)}`);
         return;
       }
 
@@ -28,17 +29,11 @@ export default function JoinGroupPage() {
         const name: string | undefined = user?.name;
 
         if (!userId || !name) {
-          const next = `/${groupId}/join`;
-          router.replace(`/login?next=${encodeURIComponent(next)}`);
+          router.replace(`/?next=${encodeURIComponent(next)}`);
           return;
         }
 
-        await fetch(`/api/groups/${groupId}/join`, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ userId, name }),
-        });
-
+        joinGroup(groupId,userId,name)
         router.replace(`/groups/${groupId}`);
       } catch (err) {
         console.error("join error", err);

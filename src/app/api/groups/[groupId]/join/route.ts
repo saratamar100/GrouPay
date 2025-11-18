@@ -74,7 +74,7 @@ export async function POST(
       { _id: groupObjectId },
       {
         $push: {
-          members: { id: userId, name }
+          members: { id: userObjectId, name }
         }
       }
     );

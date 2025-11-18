@@ -6,17 +6,35 @@ import Image from "next/image";
 import { useLoginStore } from "@/app/store/loginStore";
 import { User } from "@/app/types/types";
 import GoogleLoginButton from "../GoogleLoginButton/GoogleLoginButton";
+import { useEffect } from "react";
+import { useRouter,useSearchParams } from "next/navigation";
+
 
 export function LandingPage() {
   const loginStore = useLoginStore();
   const user = loginStore.loggedUser;
-  if (user) {
-    window.location.href = "/dashboard";
-    return null;
-  }
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const next = searchParams.get("next");
+
+
+  // if (user) {
+  //   window.location.href = "/dashboard";
+  //   return null;
+  // }
   const handleLogin = (user: User) => {
     loginStore.setLoggedUser(user);
   };
+
+  useEffect(() => {
+    if (!user) return;
+
+    if (next) {
+      router.replace(next);
+    } else {
+      router.replace("/dashboard");
+    }
+  }, [user, next, router]);
   return (
     <>
       <section className={styles.hero}>
