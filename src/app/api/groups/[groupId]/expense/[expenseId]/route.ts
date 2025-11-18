@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getDb } from "@/app/services/server/mongo";
 import { ObjectId } from "mongodb";
+import { calculateTotalDebt } from "@/app/services/server/debtsService";
+
 
 function isValidPayer(payer: any): boolean {
   return payer && typeof payer === "object"
@@ -138,7 +140,7 @@ export async function PUT(
       { $set: updateDoc }
     );
 
-
+    calculateTotalDebt(groupId);
     return NextResponse.json({ message: "Expense updated successfully" }, { status: 200 });
   } catch (error) {
     console.error("Error updating expense:", error);
@@ -188,7 +190,7 @@ export async function DELETE(
       { _id: gid },
       { $pull: { expenses: eid } }
     );
-
+    calculateTotalDebt(groupId);
     return NextResponse.json({ message: "Expense deleted successfully" }, { status: 200 });
   } catch (error) {
     console.error("Error deleting expense:", error);
