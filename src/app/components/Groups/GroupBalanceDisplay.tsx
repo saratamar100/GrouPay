@@ -3,8 +3,8 @@
 import { useEffect, useState, useMemo } from "react";
 import { Debt } from "@/app/types/types";
 import styles from "./GroupBalanceDisplay.module.css";
-import { getUserFromLocal } from "@/app/utils/storage";
 import { fetchGroupBalance } from "@/app/services/client/balanceService";
+import { useLoginStore } from "@/app/store/loginStore";
 
 interface GroupBalanceDisplayProps {
   groupId: string;
@@ -15,18 +15,19 @@ export function GroupBalanceDisplay({ groupId }: GroupBalanceDisplayProps) {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
+  const currentUser = useLoginStore((state) => state.loggedUser);
+  const currentUserId =
+    currentUser ? ((currentUser as any)._id || (currentUser as any).id) : undefined;
+
   useEffect(() => {
     if (!groupId) return;
 
-    const currentUser = getUserFromLocal();
-
-    if (!currentUser || !currentUser.id) {
+    if (!currentUser || !currentUserId){
       setError("לא זוהה משתמש מחובר.");
       setIsLoading(false);
       return;
     }
 
-    const currentUserId = currentUser.id;
 
     async function loadBalance() {
       setIsLoading(true);
@@ -42,7 +43,7 @@ export function GroupBalanceDisplay({ groupId }: GroupBalanceDisplayProps) {
     }
 
     loadBalance();
-  }, [groupId]);
+  }, [groupId, currentUser, currentUserId]);
 
   const totalBalance = useMemo(
     () => debts.reduce((sum, debt) => sum + debt.amount, 0),
