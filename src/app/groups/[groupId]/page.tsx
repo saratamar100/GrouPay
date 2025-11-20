@@ -39,7 +39,7 @@ export default function GroupPage() {
 
   useEffect(() => {
     const login = localStorage.getItem("login-storage");
-    if (!login) window.location.href = "/login";
+    if (!login) window.location.href = "/";
 
     if (groupId) reload();
   }, [reload, groupId]);
