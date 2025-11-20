@@ -493,8 +493,8 @@ export default function DashboardTest() {
 
   useEffect(() => {
     if (!user) return;
-
-    const userId = (user as any)._id || (user as any).id;
+    
+    const userId = user ? user.id : null;
     if (!userId) return;
 
     getUserGroups(userId)

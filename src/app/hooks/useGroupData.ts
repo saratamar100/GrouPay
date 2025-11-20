@@ -63,9 +63,8 @@ export function useGroupData(groupId: string | undefined) {
   );
 
   const currentUser = useLoginStore((state) => state.loggedUser);
-  const currentUserId =
-    currentUser ? ((currentUser as any)._id || (currentUser as any).id) : undefined;
-  const currentUserName = currentUser?.name;
+  const currentUserId = currentUser ? currentUser.id : null;
+  const currentUserName = currentUser ? currentUser.name : null;
 
 
   const reload = useCallback(async () => {
