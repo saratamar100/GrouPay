@@ -3,46 +3,41 @@
 import { useEffect } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { Container, CircularProgress, Typography } from "@mui/material";
-import {joinGroup} from "@/app/services/client/linkService"
+import { joinGroup } from "@/app/services/client/linkService";
+import { useLoginStore } from "@/app/store/loginStore";
 
 export default function JoinGroupPage() {
   const params = useParams<{ groupId: string }>();
   const router = useRouter();
   const groupId = params.groupId;
 
+  const currentUser = useLoginStore((state) => state.loggedUser);
+  const userId =
+    currentUser ? ((currentUser as any)._id || (currentUser as any).id) : undefined;
+  const name = currentUser?.name;
+
   useEffect(() => {
     if (!groupId) return;
 
     const run = async () => {
-      const raw = localStorage.getItem("login-storage");
-      const next = `/groups/${groupId}/join`; 
+      const next = `/groups/${groupId}/join`;
 
-      if (!raw) {
+      if (!currentUser || !userId || !name) {
         router.replace(`/?next=${encodeURIComponent(next)}`);
         return;
       }
 
       try {
-        const parsed = JSON.parse(raw);
-        const user = parsed?.state?.loggedUser;
-        const userId: string | undefined = user?._id;
-        const name: string | undefined = user?.name;
-
-        if (!userId || !name) {
-          router.replace(`/?next=${encodeURIComponent(next)}`);
-          return;
-        }
-
-        await joinGroup(groupId,userId,name)
-        router.replace(`/groups/${groupId}`);
+        await joinGroup(groupId, userId, name);
       } catch (err) {
         console.error("join error", err);
+      } finally {
         router.replace(`/groups/${groupId}`);
       }
     };
 
     run();
-  }, [groupId, router]);
+  }, [groupId, router, currentUser, userId, name]);
 
   return (
     <Container
