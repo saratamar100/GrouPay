@@ -6,7 +6,9 @@ export async function joinGroup(params: {
   userId: string;
   name: string;
 }) {
+
   const { groupId, userId, name } = params;
+  console.log(`groupid: ${groupId} userId:${userId}, name:${name}`)
 
   if (!groupId || !ObjectId.isValid(groupId)) {
     const err = new Error("Invalid or missing groupId");

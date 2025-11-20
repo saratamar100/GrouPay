@@ -33,7 +33,7 @@ export default function JoinGroupPage() {
           return;
         }
 
-        joinGroup(groupId,userId,name)
+        await joinGroup(groupId,userId,name)
         router.replace(`/groups/${groupId}`);
       } catch (err) {
         console.error("join error", err);
