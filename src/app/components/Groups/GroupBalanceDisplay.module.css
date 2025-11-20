@@ -55,22 +55,20 @@
   color: var(--debt-color);
 }
 
-/* ★ הסרנו את .listSection ו- .sectionTitle ★ */
-
 .transactionsList {
   display: flex;
   flex-direction: column;
   gap: 1rem;
 }
 .transactionRow {
-  display: grid;
-  grid-template-columns: 1fr 2fr 1fr 1fr;
+  display: flex;
+  justify-content: space-between;
   align-items: center;
   gap: 1rem;
   padding: 1rem;
   border: 1px solid var(--border-color);
   border-radius: 12px;
-  background-color: #fafcfe; /* רקע בהיר לכל שורה */
+  background-color: #fafcfe;
 }
 .amount {
   font-size: 1.25rem;
