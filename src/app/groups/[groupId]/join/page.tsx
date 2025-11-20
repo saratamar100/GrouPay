@@ -12,10 +12,10 @@ export default function JoinGroupPage() {
   const groupId = params.groupId;
 
   const currentUser = useLoginStore((state) => state.loggedUser);
-  const userId =
-    currentUser ? ((currentUser as any)._id || (currentUser as any).id) : undefined;
-  const name = currentUser?.name;
+  const userId = currentUser ? currentUser.id : null;
+  const name = currentUser ? currentUser.name : null;
 
+  
   useEffect(() => {
     if (!groupId) return;
 

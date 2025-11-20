@@ -18,8 +18,8 @@ export default function GroupPage() {
   const groupId = (route.groupId ?? route.id) as string | undefined
   ;
  const user = useLoginStore((state) => state.loggedUser);
-const userId =
-  user ? ((user as any)._id || (user as any).id) : undefined;
+ const userId = user ? user.id : null;
+
 
 console.log(`id :${userId}`)
 
@@ -40,8 +40,7 @@ console.log(`id :${userId}`)
 
   const [isMembersOpen, setIsMembersOpen] = useState(false);
 
-  useEffect(() => {
-   
+  useEffect(() => {   
     if (groupId) reload();
   }, [reload, groupId]);
 

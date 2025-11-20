@@ -16,8 +16,8 @@ export function GroupBalanceDisplay({ groupId }: GroupBalanceDisplayProps) {
   const [error, setError] = useState<string | null>(null);
 
   const currentUser = useLoginStore((state) => state.loggedUser);
-  const currentUserId =
-    currentUser ? ((currentUser as any)._id || (currentUser as any).id) : undefined;
+  const currentUserId = currentUser?.id;
+  if(!currentUserId|| !currentUser) return
 
   useEffect(() => {
     if (!groupId) return;
@@ -33,7 +33,7 @@ export function GroupBalanceDisplay({ groupId }: GroupBalanceDisplayProps) {
       setIsLoading(true);
       setError(null);
       try {
-        const data = await fetchGroupBalance(groupId, currentUserId);
+        const data = await fetchGroupBalance(groupId, currentUserId as string);
         setDebts(data);
       } catch (err: any) {
         setError(err.message);

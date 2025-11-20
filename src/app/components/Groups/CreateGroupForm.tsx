@@ -23,8 +23,7 @@ export function CreateGroupForm({ allUsers }: CreateGroupFormProps) {
   const [error, setError] = useState<string | null>(null);
 
  const currentUser = useLoginStore((state) => state.loggedUser);
-   const currentUserId =
-     currentUser ? ((currentUser as any)._id || (currentUser as any).id) : undefined;
+ const currentUserId = currentUser ? currentUser.id : null;
  
 
   const selectedUsers = useMemo(() => {
