@@ -9,7 +9,6 @@ export async function POST(
     const { groupId } = await context.params;
     const body = await req.json();
     const { userId, name } = body ?? {};
-    console.log("////////////////////////////")
 
     const result = await joinGroup({ groupId, userId, name });
 

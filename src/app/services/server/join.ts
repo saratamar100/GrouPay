@@ -63,7 +63,7 @@ export async function joinGroup(params: {
   await groups.updateOne(
     { _id: groupObjectId },
     {
-      $push: {
+      $addToSet: {
         members: { id: userObjectId, name },
       },
     }
