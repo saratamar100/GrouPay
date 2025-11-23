@@ -52,13 +52,13 @@ export async function joinGroup(params: {
     throw err;
   }
 
-  const alreadyMember = (group.members || []).some(
-    (m: any) => (m.id as ObjectId).equals(userObjectId)
-  );
+  // const alreadyMember = (group.members || []).some(
+  //   (m: any) => (m.id as ObjectId).equals(userObjectId)
+  // );
 
-  if (alreadyMember) {
-    return { ok: true, alreadyMember: true };
-  }
+  // if (alreadyMember) {
+  //   return { ok: true, alreadyMember: true };
+  // }
 
   await groups.updateOne(
     { _id: groupObjectId },
