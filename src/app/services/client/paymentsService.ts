@@ -1,8 +1,22 @@
 import { Payment } from "@/app/types/types";
 
-export const createPayment = (getterId: string, amount: number) => {
-  return [];
+export const createPayment = async (payeeId: string, amount: number) => {
+//   const res = await fetch("/api/payments", {
+//     method: "POST",
+//     headers: {
+//       "Content-Type": "application/json",
+//     },
+//     body: JSON.stringify({ payerId:"6915ae6686023c759400e6f6", payeeId, amount }),
+//   });
+
+//   if (!res.ok) {
+//     throw new Error("Failed to create payment");
+//   }
+
+//   const data: Payment = await res.json();
+//   return data;
 };
+
 export async function fetchPendingPayments(
   groupId: string,
   currentUserId: string

@@ -5,7 +5,7 @@ import { Debt } from "@/app/types/types";
 import styles from "./GroupBalanceDisplay.module.css";
 import { fetchGroupBalance } from "@/app/services/client/balanceService";
 import { useLoginStore } from "@/app/store/loginStore";
-import { fetchPendingPayments } from "@/app/services/client/paymentsService";
+import { createPayment, fetchPendingPayments } from "@/app/services/client/paymentsService";
 
 interface GroupBalanceDisplayProps {
   groupId: string;
@@ -54,6 +54,22 @@ export function GroupBalanceDisplay({ groupId }: GroupBalanceDisplayProps) {
   if (isLoading) return <div>טוען נתונים...</div>;
   if (error) return <div>שגיאה: {error}</div>;
 
+  const handleCreatePayment = async (debt: Debt) => {
+  if (!currentUserId) return;
+  try {
+    await createPayment(debt.member.id, Math.abs(debt.amount));
+    const [balanceData, pendingData] = await Promise.all([
+      fetchGroupBalance(groupId, currentUserId),
+      fetchPendingPayments(groupId, currentUserId),
+    ]);
+    setDebts(balanceData);
+    setPendingPayments(pendingData);
+  } catch (err: any) {
+    console.error("Error creating payment:", err.message);
+  }
+};
+
+
   return (
     <div className={styles.pageContainer}>
       <div className={styles.balanceCard}>
@@ -93,6 +109,7 @@ export function GroupBalanceDisplay({ groupId }: GroupBalanceDisplayProps) {
                 {isDebt && (
                   <button
                     className={`${styles.actionButton} ${styles.payButton}`}
+                    onClick={()=>handleCreatePayment(debt)}
                   >
                     תשלום
                   </button>
