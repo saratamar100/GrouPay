@@ -2,7 +2,7 @@
 
 import { useParams } from "next/navigation";
 import Link from "next/link";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useId, useMemo, useState } from "react";
 import { useGroupData } from "@/app/hooks/useGroupData";
 import { GroupExpensesList } from "@/app/components/GroupExpensesList/GroupExpensesList";
 import { GroupDraftRow } from "@/app/components/GroupDraftRow/GroupDraftRow";
@@ -11,15 +11,18 @@ import { formatILS } from "@/app/utils/money";
 import styles from "./GroupPage.module.css";
 import Header from "@/app/components/Header/Header";
 import { CircularProgress, Container } from "@mui/material";
-import { getUserFromLocal } from "@/app/utils/storage";
+import { useLoginStore } from "@/app/store/loginStore";
 
 export default function GroupPage() {
   const route = useParams<{ id?: string; groupId?: string }>();
-  const groupId = (route.groupId ?? route.id) as string | undefined;
-  const userLog = getUserFromLocal();
-  const loggedUserId = userLog?.id;
+  const groupId = (route.groupId ?? route.id) as string | undefined
+  ;
+ const user = useLoginStore((state) => state.loggedUser);
+ const userId = user ? user.id : null;
 
-  console.log(`user ${loggedUserId}`);
+
+console.log(`id :${userId}`)
+
 
   const {
     state,
@@ -37,10 +40,7 @@ export default function GroupPage() {
 
   const [isMembersOpen, setIsMembersOpen] = useState(false);
 
-  useEffect(() => {
-    const login = localStorage.getItem("login-storage");
-    if (!login) window.location.href = "/login";
-
+  useEffect(() => {   
     if (groupId) reload();
   }, [reload, groupId]);
 
@@ -157,12 +157,13 @@ export default function GroupPage() {
               <h2 className={styles.sidebarTitle}>חברי הקבוצה</h2>
               <ul className={styles.membersList}>
                 {members
-                  .filter((m) => m.id != loggedUserId)
-                  .map((m) => (
-                    <li key={m.id} className={styles.memberItem}>
-                      <span className={styles.memberName}>{m.name}</span>
-                    </li>
-                  ))}
+                .filter((m) => m.id !== userId)
+                .map((m, index) => (
+                  <li key={`${m.id}-${index}`} className={styles.memberItem}>
+                    <span className={styles.memberName}>{m.name}</span>
+                  </li>
+                ))}
+
               </ul>
             </div>
           )}

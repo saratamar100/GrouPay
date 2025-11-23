@@ -3,7 +3,8 @@
 import { useEffect, useState, useMemo } from "react";
 import { Debt } from "@/app/types/types";
 import styles from "./GroupBalanceDisplay.module.css";
-import { getUserFromLocal } from "@/app/utils/storage";
+import { fetchGroupBalance } from "@/app/services/client/balanceService";
+import { useLoginStore } from "@/app/store/loginStore";
 
 interface GroupBalanceDisplayProps {
   groupId: string;
@@ -14,33 +15,25 @@ export function GroupBalanceDisplay({ groupId }: GroupBalanceDisplayProps) {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
+  const currentUser = useLoginStore((state) => state.loggedUser);
+  const currentUserId = currentUser?.id;
+  if(!currentUserId|| !currentUser) return
+
   useEffect(() => {
     if (!groupId) return;
 
-    const currentUser = getUserFromLocal();
-
-    if (!currentUser || !currentUser.id) {
+    if (!currentUser || !currentUserId){
       setError("לא זוהה משתמש מחובר.");
       setIsLoading(false);
       return;
     }
 
-    const currentUserId = currentUser.id;
 
-    async function fetchBalance() {
+    async function loadBalance() {
       setIsLoading(true);
       setError(null);
       try {
-        const res = await fetch(
-          `/api/groups/${groupId}/balance?userId=${currentUserId}`
-        );
-        if (!res.ok) {
-          throw new Error("Failed to fetch group balance");
-        }
-        if (!res.ok) {
-          throw new Error("Failed to fetch group balance");
-        }
-        const data: Debt[] = await res.json();
+        const data = await fetchGroupBalance(groupId, currentUserId as string);
         setDebts(data);
       } catch (err: any) {
         setError(err.message);
@@ -49,12 +42,13 @@ export function GroupBalanceDisplay({ groupId }: GroupBalanceDisplayProps) {
       }
     }
 
-    fetchBalance();
-  }, [groupId]);
+    loadBalance();
+  }, [groupId, currentUser, currentUserId]);
 
-  const totalBalance = useMemo(() => {
-    return debts.reduce((sum, debt) => sum + debt.amount, 0);
-  }, [debts]);
+  const totalBalance = useMemo(
+    () => debts.reduce((sum, debt) => sum + debt.amount, 0),
+    [debts]
+  );
 
   if (isLoading) return <div>טוען מאזן...</div>;
   if (error) return <div>שגיאה: {error}</div>;
@@ -63,13 +57,13 @@ export function GroupBalanceDisplay({ groupId }: GroupBalanceDisplayProps) {
     <div className={styles.pageContainer}>
       <div className={styles.balanceCard}>
         <header className={styles.header}>
-          <h2>תנועות בחשבון</h2>
+          <h2>יתרות בחשבון</h2>
           <div className={styles.totalBalance}>
             <span>סך הכל: </span>
             <span
               className={totalBalance >= 0 ? styles.positive : styles.negative}
             >
-              {totalBalance >= 0 ? "+" : ""}
+              {totalBalance > 0 ? "+" : ""}
               {totalBalance.toFixed(2)}
             </span>
           </div>
@@ -95,13 +89,13 @@ export function GroupBalanceDisplay({ groupId }: GroupBalanceDisplayProps) {
                 >
                   {isDebt ? "חוב" : "זכות"}
                 </span>
-                <button
-                  className={`${styles.actionButton} ${
-                    isDebt ? styles.payButton : styles.receiveButton
-                  }`}
-                >
-                  {isDebt ? "שולם" : "קיבלתי"}
-                </button>
+                {isDebt && (
+                  <button
+                    className={`${styles.actionButton} ${styles.payButton}`}
+                  >
+                    תשלום
+                  </button>
+                )}
               </div>
             );
           })}

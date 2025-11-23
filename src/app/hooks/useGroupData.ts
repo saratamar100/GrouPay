@@ -11,6 +11,8 @@ import {
 import type { SplitDetail } from "@/app/utils/split";
 import {uploadToCloudinary} from "@/app/services/client/uploadService"
 import { toMoney } from "../utils/money";
+import { useLoginStore } from "@/app/store/loginStore";
+
 
 
 type DraftExpense = Omit<Expense, "id" | "payer"> & {
@@ -60,6 +62,10 @@ export function useGroupData(groupId: string | undefined) {
     [group]
   );
 
+  const currentUser = useLoginStore((state) => state.loggedUser);
+  const currentUserId = currentUser ? currentUser.id : null;
+  const currentUserName = currentUser ? currentUser.name : null;
+
 
   const reload = useCallback(async () => {
     if (!groupId) return;
@@ -80,17 +86,10 @@ export function useGroupData(groupId: string | undefined) {
 
     let payer: Member | null = null;
 
-    if (typeof window !== "undefined") {
-      const raw = localStorage.getItem("login-storage");
-      if (raw) {
-        const parsed = JSON.parse(raw);
-        const user = parsed?.state?.loggedUser;
-        if (user?._id && user?.name) {
-          payer = { id: user._id, name: user.name };
-        }    
-      }
+    currentUser ? (currentUser as any).name : undefined;
+    if (typeof window !== "undefined" && currentUserId && currentUserName) {
+      payer = { id: currentUserId, name: currentUserName };
     }
-
     if (!payer) {
       return
     }

@@ -3,7 +3,7 @@
 import { useState, FormEvent, useMemo } from "react";
 import { useRouter } from "next/navigation";
 import { User } from "@/app/types/types";
-import { getUserFromLocal } from "@/app/utils/storage";
+import { useLoginStore } from "@/app/store/loginStore";
 
 import styles from "./CreateGroupForm.module.css";
 
@@ -22,8 +22,9 @@ export function CreateGroupForm({ allUsers }: CreateGroupFormProps) {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const currentUser = getUserFromLocal();
-  const currentUserId = currentUser?.id;
+ const currentUser = useLoginStore((state) => state.loggedUser);
+ const currentUserId = currentUser ? currentUser.id : null;
+ 
 
   const selectedUsers = useMemo(() => {
     return selectedMemberIds
