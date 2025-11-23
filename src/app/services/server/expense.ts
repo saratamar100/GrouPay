@@ -75,7 +75,6 @@ export async function createExpense(params: {
 
   const expenseDoc = {
     name: name.trim(),
-    groupId: new ObjectId(groupId),
     amount,
     payer: new ObjectId(payer),
     split: finalSplit.map((s) => ({
@@ -118,7 +117,6 @@ export async function getGroupExpenses(groupId: string) {
 
   const group = await groupsCol.findOne(
     { _id: new ObjectId(groupId) },
-    { projection: { members: 1 } }
   );
 
   if (!group) {
@@ -132,9 +130,12 @@ export async function getGroupExpenses(groupId: string) {
     members.map((m: any) => [m.id.toString(), m.name])
   );
 
-  const expenseList = await expensesCol
-    .find({ groupId: new ObjectId(groupId) })
-    .toArray();
+  const rawExpenseIds = Array.isArray(group.expenses) ? group.expenses : [];
+  if(rawExpenseIds.length ==0) return []
+
+
+ const expenseList = await expensesCol.find({_id: { $in: rawExpenseIds }}).toArray();
+
 
   const normalizedExpenses = expenseList.map((e: any) => {
     const payerId = e.payer?.toString?.() ?? e.payer;
@@ -142,7 +143,6 @@ export async function getGroupExpenses(groupId: string) {
     return {
       id: e._id.toString(),
       name: e.name,
-      groupId: e.groupId.toString(),
       amount: e.amount,
       date: e.date,
       receiptUrl: e.receiptUrl ?? null,
@@ -202,7 +202,6 @@ export async function getExpense(groupId: string, expenseId: string) {
 
   const expense = await expensesCol.findOne({
     _id: new ObjectId(expenseId),
-    groupId: new ObjectId(groupId),
   });
 
   if (!expense) {
@@ -216,7 +215,6 @@ export async function getExpense(groupId: string, expenseId: string) {
   return {
     id: expense._id.toString(),
     name: expense.name,
-    groupId: expense.groupId.toString(),
     amount: expense.amount,
     date: expense.date,
     receiptUrl: expense.receiptUrl ?? null,
@@ -282,7 +280,7 @@ export async function updateExpense(params: {
   const eid = new ObjectId(expenseId);
   const gid = new ObjectId(groupId);
 
-  const current = await expensesCol.findOne({ _id: eid, groupId: gid });
+  const current = await expensesCol.findOne({ _id: eid });
 
   if (!current) {
     const err = new Error("Expense not found in the specified group");
@@ -389,7 +387,7 @@ export async function updateExpense(params: {
   }
 
   const res = await expensesCol.updateOne(
-    { _id: eid, groupId: gid },
+    { _id: eid},
     { $set: updateDoc }
   );
 
