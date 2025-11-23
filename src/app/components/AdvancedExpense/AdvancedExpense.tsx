@@ -11,25 +11,16 @@ import {
   IconButton,
   Typography,
   Divider,
-  Tooltip,
   TextField,
 } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
-import RestartAltIcon from "@mui/icons-material/RestartAlt";
 import type { Member } from "@/app/types/types";
 import type { SplitDetail } from "@/app/utils/split";
 import { useAdvancedExpense } from "@/app/hooks/useAdvancedExpense";
 import { toMoney } from "@/app/utils/money";
+import {formatILS} from "@/app/utils/money"
 import styles from "./AdvancedExpense.module.css";
 
-function formatILS(value: number) {
-  return value.toLocaleString("he-IL", {
-    style: "currency",
-    currency: "ILS",
-    minimumFractionDigits: 2,
-    maximumFractionDigits: 2,
-  });
-}
 
 type AdvancedExpenseProps = {
   open: boolean;
@@ -67,14 +58,12 @@ export default function AdvancedExpense({
     receiptPreview,
     nameValue,
     amountValue,
-    sum,
     diff,
     setNameValue,
     setAmountValue,
     setEqualMode,
     toggleMember,
     setAmountFor,
-    recalcEqualNow,
     handleFile,
     handleSave,
   } = useAdvancedExpense({
@@ -114,7 +103,6 @@ export default function AdvancedExpense({
       </DialogTitle>
 
       <DialogContent dividers className={styles.content}>
-        {/* קטע בסיסי – שם וסכום */}
         <section className={`${styles.section} ${styles.basicSection}`}>
           <div className={styles.basicCard}>
             <TextField
@@ -166,7 +154,6 @@ export default function AdvancedExpense({
 
         <Divider className={styles.divider} />
 
-        {/* קטע חלוקה לחברים */}
         <section className={styles.section}>
           <div className={styles.rowHeader}>
             <Typography variant="subtitle1" className={styles.sectionTitle}>
@@ -229,10 +216,6 @@ export default function AdvancedExpense({
         ) : (
           <></>
         )}
-
-
-
-
       </DialogContent>
 
       <DialogActions className={styles.actions}>
