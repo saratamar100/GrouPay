@@ -75,10 +75,10 @@ export function LandingPage() {
             className={styles.featureCard}
             style={{ animationDelay: "0.5s" }}
           >
-            <span className={styles.featureIcon}>👥</span>
+            <span className={styles.featureIcon}></span>
             <h3>1. יוצרים קבוצה</h3>
             <p>
-              פתחו קבוצה חדשה תוך שניות. הזמינו את החברים באמצעות קישור פשוט או
+              פותחים קבוצה חדשה בקלות. מזמינים את החברים באמצעות קישור או
               ישירות מהאפליקציה.
             </p>
           </div>
@@ -87,11 +87,11 @@ export function LandingPage() {
             className={styles.featureCard}
             style={{ animationDelay: "0.8s" }}
           >
-            <span className={styles.featureIcon}>💳</span>
+            <span className={styles.featureIcon}></span>
             <h3>2. מוסיפים הוצאות</h3>
             <p>
-              כל אחד מוסיף הוצאות בזמן אמת. "קניות בסופר", "כרטיסי טיסה", "ארוחת
-              ערב". צלמו קבלה והכל מתועד.
+              הוסיפו הוצאות בזמן אמת. "קניות בסופר", "כרטיסי טיסה", "ארוחת
+              ערב". הכל מתועד בקלות.
             </p>
           </div>
 
@@ -99,26 +99,15 @@ export function LandingPage() {
             className={styles.featureCard}
             style={{ animationDelay: "0.1.1s" }}
           >
-            <span className={styles.featureIcon}>📊</span>
+            <span className={styles.featureIcon}></span>
             <h3>3. מתחשבנים בקליק</h3>
             <p>
-              בסוף הטיול, Groupay מחשב אוטומטית מי חייב למי וכמה. בלי כאב ראש,
+              בכל שלב, Groupay מחשב אוטומטית מי חייב למי וכמה. בלי כאב ראש,
               בלי טעויות.
             </p>
           </div>
         </div>
 
-        <div className={styles.testimonialSection}>
-          <div className={styles.testimonialCard}>
-            <blockquote className={styles.testimonialQuote}>
-              "השתמשתי ב-Groupay בטיול האחרון שלנו לתאילנד. זה חסך לנו שעות של
-              ויכוחים וחישובים. פשוט, גאוני."
-            </blockquote>
-            <cite className={styles.testimonialAuthor}>
-              מאיה לוי, <span>נסיינית בטא</span>
-            </cite>
-          </div>
-        </div>
       </section>
       <footer className={styles.footer}>
         <div className={styles["social-icons"]}>
@@ -159,3 +148,41 @@ export function LandingPage() {
     </>
   );
 }
+
+
+
+      //     <div className={styles.stepWrapper}>
+      //       <span className={styles.stepLabel}>פשוט</span>
+      //       <div className={styles.step}>
+      //         <h3>1. יוצרים קבוצה</h3>
+      //         <h4>
+      //           פותחים קבוצה חדשה בקלות. מזמינים חברים באמצעות קישור או
+      //           ישירות מהאפליקציה.
+      //         </h4>
+      //       </div>
+      //     </div>
+
+      //     <div className={styles.stepWrapper}>
+      //       <span className={styles.stepLabel}>מהיר</span>
+      //       <div className={styles.step}>
+      //         <h3>2. מוסיפים הוצאות</h3>
+      //         <h4>
+      //           הוסיפו הוצאות בזמן אמת: "קניות בסופר", "טיסה", "ארוחת ערב" -
+      //           הכל מתועד בקלות.
+      //         </h4>
+      //       </div>
+      //     </div>
+
+      //     <div className={styles.stepWrapper}>
+      //       <span className={styles.stepLabel}>יעיל</span>
+      //       <div className={styles.step}>
+      //         <h3>3. מתחשבנים בקליק</h3>
+      //         <h4>
+      //           בכל שלב, Groupay מחשב אוטומטית מי חייב למי וכמה. בלי כאב ראש ובלי
+      //           טעויות.
+      //         </h4>
+      //       </div>
+      //     </div>
+
+      //   </div>
+      // </section>
