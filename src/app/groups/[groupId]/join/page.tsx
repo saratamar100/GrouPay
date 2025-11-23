@@ -22,7 +22,7 @@ export default function JoinGroupPage() {
     const run = async () => {
       const next = `/groups/${groupId}/join`;
 
-      if (!currentUser || !userId || !name) {
+      if (!userId || !name) {
         router.replace(`/?next=${encodeURIComponent(next)}`);
         return;
       }
@@ -37,7 +37,7 @@ export default function JoinGroupPage() {
     };
 
     run();
-  }, [groupId, router, currentUser, userId, name]);
+  }, [groupId, router, userId, name]);
 
   return (
     <Container
@@ -52,8 +52,13 @@ export default function JoinGroupPage() {
         textAlign: "center",
       }}
     >
-      <CircularProgress aria-label="מצרף אותך לקבוצה..." />
-      <Typography>מצרפים אותך לקבוצה…</Typography>
+     {userId && ( 
+      <>
+        <CircularProgress aria-label="מצרף אותך לקבוצה..." />
+        <Typography>מצרפים אותך לקבוצה…</Typography>
+      </>
+)}
+
     </Container>
   );
 }
