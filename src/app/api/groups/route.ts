@@ -35,6 +35,7 @@ export async function POST(request: Request) {
       name: name,
       members: membersForDB,
       expenses: [],
+      payments: [],
       group_debts: {},
     };
     const insertResult = await groupsCollection.insertOne(newGroupData);
