@@ -5,7 +5,10 @@ import { Debt } from "@/app/types/types";
 import styles from "./GroupBalanceDisplay.module.css";
 import { fetchGroupBalance } from "@/app/services/client/balanceService";
 import { useLoginStore } from "@/app/store/loginStore";
-import { createPayment, fetchPendingPayments } from "@/app/services/client/paymentsService";
+import {
+  createPayment,
+  fetchPendingPayments,
+} from "@/app/services/client/paymentsService";
 
 interface GroupBalanceDisplayProps {
   groupId: string;
@@ -55,20 +58,24 @@ export function GroupBalanceDisplay({ groupId }: GroupBalanceDisplayProps) {
   if (error) return <div>שגיאה: {error}</div>;
 
   const handleCreatePayment = async (debt: Debt) => {
-  if (!currentUserId) return;
-  try {
-    await createPayment(debt.member.id, Math.abs(debt.amount));
-    const [balanceData, pendingData] = await Promise.all([
-      fetchGroupBalance(groupId, currentUserId),
-      fetchPendingPayments(groupId, currentUserId),
-    ]);
-    setDebts(balanceData);
-    setPendingPayments(pendingData);
-  } catch (err: any) {
-    console.error("Error creating payment:", err.message);
-  }
-};
-
+    if (!currentUserId) return;
+    try {
+      await createPayment(
+        debt.member.id,
+        Math.abs(debt.amount),
+        groupId,
+        currentUserId
+      );
+      const [balanceData, pendingData] = await Promise.all([
+        fetchGroupBalance(groupId, currentUserId),
+        fetchPendingPayments(groupId, currentUserId),
+      ]);
+      setDebts(balanceData);
+      setPendingPayments(pendingData);
+    } catch (err: any) {
+      console.error("Error creating payment:", err.message);
+    }
+  };
 
   return (
     <div className={styles.pageContainer}>
@@ -109,7 +116,7 @@ export function GroupBalanceDisplay({ groupId }: GroupBalanceDisplayProps) {
                 {isDebt && (
                   <button
                     className={`${styles.actionButton} ${styles.payButton}`}
-                    onClick={()=>handleCreatePayment(debt)}
+                    onClick={() => handleCreatePayment(debt)}
                   >
                     תשלום
                   </button>
@@ -129,7 +136,7 @@ export function GroupBalanceDisplay({ groupId }: GroupBalanceDisplayProps) {
           )}
 
           {pendingPayments.map((p) => {
-            const isPayer = p.payer.id === currentUserId;
+            const isPayer = p.payer === currentUserId;
             const otherUser = isPayer ? p.payee : p.payer;
 
             return (
