@@ -1,24 +1,27 @@
 import { ObjectId } from "mongodb";
 import { getDb } from "./mongo";
 
-export async function fetchPPendingPaymentsForGroup(
+export async function fetchPendingPaymentsForGroup(
   groupId: string,
   userId: string
 ) {
-  const db = await getDb("groupay_db");
+  const db = await getDb("groupay_db"); 
   const groupsCollection = db.collection("group");
   const group = await groupsCollection.findOne({ _id: new ObjectId(groupId) });
-  console.log({ group });
+  if (!group || !group.payments) return [];
+
   const paymentsIds = group.payments;
-  const paymetsCollection = db.collection("payment");
-  const payments = await paymetsCollection
+  const paymentsCollection = db.collection("payment");
+  const payments = await paymentsCollection
     .find({
-      _id: { $in: paymentsIds },
+      _id: { $in: paymentsIds },//change to groupId?
       status: "pending",
-      $or: [{ payer: new ObjectId(userId) }, { payee: new ObjectId(userId) }],
+      $or: [
+        { payer: new ObjectId(userId) },
+        { payee: new ObjectId(userId) }
+      ],
     })
     .toArray();
-  console.log({ paymentsIds, userId });
   return payments;
 }
 
@@ -43,42 +46,33 @@ export async function createPayment(
     return { success: false };
   }
 
-  const db = await getDb("groupay_db");
-  //const group = db.collection("group");
+  const db = await getDb("groupay_db"); 
+  const paymentsCollection = db.collection("payment");
 
-//   const existing = await group.findOne({
-//     _id: new ObjectId(groupId),
-//   });
+  const existingPending = await paymentsCollection.findOne({
+    groupId: groupId,
+    payee: new ObjectId(payeeId),
+    payer: new ObjectId(payerId),
+    status: "pending",
+  });
 
-
-//   if (existing) {
-//     return {
-//       success: false,
-//       payment: {
-//         id: existing._id.toString(),
-//         payeeId: existing.payeeId,
-//         payerId: existing.payerId,
-//         amount: existing.amount,
-//         groupId: existing.groupId,
-//         status: existing.status,
-//         date: existing.date,
-//       },
-//     };
-//   }
+  if (existingPending) {
+    return { success: false, payment: existingPending };
+  }
 
   const newPayment = {
     payee: new ObjectId(payeeId),
-    payer:new ObjectId(payerId),
+    payer: new ObjectId(payerId),
     amount,
-    //groupId,
+    groupId,
     status: "pending",
     date: new Date(),
   };
-   
-  const payments = db.collection("payment");
-  const result1 = await payments.insertOne(newPayment);
-  const group = db.collection("group");
-   const result = await group.updateOne(
+
+  const result1 = await paymentsCollection.insertOne(newPayment);
+
+  const groupCollection = db.collection("group");
+  await groupCollection.updateOne(
     { _id: new ObjectId(groupId) },
     { $push: { payments: result1.insertedId } }
   );
