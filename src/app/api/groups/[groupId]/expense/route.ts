@@ -1,6 +1,4 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getDb } from "@/app/services/server/mongo";
-import { ObjectId } from "mongodb";
 import { createExpense,getGroupExpenses } from "@/app/services/server/expense";
 
 export async function POST(

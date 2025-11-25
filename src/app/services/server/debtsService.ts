@@ -23,10 +23,12 @@ export const calculateTotalDebt = async (groupId: string) => {
     .find({ groupId: new ObjectId(groupId) })
     .toArray();
   for (const payment of payments) {
-    const payerId = payment.payer.id;
-    const payeeId = payment.payee.id;
-    payedAmounts[payerId] = (payedAmounts[payerId] || 0) + payment.amount;
-    owedAmounts[payeeId] = (owedAmounts[payeeId] || 0) + payment.amount;
+    if (payment.status === "completed") {
+      const payerId = payment.payer;
+      const payeeId = payment.payee;
+      payedAmounts[payerId] = (payedAmounts[payerId] || 0) + payment.amount;
+      owedAmounts[payeeId] = (owedAmounts[payeeId] || 0) + payment.amount;
+    }
     //to correct??
   }
   const totalDebt: Record<string, number> = {};
@@ -82,4 +84,5 @@ export const calculateTotalDebt = async (groupId: string) => {
     { _id: new ObjectId(groupId) },
     { $set: { group_debts: debts } }
   );
+  console.log({expenses, groupId})
 };

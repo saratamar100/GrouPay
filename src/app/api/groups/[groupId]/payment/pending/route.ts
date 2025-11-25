@@ -1,4 +1,4 @@
-import { fetchPPendingPaymentsForGroup } from "@/app/services/server/paymentsService";
+import { fetchPendingPaymentsForGroup } from "@/app/services/server/paymentsService";
 import { NextResponse } from "next/server";
 
 export async function GET(
@@ -7,14 +7,13 @@ export async function GET(
 ) {
   try {
     const { groupId } = await params; 
-
     const { searchParams } = new URL(req.url);
     const userId = searchParams.get("userId");
     if (!userId) {
       return NextResponse.json({ error: "missing userId" }, { status: 400 });
     }
 
-    const payments = await fetchPPendingPaymentsForGroup(groupId, userId);
+    const payments = await fetchPendingPaymentsForGroup(groupId, userId);
 
     return NextResponse.json(payments, { status: 200 });
   } catch (err) {
