@@ -1,28 +1,42 @@
 "use client";
 
-import { useParams } from "next/navigation";
+import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
-import { useEffect, useId, useMemo, useState } from "react";
+import { useParams } from "next/navigation";
+
+import Header from "@/app/components/Header/Header";
 import { useGroupData } from "@/app/hooks/useGroupData";
 import { GroupExpensesList } from "@/app/components/GroupExpensesList/GroupExpensesList";
 import { GroupDraftRow } from "@/app/components/GroupDraftRow/GroupDraftRow";
 import AdvancedExpense from "@/app/components/AdvancedExpense/AdvancedExpense";
-import { formatILS } from "@/app/utils/money";
-import styles from "./GroupPage.module.css";
-import Header from "@/app/components/Header/Header";
-import { CircularProgress, Container } from "@mui/material";
 import { useLoginStore } from "@/app/store/loginStore";
+import { formatILS } from "@/app/utils/money";
+
+import {
+  Box,
+  CircularProgress,
+  Container,
+  Divider,
+  Fab,
+  IconButton,
+  List,
+  ListItem,
+  ListItemText,
+  Paper,
+  Typography,
+} from "@mui/material";
+
+import CloseIcon from "@mui/icons-material/Close";
+import AddIcon from "@mui/icons-material/Add";
+
+import styles from "./GroupPage.module.css";
 
 export default function GroupPage() {
   const route = useParams<{ id?: string; groupId?: string }>();
-  const groupId = (route.groupId ?? route.id) as string | undefined
-  ;
- const user = useLoginStore((state) => state.loggedUser);
- const userId = user ? user.id : null;
+  const groupId = (route.groupId ?? route.id) as string | undefined;
 
-
-console.log(`id :${userId}`)
-
+  const user = useLoginStore((state) => state.loggedUser);
+  const userId = user ? user.id : null;
 
   const {
     state,
@@ -40,12 +54,12 @@ console.log(`id :${userId}`)
 
   const [isMembersOpen, setIsMembersOpen] = useState(false);
 
-  useEffect(() => {   
+  useEffect(() => {
     if (groupId) reload();
-  }, [reload, groupId]);
+  }, [groupId, reload]);
 
   const members = state.group?.members || [];
-  const expenses = Array.isArray(state?.group?.expenses)
+  const expenses = Array.isArray(state.group?.expenses)
     ? state.group!.expenses
     : [];
 
@@ -62,7 +76,10 @@ console.log(`id :${userId}`)
 
   if (state.loading) {
     return (
-      <Container maxWidth="lg" style={{ textAlign: "center", padding: "2rem" }}>
+      <Container
+        maxWidth="lg"
+        style={{ textAlign: "center", padding: "2rem" }}
+      >
         <CircularProgress aria-label="טוען..." />
       </Container>
     );
@@ -79,95 +96,125 @@ console.log(`id :${userId}`)
   return (
     <>
       <Header />
-      <div className={styles.pageRoot}>
-        <div className={styles.layout}>
+
+      <Container component="section" className={styles.pageRoot}>
+        <Paper elevation={4} className={styles.pageShell}>
           <main className={styles.main}>
-            <div className={styles.topBar}>
-              <div className={styles.total}>
-                <span>סה״כ:</span>
-                <strong dir="ltr">{formatILS(totalExpenses)}</strong>
-              </div>
-              <div className={styles.breadcrumb}>
-                <span className={styles.bcCurrent}>{state.group.name}</span>
+            <Box className={styles.topBar}>
+              <Box className={styles.total}>
+                <Typography component="span" className={styles.totalLabel}>
+                  סה״כ:
+                </Typography>
+                <Typography
+                  component="strong"
+                  className={styles.totalValue}
+                  dir="ltr"
+                >
+                  {formatILS(totalExpenses)}
+                </Typography>
+              </Box>
+
+              <Box className={styles.breadcrumb}>
+                <Typography component="span" className={styles.bcCurrent}>
+                  {state.group.name}
+                </Typography>
                 <span className={styles.bcSep}>‹</span>
                 <Link href="/dashboard" className={styles.linkLike}>
                   הקבוצות שלי
                 </Link>
-              </div>
-            </div>
+              </Box>
+            </Box>
 
-            <h1
+            <Typography
+              variant="h4"
               className={styles.title}
               onClick={() => setIsMembersOpen(true)}
-              style={{ cursor: "pointer" }}
             >
               {state.group.name}
-            </h1>
+            </Typography>
 
-            <p className={styles.balanceRow}>
+            <Box className={styles.balanceRow}>
               <Link
                 href={`/groups/${groupId}/balance`}
                 className={styles.balanceLinkText}
               >
                 היתרות שלי
               </Link>
-            </p>
+            </Box>
 
-            <div className={styles.cardsWrap}>
+            <Divider className={styles.divider} />
+
+            <Box className={styles.cardsWrap}>
               <GroupExpensesList
                 expenses={expenses}
                 onDelete={deleteExpense}
                 onEdit={openAdvancedForExisting}
                 members={members}
               />
-            </div>
+            </Box>
 
             {state.draft && (
-              <GroupDraftRow
-                draft={state.draft}
-                onChange={updateDraftField}
-                onConfirm={() => addFromDraft()}
-                onCancel={cancelDraft}
-                onAdvanced={openAdvancedForDraft}
-                disabled={state.saving}
-              />
+              <Box className={styles.draftWrap}>
+                <GroupDraftRow
+                  draft={state.draft}
+                  onChange={updateDraftField}
+                  onConfirm={() => addFromDraft()}
+                  onCancel={cancelDraft}
+                  onAdvanced={openAdvancedForDraft}
+                  disabled={state.saving}
+                />
+              </Box>
             )}
 
-            <div className={styles.addRow}>
-              <button
-                className={styles.fabAdd}
+            <Box className={styles.addRow}>
+              <Fab
+                color="primary"
+                aria-label="הוספת הוצאה"
                 onClick={startDraftExpense}
                 disabled={state.saving}
-                aria-label="הוספת הוצאה"
               >
-                +
-              </button>
-            </div>
+                <AddIcon sx={{ fontSize: 30 }} />
+              </Fab>
+            </Box>
           </main>
 
           {isMembersOpen && (
-            <div className={styles.sidebar}>
-              <button
-                className={styles.sidebarClose}
-                onClick={() => setIsMembersOpen(false)}
-                aria-label="סגירת רשימת חברים"
-              >
-                ×
-              </button>
-              <h2 className={styles.sidebarTitle}>חברי הקבוצה</h2>
-              <ul className={styles.membersList}>
-                {members
-                .filter((m) => m.id !== userId)
-                .map((m, index) => (
-                  <li key={`${m.id}-${index}`} className={styles.memberItem}>
-                    <span className={styles.memberName}>{m.name}</span>
-                  </li>
-                ))}
+            <aside className={styles.sidebar}>
+              <Box className={styles.sidebarHeader}>
+                <Typography variant="h6" className={styles.sidebarTitle}>
+                  חברי הקבוצה
+                </Typography>
+                <IconButton
+                  size="small"
+                  onClick={() => setIsMembersOpen(false)}
+                  aria-label="סגירת רשימת חברים"
+                >
+                  <CloseIcon />
+                </IconButton>
+              </Box>
 
-              </ul>
-            </div>
+              <Divider className={styles.sidebarDivider} />
+
+              <List className={styles.membersList}>
+                {members
+                  .filter((m) => m.id !== userId)
+                  .map((m, index) => (
+                    <ListItem
+                      key={`${m.id}-${index}`}
+                      className={styles.memberItem}
+                    >
+                      <ListItemText
+                        primary={m.name}
+                        primaryTypographyProps={{
+                          className: styles.memberName,
+                        }}
+                      />
+                    </ListItem>
+                  ))}
+              </List>
+            </aside>
           )}
-        </div>
+        </Paper>
 
         <AdvancedExpense
           open={state.adv.open}
@@ -182,7 +229,7 @@ console.log(`id :${userId}`)
           onClose={closeAdvanced}
           onSave={handleAdvancedSave}
         />
-      </div>
+      </Container>
     </>
   );
 }

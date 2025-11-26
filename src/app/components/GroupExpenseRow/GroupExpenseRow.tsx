@@ -1,12 +1,9 @@
-
 import type { Expense } from "@/app/types/types";
 import { IconButton, Paper, Typography } from "@mui/material";
 import DeleteOutlineIcon from "@mui/icons-material/DeleteOutline";
 import EditOutlinedIcon from "@mui/icons-material/EditOutlined";
-import {formatILS} from "@/app/utils/money"
+import { formatILS } from "@/app/utils/money";
 import styles from "./GroupExpenseRow.module.css";
-
-
 
 export function GroupExpenseRow({
   e,
@@ -19,11 +16,9 @@ export function GroupExpenseRow({
   onEdit?: (id: string) => void;
   payerName?: string;
 }) {
-  
   return (
     <Paper elevation={0} className={styles.row}>
-      <div className={styles.card}
->
+      <div className={styles.card}>
         <div className={styles.right}>
           <Typography variant="body1" className={styles.name}>
             {e.name}
@@ -42,8 +37,10 @@ export function GroupExpenseRow({
 
           <IconButton
             size="small"
-            className={styles.advancedBtn}
-            onClick={() => {onEdit?.(e.id);}}
+            className={styles.editBtn}
+            onClick={() => {
+              onEdit?.(e.id);
+            }}
           >
             <EditOutlinedIcon fontSize="small" />
           </IconButton>

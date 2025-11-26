@@ -2,6 +2,7 @@
   background: transparent;
   border: none;
   padding: 0;
+  margin-bottom: 10px;
 }
 
 .card {
@@ -57,33 +58,24 @@
   font-size: 1.1rem;
 }
 
-.advancedBtn {
-  border-radius: 10px !important;
-  border: 1.2px solid rgba(6, 124, 128, 0.18) !important;
-  background: transparent !important;
+.editBtn {
   color: #067c80 !important;
-  padding: 6px !important;
-  width: 36px;
-  height: 36px;
-  order: 1;
-  transition: all 0.15s ease !important;
+  background: rgba(6, 124, 128, 0.08) !important;
+  width: 32px;
+  height: 32px;
 }
 
-.advancedBtn:hover {
-  background: rgba(6, 124, 128, 0.2) !important;
-  border-color: rgba(6, 124, 128, 0.4) !important;
+.editBtn:hover {
+  background: rgba(6, 124, 128, 0.16) !important;
 }
 
 .deleteBtn {
-  border-radius: 12px !important;
-  border: 1.4px solid rgba(6, 124, 128, 0.18) !important;
-  background: #ffffff !important;
-  padding: 6px 8px !important;
-  color: #067c80 !important;
-  order: 2;
-  transition: box-shadow 0.15s ease !important;
+  color: #b71c1c !important;
+  background: linear-gradient(135deg, #ffebee, #ffcdd2) !important;
+  width: 32px;
+  height: 32px;
 }
 
 .deleteBtn:hover {
-  box-shadow: 0 4px 10px rgba(6, 124, 128, 0.25);
+  background: linear-gradient(135deg, #ffcdd2, #ef9a9a) !important;
 }

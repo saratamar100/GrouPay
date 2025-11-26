@@ -12,15 +12,14 @@ import {
   Typography,
   Divider,
   TextField,
+  Box,
 } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
 import type { Member } from "@/app/types/types";
 import type { SplitDetail } from "@/app/utils/split";
 import { useAdvancedExpense } from "@/app/hooks/useAdvancedExpense";
-import { toMoney } from "@/app/utils/money";
-import {formatILS} from "@/app/utils/money"
+import { toMoney, formatILS } from "@/app/utils/money";
 import styles from "./AdvancedExpense.module.css";
-
 
 type AdvancedExpenseProps = {
   open: boolean;
@@ -83,6 +82,13 @@ export default function AdvancedExpense({
     },
   };
 
+  const diffClass =
+    diff === 0
+      ? ""
+      : diff > 0
+      ? styles.diffPositive
+      : styles.diffNegative;
+
   return (
     <Dialog
       open={open}
@@ -128,27 +134,36 @@ export default function AdvancedExpense({
             <Typography variant="subtitle2" className={styles.sectionTitle}>
               חשבונית / צילום מסך
             </Typography>
-            <Button
-              variant="outlined"
-              component="label"
-              size="small"
-              className={styles.uploadBtn}
-            >
-              העלאת קובץ
-              <input
-                type="file"
-                hidden
-                accept="image/*,.pdf"
-                onChange={(e) =>
-                  handleFile(e.target.files?.[0] ? e.target.files[0] : null)
-                }
-              />
-            </Button>
-            {receiptPreview && (
-              <div className={styles.receiptPreview}>
-                <img src={receiptPreview} alt="תצוגה מקדימה" />
-              </div>
-            )}
+            <div className={styles.uploadRow}>
+              <Button
+                variant="contained"
+                component="label"
+                size="small"
+                className={styles.uploadBtn}
+              >
+                העלאת קובץ
+                <input
+                  type="file"
+                  hidden
+                  accept="image/*,.pdf"
+                  onChange={(e) =>
+                    handleFile(
+                      e.target.files?.[0] ? e.target.files[0] : null
+                    )
+                  }
+                />
+              </Button>
+
+              {receiptPreview && (
+                <div className={styles.previewWrap}>
+                  <img
+                    src={receiptPreview}
+                    alt="תצוגה מקדימה"
+                    className={styles.previewImg}
+                  />
+                </div>
+              )}
+            </div>
           </div>
         </section>
 
@@ -172,7 +187,6 @@ export default function AdvancedExpense({
                 label="חלוקה שווה"
                 className={styles.equalToggle}
               />
-           
             </div>
           </div>
 
@@ -185,6 +199,7 @@ export default function AdvancedExpense({
                 <div key={m.id} className={styles.memberRow}>
                   <FormControlLabel
                     label={m.name}
+                    className={styles.memberCheck}
                     control={
                       <Checkbox
                         checked={checked}
@@ -207,26 +222,29 @@ export default function AdvancedExpense({
           </div>
         </section>
 
-        {diff != 0 ? (
-          <div className={styles.totals}>
-            <Typography color={diff === 0 ? "inherit" : "error"}>
-              הפרש: <strong dir="ltr">{formatILS(diff)}</strong>
+        {diff !== 0 && (
+          <div className={`${styles.totals} ${diffClass}`}>
+            <Typography>
+              הפרש:
+              <strong dir="ltr"> {formatILS(diff)}</strong>
             </Typography>
           </div>
-        ) : (
-          <></>
         )}
       </DialogContent>
 
       <DialogActions className={styles.actions}>
-        <Button variant="text" onClick={onClose} className={styles.secondaryBtn}>
+        <Button
+          variant="text"
+          onClick={onClose}
+          className={styles.secondaryBtn}
+        >
           ביטול
         </Button>
         <Button
           variant="contained"
           onClick={handleSave}
-          disabled={selected.length === 0}
-          className={styles.primaryBtn}
+          disabled={selected.length === 0 || diff !== 0}
+          className={styles.firstBtn}
         >
           שמירה
         </Button>
