@@ -1,19 +1,21 @@
 "use client";
 
-import { useState, FormEvent, useMemo } from "react";
+import { useState, FormEvent, useMemo, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { User } from "@/app/types/types";
 import { useLoginStore } from "@/app/store/loginStore";
-
+import { fetchAllUsers } from "@/app/services/client/userService";
+import { createGroup } from "@/app/services/client/groupService";
 import styles from "./CreateGroupForm.module.css";
 
-interface CreateGroupFormProps {
-  allUsers: User[];
-}
+interface CreateGroupFormProps {}
 
-export function CreateGroupForm({ allUsers }: CreateGroupFormProps) {
+export function CreateGroupForm({}: CreateGroupFormProps) {
   const router = useRouter();
   const [groupName, setGroupName] = useState("");
+
+  const [allUsers, setAllUsers] = useState<User[]>([]);
+  const [isUsersLoading, setIsUsersLoading] = useState(true);
 
   const [selectedMemberIds, setSelectedMemberIds] = useState<string[]>([]);
   const [currentInput, setCurrentInput] = useState("");
@@ -22,9 +24,25 @@ export function CreateGroupForm({ allUsers }: CreateGroupFormProps) {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
- const currentUser = useLoginStore((state) => state.loggedUser);
- const currentUserId = currentUser ? currentUser.id : null;
- 
+  const currentUser = useLoginStore((state) => state.loggedUser);
+  const currentUserId = currentUser ? currentUser.id : null;
+
+  useEffect(() => {
+    async function loadUsers() {
+      setIsUsersLoading(true);
+      try {
+        const users = await fetchAllUsers();
+        setAllUsers(users);
+        setError(null);
+      } catch (e) {
+        console.error("Failed to load users for autocomplete:", e);
+        setError((e as Error).message || "שגיאה כללית בטעינת משתמשים.");
+      } finally {
+        setIsUsersLoading(false);
+      }
+    }
+    loadUsers();
+  }, []);
 
   const selectedUsers = useMemo(() => {
     return selectedMemberIds
@@ -85,23 +103,11 @@ export function CreateGroupForm({ allUsers }: CreateGroupFormProps) {
     setError(null);
 
     try {
-      const response = await fetch("/api/groups", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          name: groupName,
-          memberIds: finalMemberIds,
-        }),
+      const createdGroup = await createGroup({
+        name: groupName,
+        memberIds: finalMemberIds,
       });
 
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.message || "Failed to create group");
-      }
-
-      const createdGroup = await response.json();
       router.push(`/groups/${createdGroup.id}`);
     } catch (err: any) {
       setError(err.message);
