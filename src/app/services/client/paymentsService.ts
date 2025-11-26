@@ -1,10 +1,11 @@
-import { Payment } from "@/app/types/types";
+import { Member, Payment } from "@/app/types/types";
+import { Status } from "@/app/types/types";
 
 export const createPayment = async (
-  payeeId: string,
+  payee: Member,
   amount: number,
   groupId: string,
-  payerId: string
+  payer: Member
 ): Promise<Payment> => {
   try {
     const res = await fetch(`/api/groups/${groupId}/payment`, {
@@ -13,9 +14,9 @@ export const createPayment = async (
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        payeeId,
+        payee,
         amount,
-        payerId,
+        payer,
         groupId
       }),
     });
@@ -51,3 +52,35 @@ export async function fetchPendingPayments(
     return [];
   }
 }
+export const updatePaymentStatus = async (
+  payment: Payment,
+  groupId: string,
+  status: Status
+): Promise<boolean> => {
+  console.log("Updating payment status:", { payment, status });
+  try {
+    const res = await fetch(`/api/groups/${groupId}/payment`, {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        paymentId:payment.id,
+        //payer:payment.payer,
+        //payee:payment.payee,
+        //amount:payment.amount,
+        status,
+        groupId,
+      }),
+    });
+    if (!res.ok) {
+      const msg = await res.text();
+      throw new Error(msg || "Failed to update payment status");
+    }
+    const data = await res.json();
+    return data.success;
+  } catch (err: any) {
+    console.error("updatePaymentStatus error:", err);
+    return false;
+  }
+};
