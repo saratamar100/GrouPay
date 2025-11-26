@@ -1,4 +1,5 @@
 import { GroupBalanceDisplay } from "@/app/components/Groups/GroupBalanceDisplay";
+import Header from "@/app/components/Header/Header"
 
 export default async function GroupBalancePage({
   params,
@@ -6,5 +7,8 @@ export default async function GroupBalancePage({
   params: { groupId: string };
 }) {
   const groupId = (await params).groupId;
-  return <GroupBalanceDisplay groupId={groupId} />;
+  return <>
+  <Header/>
+  <GroupBalanceDisplay groupId={groupId} />;
+  </>
 }

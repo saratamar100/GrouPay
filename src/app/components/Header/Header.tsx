@@ -1,51 +1,103 @@
 "use client";
-import React from "react";
-import { AppBar, Toolbar, Typography, Button, Box } from "@mui/material";
-import Link from "next/link";
+
+import React, { useState } from "react";
+import {
+  AppBar,
+  Toolbar,
+  Box,
+  IconButton,
+  Menu,
+  MenuItem,
+} from "@mui/material";
+import { useRouter, usePathname } from "next/navigation";
 import styles from "./Header.module.css";
 import { useLoginStore } from "@/app/store/loginStore";
+import ExitToAppIcon from "@mui/icons-material/ExitToApp";
+import HomeIcon from "@mui/icons-material/Home";
+import InfoIcon from "@mui/icons-material/Info";
+import PersonIcon from '@mui/icons-material/Person';
 
 const Header: React.FC = () => {
+  const router = useRouter();
+  const pathname = usePathname();
   const loginStore = useLoginStore();
+
+  const [menuAnchor, setMenuAnchor] = useState<null | HTMLElement>(null);
+
   const logout = () => {
     loginStore.setLoggedUser(null);
-    const user = loginStore.loggedUser;
-    if (!user) {
-      window.location.href = "/";
+    if (typeof window !== "undefined") {
+      window.localStorage.removeItem("profileImage");
     }
+    router.push("/");
   };
-  const navLinks = [
-    { title: "אודות", path: "/about" },
-    { title: "פרופיל", path: "/profile" },
-    { title: "התנתקות", action: logout },
-  ];
+
+  const handleAvatarClick = (event: React.MouseEvent<HTMLElement>) => {
+    setMenuAnchor(event.currentTarget);
+  };
+
+  const isDashboard = pathname === "/dashboard";
+  const isAbout = pathname === "/about";
+  const isProfile = pathname.startsWith("/profile");
+
   return (
-    <AppBar position="static" className={styles.appBar}>
+    <AppBar>
       <Toolbar className={styles.toolbar}>
-        <Box className={styles.navContainer}>
-          {navLinks.map((link) =>
-            link.path ? (
-              <Link key={link.title} href={link.path}>
-                <Button color="inherit" className={styles.navButton}>
-                  {link.title}
-                </Button>
-              </Link>
-            ) : (
-              <Button
-                key={link.title}
-                color="inherit"
-                className={styles.navButton}
-                onClick={link.action}
-              >
-                {link.title}
-              </Button>
-            )
-          )}
+        <Box className={styles.rightSection}>
+            <img
+              src="/images/groupay-white-logo.png"
+              alt="GrouPay Logo"
+              className={styles.logo}
+            />
+            <span className={styles.brandText}></span>
         </Box>
 
-        <Typography variant="h5" component="div" className={styles.logo}>
-          GrouPay
-        </Typography>
+        <Box className={styles.leftSection}>
+            <IconButton
+              className={isDashboard ? styles.activeIcon : styles.iconButton}
+              onClick={() => router.push("/dashboard")}
+            >
+              <HomeIcon />
+            </IconButton>
+
+            <IconButton
+              className={isAbout ? styles.activeIcon : styles.iconButton}
+              
+              onClick={() => router.push("/about")}
+            >
+              <InfoIcon />
+            </IconButton>
+
+            <IconButton
+              className={isProfile ? styles.activeIcon : styles.iconButton}
+              onClick={handleAvatarClick}
+            >
+              <PersonIcon sx={{ fontSize: 32 }} />
+            </IconButton>
+
+          <Menu
+            anchorEl={menuAnchor}
+            open={Boolean(menuAnchor)}
+            onClose={() => setMenuAnchor(null)}
+            className={styles.menu}
+          >
+            <MenuItem
+              onClick={() => router.push("/profile")}
+              className={styles.menuItem}
+            >
+              <PersonIcon fontSize="small" />
+              <span>פרופיל</span>
+            </MenuItem>
+
+            <MenuItem
+              onClick={logout}
+              className={styles.logoutItem}
+            >
+              <ExitToAppIcon fontSize="small" />
+              <span>התנתקות</span>
+            </MenuItem>
+          </Menu>
+        </Box>
       </Toolbar>
     </AppBar>
   );

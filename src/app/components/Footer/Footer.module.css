@@ -1,0 +1,24 @@
+.footer {
+  background: var(--bg-linear);
+  padding: 2rem 0;
+}
+
+.footerContainer {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 0 1rem;
+}
+
+.socialIcons {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 1.5rem;
+}
+
+.socialIcon {
+  color: var(--bg-white);
+  display: flex;
+  align-items: center;
+  text-decoration: none;
+}

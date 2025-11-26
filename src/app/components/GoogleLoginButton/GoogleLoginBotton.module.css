@@ -1,19 +1,18 @@
 .btn {
-  background-color: var(--primary-color);
-  color: var(--white);
   border: none;
   border-radius: 10px;
   padding: 16px 36px;
   font-size: 1.15rem;
   font-weight: 700;
   cursor: pointer;
-  text-decoration: none;
   transition: all 0.3s ease;
   box-shadow: 0 8px 20px -8px rgba(13, 148, 136, 0.4);
+  background-color: var(--bg-light);
+  color: var(--primary-color);
+  border: 1px solid #99f6e4;
 }
 
 .btn:hover {
-  background-color: var(--primary-dark);
   transform: translateY(-6px) scale(1.05);
   box-shadow: 0 15px 30px -10px rgba(13, 148, 136, 0.5);
 }

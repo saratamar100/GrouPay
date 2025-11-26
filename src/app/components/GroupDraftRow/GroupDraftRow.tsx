@@ -1,7 +1,15 @@
 "use client";
-import type { Expense, Member } from "@/app/types/types";
-import { Paper, TextField, IconButton, Button, Tooltip } from "@mui/material";
-import MoreHorizIcon from '@mui/icons-material/MoreHoriz';
+import type { Expense } from "@/app/types/types";
+import {
+  Paper,
+  TextField,
+  IconButton,
+  Tooltip,
+  Box,
+} from "@mui/material";
+import MoreHorizIcon from "@mui/icons-material/MoreHoriz";
+import CheckIcon from "@mui/icons-material/Check";
+import CloseIcon from "@mui/icons-material/Close";
 import styles from "./GroupDraftRow.module.css";
 
 export type DraftExpense = Omit<Expense, "id">;
@@ -23,21 +31,42 @@ export function GroupDraftRow({
 }) {
   return (
     <Paper elevation={0} className={styles.row}>
-      <div className={styles.card}>
-        {/* Inputs section */}
-        <div className={styles.inputs}>
-          <TextField
-            label="שם ההוצאה"
-            variant="outlined"
+      <Box className={styles.card}>
+        <Tooltip title="ביטול">
+          <IconButton
             size="small"
-            value={draft.name}
-            onChange={(e) => onChange("name", e.target.value)}
-            onKeyDown={(e) => {
-              if (e.key === "Enter" && !disabled) onConfirm();
-            }}
-            className={styles.nameInput}
-          />
+            onClick={onCancel}
+            disabled={disabled}
+            className={styles.cancelBtn}
+          >
+            <CloseIcon fontSize="small" />
+          </IconButton>
+        </Tooltip>
 
+        <Tooltip title="אישור">
+          <IconButton
+            size="small"
+            onClick={onConfirm}
+            disabled={disabled}
+            className={styles.confirmBtn}
+          >
+            <CheckIcon fontSize="small" />
+          </IconButton>
+        </Tooltip>
+
+        {onAdvanced && (
+          <Tooltip title="אפשרויות מתקדמות">
+            <IconButton
+              size="small"
+              onClick={onAdvanced}
+              className={styles.advancedBtn}
+            >
+              <MoreHorizIcon fontSize="small" />
+            </IconButton>
+          </Tooltip>
+        )}
+
+        <Box className={styles.inputs}>
           <TextField
             label="סכום"
             variant="outlined"
@@ -51,41 +80,17 @@ export function GroupDraftRow({
             dir="ltr"
             className={styles.amountInput}
           />
-        </div>
 
-        <div className={styles.controls}>
-          <Tooltip title="אפשרויות מתקדמות">
-            <IconButton
-              size="small"
-              aria-label="אפשרויות מתקדמות לטיוטה"
-              className={styles.advancedBtn}
-              onClick={onAdvanced}
-            >
-              <MoreHorizIcon fontSize="small" />
-            </IconButton>
-          </Tooltip>
-
-          <div className={styles.actions}>
-            <Button
-              variant="contained"
-              onClick={onConfirm}
-              disabled={disabled}
-              size="small"
-              className={styles.primaryBtn}
-            >
-              אישור
-            </Button>
-            <Button
-              variant="outlined"
-              onClick={onCancel}
-              size="small"
-              className={styles.secondaryBtn}
-            >
-              ביטול
-            </Button>
-          </div>
-        </div>
-      </div>
+          <TextField
+            label="שם ההוצאה"
+            variant="outlined"
+            size="small"
+            value={draft.name}
+            onChange={(e) => onChange("name", e.target.value)}
+            className={styles.nameInput}
+          />
+        </Box>
+      </Box>
     </Paper>
   );
 }
