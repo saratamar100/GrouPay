@@ -2,12 +2,13 @@
 
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
-import { useParams } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 
 import Header from "@/app/components/Header/Header";
 import { useGroupData } from "@/app/hooks/useGroupData";
 import { GroupExpensesList } from "@/app/components/GroupExpensesList/GroupExpensesList";
 import { GroupDraftRow } from "@/app/components/GroupDraftRow/GroupDraftRow";
+import {GroupMembersSidebar} from "@/app/components/GroupMembersSidebar/GroupMembersSidebar"
 import AdvancedExpense from "@/app/components/AdvancedExpense/AdvancedExpense";
 import { useLoginStore } from "@/app/store/loginStore";
 import { formatILS } from "@/app/utils/money";
@@ -35,8 +36,12 @@ export default function GroupPage() {
   const route = useParams<{ id?: string; groupId?: string }>();
   const groupId = (route.groupId ?? route.id) as string | undefined;
 
+  const router = useRouter();
   const user = useLoginStore((state) => state.loggedUser);
-  const userId = user ? user.id : null;
+  const userId = user?.id;
+
+  const [userChecked, setUserChecked] = useState(false);
+  const [isMembersOpen, setIsMembersOpen] = useState(false);
 
   const {
     state,
@@ -52,34 +57,48 @@ export default function GroupPage() {
     handleAdvancedSave,
   } = useGroupData(groupId);
 
-  const [isMembersOpen, setIsMembersOpen] = useState(false);
+  useEffect(() => {
+    setUserChecked(true);
+  }, []);
 
   useEffect(() => {
+    if (!userChecked) return;
+
+    if (!userId) {
+      router.replace("/");
+      return;
+    }
+
     if (groupId) reload();
-  }, [groupId, reload]);
+  }, [userChecked, userId, groupId, reload, router]);
 
   const members = state.group?.members || [];
-  const expenses = Array.isArray(state.group?.expenses)
-    ? state.group!.expenses
-    : [];
+  const expenses = Array.isArray(state.group?.expenses) ? state.group.expenses : [];
 
   const totalExpenses = useMemo(
     () => expenses.reduce((sum, e) => sum + (Number(e.amount) || 0), 0),
     [expenses]
   );
 
+  if (!userChecked) {
+    return (
+      <Container className={styles.centerState}>
+        <CircularProgress />
+      </Container>
+    );
+  }
+
   if (!groupId) {
     return (
-      <div style={{ padding: 24, color: "crimson" }}>חסר מזהה קבוצה בנתיב</div>
+      <div style={{ padding: 24, color: "crimson" }}>
+        חסר מזהה קבוצה בנתיב
+      </div>
     );
   }
 
   if (state.loading) {
     return (
-      <Container
-        maxWidth="lg"
-        style={{ textAlign: "center", padding: "2rem" }}
-      >
+      <Container className={styles.loaderWrapper}>
         <CircularProgress aria-label="טוען..." />
       </Container>
     );
@@ -105,11 +124,7 @@ export default function GroupPage() {
                 <Typography component="span" className={styles.totalLabel}>
                   סה״כ:
                 </Typography>
-                <Typography
-                  component="strong"
-                  className={styles.totalValue}
-                  dir="ltr"
-                >
+                <Typography component="strong" className={styles.totalValue} dir="ltr">
                   {formatILS(totalExpenses)}
                 </Typography>
               </Box>
@@ -149,7 +164,7 @@ export default function GroupPage() {
                 expenses={expenses}
                 onDelete={deleteExpense}
                 onEdit={openAdvancedForExisting}
-                members={members}
+                hasDraft={!!state.draft}
               />
             </Box>
 
@@ -178,41 +193,14 @@ export default function GroupPage() {
             </Box>
           </main>
 
-          {isMembersOpen && (
-            <aside className={styles.sidebar}>
-              <Box className={styles.sidebarHeader}>
-                <Typography variant="h6" className={styles.sidebarTitle}>
-                  חברי הקבוצה
-                </Typography>
-                <IconButton
-                  size="small"
-                  onClick={() => setIsMembersOpen(false)}
-                  aria-label="סגירת רשימת חברים"
-                >
-                  <CloseIcon />
-                </IconButton>
-              </Box>
+          {isMembersOpen && ( 
+            <GroupMembersSidebar
+            open={isMembersOpen}
+            members={members}
+            currentUserId={userId}
+            onClose={() => setIsMembersOpen(false)}
+/>
 
-              <Divider className={styles.sidebarDivider} />
-
-              <List className={styles.membersList}>
-                {members
-                  .filter((m) => m.id !== userId)
-                  .map((m, index) => (
-                    <ListItem
-                      key={`${m.id}-${index}`}
-                      className={styles.memberItem}
-                    >
-                      <ListItemText
-                        primary={m.name}
-                        primaryTypographyProps={{
-                          className: styles.memberName,
-                        }}
-                      />
-                    </ListItem>
-                  ))}
-              </List>
-            </aside>
           )}
         </Paper>
 

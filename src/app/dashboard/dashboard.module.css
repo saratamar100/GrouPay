@@ -151,6 +151,13 @@
   border: none !important;
 }
 
+.loaderWrapper {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 300px;
+}
+
 @media (max-width: 768px) {
   .headerRow {
     flex-direction: column;
