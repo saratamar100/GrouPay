@@ -15,7 +15,7 @@ export async function GET(req: Request) {
       to: process.env.TO_EMAIL!,      
       from: process.env.FROM_EMAIL!,   
       subject: 'Hi from Cron Job!',
-      text: "this is an email sent from a cron job running on Vercel!!!!!!.",
+      text: "oewjfoiew",
     });
 
     return NextResponse.json({ ok: true, message: 'Email sent!' });
