@@ -1,9 +1,17 @@
 .list {
   display: flex;
   flex-direction: column;
-  gap: 14px;
-  margin-top: 12px;
+  gap: 8px;
 }
 
+.emptyState {
+  padding: 12px 14px;
+  border-radius: 20px;
+  background: rgba(255, 255, 255, 0.9);
+  border: 1px dashed rgba(148, 163, 184, 0.6);
+}
 
-
+.emptyText {
+  font-size: 0.95rem;
+  color: var(--text-muted);
+}

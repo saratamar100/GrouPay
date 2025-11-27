@@ -1,7 +1,7 @@
 import { signInWithGoogle } from "@/app/services/client/authHelpers";
 import { addUser } from "@/app/services/client/login";
 import { User } from "@/app/types/types";
-import styles from "./GoogleLoginBotton.module.css"
+import {Button} from "@mui/material"
 interface GoogleLoginButtonProps {
   onLogIn: (user: User) => void;
 }
@@ -24,6 +24,6 @@ const GoogleLoginButton = ({ onLogIn }: GoogleLoginButtonProps) => {
       }
     }
   };
-  return <button className={styles.btn} onClick={handleLogin}>התחבר עם גוגל</button>;
+  return <Button onClick = {handleLogin} variant = "outlined">  התחבר עם גוגל</Button>
 };
 export default GoogleLoginButton;

@@ -15,16 +15,15 @@ export function GroupExpensesList({
   onEdit?: (id: string) => void;
   members: Member[];
 }) {
-
   if (!expenses || expenses.length === 0) {
     return (
-      <Paper elevation={0} sx={{ p: 1, opacity: 0.8, mt: 1 }}>
-        <Typography>אין עדיין תנועות בקבוצה.</Typography>
+      <Paper elevation={0} className={styles.emptyState}>
+        <Typography className={styles.emptyText}>
+          אין עדיין תנועות בקבוצה.
+        </Typography>
       </Paper>
     );
   }
-
-  console.log(expenses)
 
   return (
     <div className={styles.list}>
@@ -40,4 +39,3 @@ export function GroupExpensesList({
     </div>
   );
 }
-
