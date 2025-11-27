@@ -15,25 +15,25 @@ import { useLoginStore } from "@/app/store/loginStore";
 import ExitToAppIcon from "@mui/icons-material/ExitToApp";
 import HomeIcon from "@mui/icons-material/Home";
 import InfoIcon from "@mui/icons-material/Info";
-import PersonIcon from '@mui/icons-material/Person';
+import PersonIcon from "@mui/icons-material/Person";
 
 const Header: React.FC = () => {
   const router = useRouter();
   const pathname = usePathname();
-  const loginStore = useLoginStore();
+
+  const loggedUser = useLoginStore((state) => state.loggedUser);
+  const logout = useLoginStore((state) => state.logout);
 
   const [menuAnchor, setMenuAnchor] = useState<null | HTMLElement>(null);
 
-  const logout = () => {
-    loginStore.setLoggedUser(null);
-    if (typeof window !== "undefined") {
-      window.localStorage.removeItem("profileImage");
-    }
-    router.push("/");
-  };
-
   const handleAvatarClick = (event: React.MouseEvent<HTMLElement>) => {
     setMenuAnchor(event.currentTarget);
+  };
+
+  const handleLogout = () => {
+    logout();
+    setMenuAnchor(null);
+    router.push("/");
   };
 
   const isDashboard = pathname === "/dashboard";
@@ -44,59 +44,64 @@ const Header: React.FC = () => {
     <AppBar>
       <Toolbar className={styles.toolbar}>
         <Box className={styles.rightSection}>
-            <img
-              src="/images/groupay-white-logo.png"
-              alt="GrouPay Logo"
-              className={styles.logo}
-            />
-            <span className={styles.brandText}></span>
+          <img
+            src="/images/groupay-white-logo.png"
+            alt="GrouPay Logo"
+            className={styles.logo}
+          />
         </Box>
 
         <Box className={styles.leftSection}>
-            <IconButton
-              className={isDashboard ? styles.activeIcon : styles.iconButton}
-              onClick={() => router.push("/dashboard")}
-            >
-              <HomeIcon />
-            </IconButton>
-
-            <IconButton
-              className={isAbout ? styles.activeIcon : styles.iconButton}
-              
-              onClick={() => router.push("/about")}
-            >
-              <InfoIcon />
-            </IconButton>
-
-            <IconButton
-              className={isProfile ? styles.activeIcon : styles.iconButton}
-              onClick={handleAvatarClick}
-            >
-              <PersonIcon sx={{ fontSize: 32 }} />
-            </IconButton>
-
-          <Menu
-            anchorEl={menuAnchor}
-            open={Boolean(menuAnchor)}
-            onClose={() => setMenuAnchor(null)}
-            className={styles.menu}
+          <IconButton
+            className={isDashboard ? styles.activeIcon : styles.iconButton}
+            onClick={() => router.push("/dashboard")}
           >
-            <MenuItem
-              onClick={() => router.push("/profile")}
-              className={styles.menuItem}
-            >
-              <PersonIcon fontSize="small" />
-              <span>פרופיל</span>
-            </MenuItem>
+            <HomeIcon />
+          </IconButton>
 
-            <MenuItem
-              onClick={logout}
-              className={styles.logoutItem}
-            >
-              <ExitToAppIcon fontSize="small" />
-              <span>התנתקות</span>
-            </MenuItem>
-          </Menu>
+          <IconButton
+            className={isAbout ? styles.activeIcon : styles.iconButton}
+            onClick={() => router.push("/about")}
+          >
+            <InfoIcon />
+          </IconButton>
+
+          {loggedUser && (
+            <>
+              <IconButton
+                className={isProfile ? styles.activeIcon : styles.iconButton}
+                onClick={handleAvatarClick}
+              >
+                <PersonIcon sx={{ fontSize: 32 }} />
+              </IconButton>
+
+              <Menu
+                anchorEl={menuAnchor}
+                open={Boolean(menuAnchor)}
+                onClose={() => setMenuAnchor(null)}
+                className={styles.menu}
+              >
+                <MenuItem
+                  onClick={() => {
+                    router.push("/profile");
+                    setMenuAnchor(null);
+                  }}
+                  className={styles.menuItem}
+                >
+                  <PersonIcon fontSize="small" />
+                  <span>פרופיל</span>
+                </MenuItem>
+
+                <MenuItem
+                  onClick={handleLogout}
+                  className={styles.logoutItem}
+                >
+                  <ExitToAppIcon fontSize="small" />
+                  <span>התנתקות</span>
+                </MenuItem>
+              </Menu>
+            </>
+          )}
         </Box>
       </Toolbar>
     </AppBar>
