@@ -193,11 +193,12 @@ export default function GroupPage() {
             </Box>
           </main>
 
-          {isMembersOpen && ( 
+          {isMembersOpen && groupId && ( 
             <GroupMembersSidebar
             open={isMembersOpen}
             members={members}
             currentUserId={userId}
+            groupId={groupId}
             onClose={() => setIsMembersOpen(false)}
 />
 
