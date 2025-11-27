@@ -15,7 +15,7 @@ export async function GET(req: Request) {
       to: process.env.TO_EMAIL!,      
       from: process.env.FROM_EMAIL!,   
       subject: 'Hi from Cron Job!',
-      text: "It's 14:25 now",
+      text: "final text",
     });
 
     return NextResponse.json({ ok: true, message: 'Email sent!' });
