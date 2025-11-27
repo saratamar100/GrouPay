@@ -1,0 +1,8 @@
+{
+  "crons": [
+    {
+      "path": "/api/sendHi",
+      "schedule": "50 12 * * *"
+    }
+  ]
+}
