@@ -8,14 +8,17 @@ export function GroupExpensesList({
   expenses,
   onDelete,
   onEdit,
-  members,
+  hasDraft
 }: {
   expenses: Expense[];
   onDelete: (id: string) => void;
   onEdit?: (id: string) => void;
-  members: Member[];
+  hasDraft?: boolean;
+
+  
+  
 }) {
-  if (!expenses || expenses.length === 0) {
+  if ((!expenses || expenses.length === 0) && !hasDraft) {
     return (
       <Paper elevation={0} className={styles.emptyState}>
         <Typography className={styles.emptyText}>

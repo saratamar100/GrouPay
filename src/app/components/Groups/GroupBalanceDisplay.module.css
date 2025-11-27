@@ -126,3 +126,11 @@
   color: var(--text-light);
   font-size: 1.1rem;
 }
+
+
+.loaderWrapper {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 300px;
+}
