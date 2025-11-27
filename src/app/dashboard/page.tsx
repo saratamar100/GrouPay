@@ -15,6 +15,7 @@ import {
   CardContent,
   Chip,
   Button,
+  CircularProgress,
 } from "@mui/material";
 
 import styles from "./dashboard.module.css";
@@ -22,26 +23,35 @@ import styles from "./dashboard.module.css";
 export default function DashboardTest() {
   const [groups, setGroups] = useState<GroupShort[]>([]);
   const [error, setError] = useState<string | null>(null);
+  const [loadingGroups, setLoadingGroups] = useState(true);
+  const [userChecked, setUserChecked] = useState(false);
 
   const user = useLoginStore((state) => state.loggedUser);
   const router = useRouter();
 
   useEffect(() => {
-    if (!user) return;
-    const userId = user.id;
-    if (!userId) return;
+    setUserChecked(true);
+  }, []);
 
-    getUserGroups(userId)
-      .then(setGroups)
-      .catch((err) => setError(err.message));
-  }, [user]);
+  useEffect(() => {
+    if (!userChecked) return;
+
+    if (!user || !user.id) {
+      router.replace("/");
+      return;
+    }
+
+    setLoadingGroups(true);
+
+    getUserGroups(user.id)
+      .then((data) => setGroups(data))
+      .catch((err) => setError(err.message))
+      .finally(() => setLoadingGroups(false));
+  }, [user, userChecked, router]);
 
   const totalBalance = useMemo(() => {
     return groups.reduce((sum, g) => sum + g.balance, 0);
   }, [groups]);
-
-  if (!user) return <div>טוען משתמש...</div>;
-  if (error) return <div>שגיאה: {error}</div>;
 
   const goToGroup = (id: string) => {
     router.push(`/groups/${id}`);
@@ -58,81 +68,109 @@ export default function DashboardTest() {
       ? styles.totalPositive
       : styles.totalNegative;
 
+  if (!userChecked) {
+    return (
+      <>
+        <Header />
+        <Box className={styles.loaderWrapper}>
+          <CircularProgress />
+        </Box>
+        <Footer />
+      </>
+    );
+  }
+
+  if (error) {
+    return (
+      <>
+        <Header />
+        <Box className={styles.main}>
+          <Typography color="error">שגיאה: {error}</Typography>
+        </Box>
+        <Footer />
+      </>
+    );
+  }
+
   return (
     <>
       <Header />
-        <Box className={styles.main}>
-          <Box className={styles.headerRow}>
-            <Box className={styles.headerTexts}>
-              <Typography className={styles.title}>הקבוצות שלי</Typography>
 
-              <Box className={styles.totalInline}>
-                <Typography className={styles.totalLabel}>
-                  סה״כ יתרה:
-                </Typography>
-                <Typography className={`${styles.totalValue} ${balanceClass}`}>
-                  ₪{totalBalance.toFixed(0)}
-                </Typography>
-              </Box>
+      <Box className={styles.main}>
+        <Box className={styles.headerRow}>
+          <Box className={styles.headerTexts}>
+            <Typography className={styles.title}>הקבוצות שלי</Typography>
+
+            <Box className={styles.totalInline}>
+              <Typography className={styles.totalLabel}>
+                סה״כ יתרה:
+              </Typography>
+              <Typography className={`${styles.totalValue} ${balanceClass}`}>
+                ₪{totalBalance.toFixed(0)}
+              </Typography>
             </Box>
-            <Button variant="contained" onClick={goToCreateGroup}>יצירת קבוצה</Button>
-
-
-           
           </Box>
 
-          {groups.length === 0 ? (
-            <Box className={styles.emptyState}>
-              <Typography variant="body1" className={styles.emptyText}>
-                עדיין לא יצרת קבוצות.
-              </Typography>
-              <Typography variant="body2" className={styles.emptySubText}>
-                התחילי קבוצה חדשה לטיול, שותפים לדירה או אירוע – וננהל את ההוצאות יחד.
-              </Typography>
-            </Box>
-          ) : (
-            <div className={styles.groupsGrid}>
-              {groups.map((g) => {
-                const isDebt = g.balance < 0;
-                const balanceDisplay = Math.abs(g.balance).toFixed(0);
-
-                return (
-                  
-                  <Card
-                    key={g.id}
-                    onClick={() => goToGroup(g.id)}
-                    className={styles.groupCard}
-                    elevation={3}
-                  >
-                    <CardContent className={styles.groupCardContent}>
-                      <Typography
-                        variant="h6"
-                        className={styles.groupName}
-                        gutterBottom
-                      >
-                        {g.name}
-                      </Typography>
-
-                      <Box className={styles.groupRow}>
-                        <Chip
-                          label={isDebt ? "חובה" : "זכות"}
-                          className={
-                            isDebt ? styles.chipDebt : styles.chipCredit
-                          }
-                          size="small"
-                        />
-                        <Typography className={styles.groupBalanceAmount}>
-                          ₪{balanceDisplay}
-                        </Typography>
-                      </Box>
-                    </CardContent>
-                  </Card>
-                );
-              })}
-            </div>
-          )}
+          <Button variant="contained" onClick={goToCreateGroup}>
+            יצירת קבוצה
+          </Button>
         </Box>
-      <Footer/>
+
+        {loadingGroups ? (
+          <Box className={styles.loaderWrapper}>
+            <CircularProgress />
+          </Box>
+        ) : groups.length === 0 ? (
+          <Box className={styles.emptyState}>
+            <Typography variant="body1" className={styles.emptyText}>
+              עדיין לא יצרת קבוצות.
+            </Typography>
+            <Typography variant="body2" className={styles.emptySubText}>
+              התחילי קבוצה חדשה לטיול, שותפים לדירה או אירוע – וננהל את ההוצאות
+              יחד.
+            </Typography>
+          </Box>
+        ) : (
+          <div className={styles.groupsGrid}>
+            {groups.map((g) => {
+              const isDebt = g.balance < 0;
+              const balanceDisplay = Math.abs(g.balance).toFixed(0);
+
+              return (
+                <Card
+                  key={g.id}
+                  onClick={() => goToGroup(g.id)}
+                  className={styles.groupCard}
+                  elevation={3}
+                >
+                  <CardContent className={styles.groupCardContent}>
+                    <Typography
+                      variant="h6"
+                      className={styles.groupName}
+                      gutterBottom
+                    >
+                      {g.name}
+                    </Typography>
+
+                    <Box className={styles.groupRow}>
+                      <Chip
+                        label={isDebt ? "חובה" : "זכות"}
+                        className={isDebt ? styles.chipDebt : styles.chipCredit}
+                        size="small"
+                      />
+                      <Typography className={styles.groupBalanceAmount}>
+                        ₪{balanceDisplay}
+                      </Typography>
+                    </Box>
+                  </CardContent>
+                </Card>
+              );
+            })}
+          </div>
+        )}
+      </Box>
+
+      <Footer />
     </>
   );
 }
