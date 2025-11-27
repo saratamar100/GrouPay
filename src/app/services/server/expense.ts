@@ -445,6 +445,11 @@ export async function deleteExpense(groupId: string, expenseId: string) {
     throw err;
   }
 
+   await groupsCol.updateOne(
+      { _id: gid },
+      { $pull: { expenses: eid } }
+    );
+
   await groupsCol.updateOne({ _id: gid }, { $pull: { expenses: eid } });
 
   try {
