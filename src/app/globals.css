@@ -1,4 +1,4 @@
-/* @import "tailwindcss";
+@import "tailwindcss";
 
 :root {
   --primary: #067c80;
@@ -19,28 +19,6 @@ body {
   padding: 0;
   margin: 0;
   min-height: 100%;
-}
-
-<<<<<<< HEAD
-html {
-  padding: 0;
-} */
-
-@import url('https://fonts.googleapis.com/css2?family=Assistant:wght@300;400;600;700;800&display=swap');
-@import "tailwindcss";
-
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-  --primary: #067c80;
-}
-
-* {
-  box-sizing: border-box;
-}
-
-html {
-  padding: 0;
 }
 
 body {
