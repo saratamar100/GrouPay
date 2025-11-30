@@ -40,7 +40,7 @@ type AdvState =
       expenseId?: string;
     };
 
-export function useGroupData(groupId: string | undefined) {
+export function useGroupData(groupId: string | undefined,userId:string|undefined) {
   const [group, setGroup] = useState<Group | null>(null);
   const [draft, setDraft] = useState<DraftExpense | null>(null);
   const [loading, setLoading] = useState(true);
@@ -67,19 +67,26 @@ export function useGroupData(groupId: string | undefined) {
   const currentUserName = currentUser ? currentUser.name : null;
 
 
-  const reload = useCallback(async () => {
-    if (!groupId) return;
-    try {
-      setLoading(true);
-      const g = await getGroup(groupId);
+ const reload = useCallback(() => {
+  if (!groupId) return;
+  
+  setLoading(true);
+
+  getGroup(groupId, userId)
+    .then((g) => {
+      console.log(g);
       setGroup(g);
       setError(null);
-    } catch (e: any) {
+    })
+    .catch((e: any) => {
       setError(e?.message || "שגיאה בטעינת נתוני קבוצה");
-    } finally {
+    })
+    .finally(() => {
       setLoading(false);
-    }
-  }, [groupId]);
+    });
+
+}, [groupId, userId]);
+
 
   const startDraftExpense = useCallback(() => {
     if (!group) return;
@@ -166,7 +173,7 @@ export function useGroupData(groupId: string | undefined) {
       if (!ok) return;
       try {
         setSaving(true);
-        await delExpense(group.id, id);
+        await delExpense(group.id, id ,userId);
         const fresh = await getGroupExpenses(group.id);
         setGroup({ ...group, expenses: fresh });
       } catch (e: any) {
@@ -338,6 +345,8 @@ export function useGroupData(groupId: string | undefined) {
         return;
       }
 
+      
+
       try {
         setSaving(true);
 
@@ -346,7 +355,7 @@ export function useGroupData(groupId: string | undefined) {
           amount: s.amount,
         }));
 
-        await updateExpense(group.id, adv.expenseId, {
+        await updateExpense(group.id, adv.expenseId,userId, {
           name: finalName,
           amount: finalAmount,
           split: apiSplit,
@@ -355,6 +364,8 @@ export function useGroupData(groupId: string | undefined) {
 
         const fresh = await getGroupExpenses(group.id);
         setGroup({ ...group, expenses: fresh });
+      } catch (e: any) {
+        alert(e?.message || "שגיאה בעדכון ההוצאה");
       } finally {
         setSaving(false);
       }

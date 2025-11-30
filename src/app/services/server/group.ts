@@ -1,7 +1,7 @@
 import { ObjectId } from "mongodb";
 import { getDb } from "./mongo";
 
-export async function getGroupWithExpensesService(groupId: string) {
+export async function getGroupWithExpensesService(groupId: string, userId: string) {
   if (!groupId || !ObjectId.isValid(groupId)) {
     const err = new Error("groupId לא חוקי");
     (err as any).status = 400;
@@ -23,6 +23,26 @@ export async function getGroupWithExpensesService(groupId: string) {
     throw err;
   }
 
+  const members = Array.isArray(group.members) ? group.members : [];
+  console.log("members:", group.members);
+  console.log("userId:", userId);
+
+  const isMember = members.some((m: any) => {
+    const memberId = m.userId ?? m.id ?? m._id;
+    if (!memberId) return false;
+    return memberId.toString() === userId;
+  });
+
+  if (!isMember) {
+    const err = new Error("אין לך גישה לקבוצה הזו");
+    (err as any).status = 403;
+    throw err;
+  }
+
+  const memberMap = new Map<string, string>(
+    members.map((m: any) => [m.id.toString(), m.name])
+  );
+
   const expenseIdValues = Array.isArray(group.expenses) ? group.expenses : [];
 
   const expenseObjectIds: ObjectId[] = expenseIdValues
@@ -39,11 +59,6 @@ export async function getGroupWithExpensesService(groupId: string) {
     const rawExpenses = await expensesCol
       .find({ _id: { $in: expenseObjectIds } }, { projection: { groupId: 0 } })
       .toArray();
-
-    const members = Array.isArray(group.members) ? group.members : [];
-    const memberMap = new Map<string, string>(
-      members.map((m: any) => [m.id.toString(), m.name])
-    );
 
     expensesList = rawExpenses.map((e: any) => {
       const payerId = e.payer?.toString?.() ?? e.payer;
@@ -64,11 +79,11 @@ export async function getGroupWithExpensesService(groupId: string) {
 
         split: Array.isArray(e.split)
           ? e.split.map((s: any) => {
-              const userId = s.userId?.toString?.() ?? s.userId;
+              const splitUserId = s.userId?.toString?.() ?? s.userId;
 
               return {
-                id: userId,
-                name: memberMap.get(userId),
+                id: splitUserId,
+                name: memberMap.get(splitUserId),
                 amount: s.amount,
               };
             })
@@ -80,7 +95,7 @@ export async function getGroupWithExpensesService(groupId: string) {
   return {
     id: group._id.toString(),
     name: group.name ?? "",
-    members: Array.isArray(group.members) ? group.members : [],
+    members: members,
     expenses: expensesList,
   };
 }

@@ -4,17 +4,20 @@ import DeleteOutlineIcon from "@mui/icons-material/DeleteOutline";
 import EditOutlinedIcon from "@mui/icons-material/EditOutlined";
 import { formatILS } from "@/app/utils/money";
 import styles from "./GroupExpenseRow.module.css";
+import {Member} from "@/app/types/types"
 
 export function GroupExpenseRow({
+  userId,
   e,
   onDelete,
   onEdit,
-  payerName,
+  payer,
 }: {
+  userId:string | undefined,
   e: Expense;
   onDelete: (id: string) => void;
   onEdit?: (id: string) => void;
-  payerName?: string;
+  payer?: Member;
 }) {
   return (
     <Paper elevation={0} className={styles.row}>
@@ -23,9 +26,9 @@ export function GroupExpenseRow({
           <Typography variant="body1" className={styles.name}>
             {e.name}
           </Typography>
-          {payerName && (
+          {payer && (
             <Typography variant="body2" className={styles.payer}>
-              {`שילם/ה: ${payerName}`}
+              {`שילם/ה: ${payer?.name}`}
             </Typography>
           )}
         </div>
@@ -35,24 +38,27 @@ export function GroupExpenseRow({
             {formatILS(Number(e.amount) || 0)}
           </Typography>
 
-          <IconButton
-            size="small"
-            className={styles.editBtn}
-            onClick={() => {
-              onEdit?.(e.id);
-            }}
-          >
-            <EditOutlinedIcon fontSize="small" />
-          </IconButton>
+          {userId === payer?.id && (
+            <>
+              <IconButton
+                size="small"
+                className={styles.editBtn}
+                onClick={() => onEdit?.(e.id)}
+              >
+                <EditOutlinedIcon fontSize="small" />
+              </IconButton>
 
-          <IconButton
-            size="small"
-            onClick={() => onDelete(e.id)}
-            className={styles.deleteBtn}
-          >
-            <DeleteOutlineIcon fontSize="small" />
-          </IconButton>
+              <IconButton
+                size="small"
+                onClick={() => onDelete(e.id)}
+                className={styles.deleteBtn}
+              >
+                <DeleteOutlineIcon fontSize="small" />
+              </IconButton>
+            </>
+          )}
         </div>
+
       </div>
     </Paper>
   );

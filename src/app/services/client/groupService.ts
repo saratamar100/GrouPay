@@ -1,8 +1,9 @@
 import type { Group, Expense, Member } from "@/app/types/types";
 import { ObjectId } from "mongodb";
 
-export async function getGroup(groupId: string): Promise<Group> {
-  const res = await fetch(`/api/groups/${groupId}`);
+export async function getGroup(groupId: string, userId:string | undefined): Promise<Group> {
+  // const res = await fetch(`/api/groups/${groupId}`);
+  const res = await fetch(`/api/groups/${groupId}?userId=${userId}`);
   if (!res.ok) {
     throw new Error("Failed to fetch group");
   }
@@ -44,20 +45,27 @@ export async function createExpense(
 
 export async function delExpense(
   groupId: string,
-  expenseId: string
-): Promise<{ success: boolean }> {
+  expenseId: string,
+  userId: string | undefined
+): Promise<{ ok: boolean }> {
   const res = await fetch(`/api/groups/${groupId}/expense/${expenseId}`, {
     method: "DELETE",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ userId }),
   });
+
   if (!res.ok) {
-    throw new Error("Failed to delete expense");
+    let message = "Failed to delete expense";
+    throw new Error(message);
   }
+
   return res.json();
 }
 
 export async function updateExpense(
   groupId: string,
   expenseId: string,
+  userId: string | undefined,
   data: {
     name?: string;
     amount?: number;
@@ -68,7 +76,10 @@ export async function updateExpense(
   const res = await fetch(`/api/groups/${groupId}/expense/${expenseId}`, {
     method: "PUT",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(data),
+    body: JSON.stringify({
+      ...data,
+      userId,
+    }),
   });
 
   if (!res.ok) {
@@ -77,6 +88,7 @@ export async function updateExpense(
 
   return res.json();
 }
+
 
 interface GroupCreationPayload {
   name: string;

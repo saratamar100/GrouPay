@@ -236,25 +236,15 @@ export async function getExpense(groupId: string, expenseId: string) {
 }
 
 export async function updateExpense(params: {
+  userId: string;
   groupId: string;
   expenseId: string;
   name?: string;
   amount?: number;
-  payer?: string;
   split?: SplitInput[];
   receiptUrl?: string | null;
-  members?: MemberInput[];
 }) {
-  const {
-    groupId,
-    expenseId,
-    name,
-    amount,
-    payer,
-    split,
-    receiptUrl,
-    members,
-  } = params;
+  const { userId, groupId, expenseId, name, amount, split, receiptUrl } = params;
 
   if (!ObjectId.isValid(groupId)) {
     const err = new Error("Invalid or missing groupId");
@@ -271,10 +261,8 @@ export async function updateExpense(params: {
   if (
     name === undefined &&
     amount === undefined &&
-    payer === undefined &&
     split === undefined &&
-    receiptUrl === undefined &&
-    members === undefined
+    receiptUrl === undefined
   ) {
     const err = new Error("No fields provided to update");
     (err as any).status = 400;
@@ -285,8 +273,6 @@ export async function updateExpense(params: {
   const expensesCol = db.collection("expense");
 
   const eid = new ObjectId(expenseId);
-  const gid = new ObjectId(groupId);
-
   const current = await expensesCol.findOne({ _id: eid });
 
   if (!current) {
@@ -295,41 +281,31 @@ export async function updateExpense(params: {
     throw err;
   }
 
+  const payerId = current.payer?.toString();
+
+  if (!payerId || !ObjectId.isValid(payerId)) {
+    const err = new Error("Invalid payer id");
+    (err as any).status = 500;
+    throw err;
+  }
+
+  if (!new ObjectId(payerId).equals(new ObjectId(userId))) {
+    const err = new Error("אין הרשאה לבצע פעולה זו");
+    (err as any).status = 403;
+    throw err;
+  }
+
   const updateDoc: any = {};
 
   if (name !== undefined) {
-    if (typeof name !== "string" || name.trim().length === 0) {
-      const err = new Error("If provided, name must be a non-empty string");
-      (err as any).status = 400;
-      throw err;
-    }
     updateDoc.name = name.trim();
   }
 
   if (amount !== undefined) {
-    if (!Number.isFinite(amount) || amount <= 0) {
-      const err = new Error("If provided, amount must be a positive number");
-      (err as any).status = 400;
-      throw err;
-    }
     updateDoc.amount = amount;
   }
 
-  if (payer !== undefined) {
-    if (!ObjectId.isValid(payer)) {
-      const err = new Error("Invalid payer id");
-      (err as any).status = 400;
-      throw err;
-    }
-    updateDoc.payer = new ObjectId(payer);
-  }
-
   if (receiptUrl !== undefined) {
-    if (receiptUrl !== null && typeof receiptUrl !== "string") {
-      const err = new Error("receiptUrl must be a string or null");
-      (err as any).status = 400;
-      throw err;
-    }
     updateDoc.receiptUrl = receiptUrl ?? null;
   }
 
@@ -337,23 +313,10 @@ export async function updateExpense(params: {
     updateDoc.amount !== undefined ? updateDoc.amount : current.amount;
 
   if (split !== undefined) {
-    if (!Array.isArray(split)) {
-      const err = new Error("If provided, split must be an array");
-      (err as any).status = 400;
-      throw err;
-    }
-
-    const normalizedSplit = split.map((s) => {
-      if (!ObjectId.isValid(s.userId)) {
-        const err = new Error("Each split item must contain a valid userId");
-        (err as any).status = 400;
-        throw err;
-      }
-      return {
-        userId: new ObjectId(s.userId),
-        amount: Number(s.amount || 0),
-      };
-    });
+    const normalizedSplit = split.map((s) => ({
+      userId: new ObjectId(s.userId),
+      amount: Number(s.amount || 0),
+    }));
 
     const total = normalizedSplit.reduce(
       (sum, s) => sum + Number(s.amount || 0),
@@ -367,26 +330,6 @@ export async function updateExpense(params: {
     }
 
     updateDoc.split = normalizedSplit;
-  } else if (members !== undefined) {
-    if (!Array.isArray(members) || members.length === 0) {
-      const err = new Error("Members must be a non-empty array when provided");
-      (err as any).status = 400;
-      throw err;
-    }
-
-    const equalShare = Number(effectiveAmount) / members.length;
-
-    updateDoc.split = members.map((m) => {
-      if (!ObjectId.isValid(m.id)) {
-        const err = new Error("Each member must have a valid id");
-        (err as any).status = 400;
-        throw err;
-      }
-      return {
-        userId: new ObjectId(m.id),
-        amount: equalShare,
-      };
-    });
   }
 
   const res = await expensesCol.updateOne({ _id: eid }, { $set: updateDoc });
@@ -397,16 +340,21 @@ export async function updateExpense(params: {
     throw err;
   }
 
-  try {
+   try {
     await calculateTotalDebt(groupId);
   } catch (err) {
-    console.error("Failed to recalculate debts after expense update:", err);
+    console.error("Failed to recalculate debts after expense deletion:", err);
   }
+
 
   return { ok: true };
 }
 
-export async function deleteExpense(groupId: string, expenseId: string) {
+export async function deleteExpense(
+  groupId: string,
+  expenseId: string,
+  userId: string
+) {
   if (!ObjectId.isValid(groupId)) {
     const err = new Error("Invalid or missing groupId");
     (err as any).status = 400;
@@ -419,12 +367,41 @@ export async function deleteExpense(groupId: string, expenseId: string) {
     throw err;
   }
 
+  if (!ObjectId.isValid(userId)) {
+    const err = new Error("Invalid or missing userId");
+    (err as any).status = 400;
+    throw err;
+  }
+
   const gid = new ObjectId(groupId);
   const eid = new ObjectId(expenseId);
+  const uid = new ObjectId(userId);
 
   const db = await getDb("groupay_db");
   const groupsCol = db.collection("group");
   const expensesCol = db.collection("expense");
+
+  const expense = await expensesCol.findOne({ _id: eid });
+
+  if (!expense) {
+    const err = new Error("Expense not found");
+    (err as any).status = 404;
+    throw err;
+  }
+
+  const payerId = expense.payer?.toString?.() ?? expense.payer;
+
+  if (!payerId || !ObjectId.isValid(payerId)) {
+    const err = new Error("Invalid payer id");
+    (err as any).status = 500;
+    throw err;
+  }
+
+  if (!new ObjectId(payerId).equals(uid)) {
+    const err: any = new Error("אין הרשאה לבצע פעולה זו");
+    err.status = 403;
+    throw err;
+  }
 
   const group = await groupsCol.findOne(
     { _id: gid, expenses: eid },
@@ -444,11 +421,6 @@ export async function deleteExpense(groupId: string, expenseId: string) {
     (err as any).status = 404;
     throw err;
   }
-
-   await groupsCol.updateOne(
-      { _id: gid },
-      { $pull: { expenses: eid } }
-    );
 
   await groupsCol.updateOne({ _id: gid }, { $pull: { expenses: eid } });
 

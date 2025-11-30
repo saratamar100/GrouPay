@@ -35,29 +35,26 @@ export async function GET(
 
 export async function PUT(
   req: NextRequest,
-  context: { params: Promise<{ groupId: string; expenseId: string }> }
+  { params }: { params: Promise<{ groupId: string; expenseId: string }> }
 ) {
   try {
-    const { groupId, expenseId } = await context.params;
-
-    if (!groupId || !expenseId) {
-      return NextResponse.json(
-        { error: "Missing group id or expense id" },
-        { status: 400 }
-      );
-    }
+    const { groupId, expenseId } = await params;
 
     const body = await req.json();
+    const { userId, name, amount, split, receiptUrl } = body;
+
+    if (!userId) {
+      return NextResponse.json({ error: "Missing user id" }, { status: 400 });
+    }
 
     await updateExpense({
+      userId,
       groupId,
       expenseId,
-      name: body.name,
-      amount: body.amount,
-      payer: body.payer,     
-      split: body.split,      
-      receiptUrl: body.receiptUrl,
-      members: body.members,   
+      name,
+      amount,
+      split,
+      receiptUrl,
     });
 
     return NextResponse.json(
@@ -66,39 +63,35 @@ export async function PUT(
     );
   } catch (error: any) {
     const status = error?.status ?? 500;
-    const message =
-      error?.message ?? "Error updating expense";
-
-    console.error("Error updating expense:", error);
-
+    const message = error?.message ?? "Error updating expense";
     return NextResponse.json({ error: message }, { status });
   }
 }
 
 export async function DELETE(
-  _req: NextRequest,
-  context: { params: Promise<{ groupId: string; expenseId: string }> }
+  req: NextRequest,
+  { params }: { params: Promise<{ groupId: string; expenseId: string }> }
 ) {
   try {
-    const { groupId, expenseId } = await context.params;
+    const { groupId, expenseId } = await params;
+    const { userId } = await req.json();
 
-    if (!groupId || !expenseId) {
+    if (!groupId || !expenseId || !userId) {
       return NextResponse.json(
-        { error: "Missing group id or expense id" },
+        { error: "Missing group id or expense id or user id" },
         { status: 400 }
       );
     }
 
-    await deleteExpense(groupId, expenseId);
+    await deleteExpense(groupId, expenseId, userId);
 
     return NextResponse.json(
-      { message: "Expense deleted successfully" },
+      { ok: true, message: "Expense deleted successfully" },
       { status: 200 }
     );
   } catch (error: any) {
     const status = error?.status ?? 500;
-    const message =
-      error?.message ?? "Error deleting expense";
+    const message = error?.message ?? "Error deleting expense";
 
     console.error("Error deleting expense:", error);
 

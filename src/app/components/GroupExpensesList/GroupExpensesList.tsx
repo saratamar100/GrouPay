@@ -5,11 +5,13 @@ import { Paper, Typography } from "@mui/material";
 import styles from "./GroupExpensesList.module.css";
 
 export function GroupExpensesList({
+  userId,
   expenses,
   onDelete,
   onEdit,
   hasDraft
 }: {
+  userId:string | undefined,
   expenses: Expense[];
   onDelete: (id: string) => void;
   onEdit?: (id: string) => void;
@@ -32,11 +34,12 @@ export function GroupExpensesList({
     <div className={styles.list}>
       {expenses.map((e) => (
         <GroupExpenseRow
+          userId = {userId}
           key={e.id}
           e={e}
           onDelete={onDelete}
           onEdit={onEdit}
-          payerName={e.payer.name}
+          payer={e.payer}
         />
       ))}
     </div>
