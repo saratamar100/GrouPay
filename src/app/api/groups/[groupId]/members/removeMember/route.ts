@@ -51,7 +51,7 @@ export async function POST(req: NextRequest) {
     if (!updatedGroup.members || updatedGroup.members.length === 0) {
       await groupsCollection.deleteOne({ _id: new ObjectId(groupId) });
       return NextResponse.json({ message: "חבר הוסר והקבוצה נמחקה כי היא ריקה" });
-    }ד
+    }
 
     return NextResponse.json({ message: "חבר הוסר בהצלחה" });
   } catch (err) {
