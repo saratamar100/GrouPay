@@ -6,7 +6,12 @@ import { ObjectId } from "mongodb";
 export async function POST(request: Request) {
   try {
     const body = await request.json();
-    const { name, memberIds } = body as { name: string; memberIds: string[] };
+    const { name, memberIds, notifications, isActive } = body as {
+      name: string;
+      memberIds: string[];
+      notifications: boolean;
+      isActive: boolean;
+    };
 
     if (!name || !memberIds || memberIds.length === 0) {
       return NextResponse.json(
@@ -35,8 +40,10 @@ export async function POST(request: Request) {
       name: name,
       members: membersForDB,
       expenses: [],
-      payments:[],
+      payments: [],
       group_debts: {},
+      isActive: true,
+      notifications: notifications ?? true,
     };
     const insertResult = await groupsCollection.insertOne(newGroupData);
 

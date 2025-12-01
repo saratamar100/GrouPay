@@ -7,12 +7,14 @@ import { useLoginStore } from "@/app/store/loginStore";
 import { fetchAllUsers } from "@/app/services/client/userService";
 import { createGroup } from "@/app/services/client/groupService";
 import styles from "./CreateGroupForm.module.css";
+import { Checkbox } from "@mui/material";
 
 interface CreateGroupFormProps {}
 
 export function CreateGroupForm({}: CreateGroupFormProps) {
   const router = useRouter();
   const [groupName, setGroupName] = useState("");
+  const [notifications, setNotifications] = useState(false);
 
   const [allUsers, setAllUsers] = useState<User[]>([]);
   const [isUsersLoading, setIsUsersLoading] = useState(true);
@@ -106,6 +108,8 @@ export function CreateGroupForm({}: CreateGroupFormProps) {
       const createdGroup = await createGroup({
         name: groupName,
         memberIds: finalMemberIds,
+        notifications: notifications ?? true,
+        isActive: true,
       });
 
       router.push(`/groups/${createdGroup.id}`);
@@ -114,6 +118,11 @@ export function CreateGroupForm({}: CreateGroupFormProps) {
     } finally {
       setIsLoading(false);
     }
+  };
+
+  const handleCheckboxChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const isChecked: boolean = event.target.checked;
+    setNotifications(isChecked);
   };
 
   return (
@@ -192,6 +201,20 @@ export function CreateGroupForm({}: CreateGroupFormProps) {
               </div>
             )}
           </div>
+        </div>
+
+        <div className={styles.formGroup}>
+          <label className={styles.label}>
+            <input
+              type="checkbox"
+              name="notifications"
+              value="no"
+              checked={notifications}
+              onChange={handleCheckboxChange}
+              className={styles.styledCheckbox}
+            />
+            מעוניין לקבל תזכורות חודשיות
+          </label>
         </div>
 
         <button
