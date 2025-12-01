@@ -10,15 +10,7 @@ import { User } from "@/app/types/types";
 import GoogleLoginButton from "@/app/components/GoogleLoginButton/GoogleLoginButton";
 import styles from "./LandingPage.module.css";
 import Footer from "../Footer/Footer";
-import {
-  Box,
-  Typography,
-  Card,
-  CardContent,
-  Chip,
-  Button,
-  Container,
-} from "@mui/material";
+import { Box, Button, Card } from "@mui/material";
 
 export function LandingPage() {
   const loginStore = useLoginStore();
@@ -38,9 +30,7 @@ export function LandingPage() {
 
   const scrollToSteps = () => {
     const stepsSection = document.getElementById("steps-section");
-    if (stepsSection) {
-      stepsSection.scrollIntoView({ behavior: "smooth" });
-    }
+    if (stepsSection) stepsSection.scrollIntoView({ behavior: "smooth" });
   };
 
   const steps = [
@@ -67,22 +57,21 @@ export function LandingPage() {
   return (
     <>
       <Box className={styles.heroSection}>
+        <Box className={styles.heroInner}>
           <Box className={styles.heroContent}>
             <Box className={styles.heroText}>
               <h1 className={styles.title}>
-                לפצל הוצאות,{" "}
-                <span className={styles.titleHighlight}>לא חברויות.</span>
+                לפצל הוצאות, <span className={styles.titleHighlight}>לא חברויות.</span>
               </h1>
+
               <p className={styles.subtitle}>
-                נמאס לרדוף אחרי חברים? Groupay עוזרת לכם לעקוב אחרי הוצאות
-                משותפות בטיולים, עם שותפים או באירועים, כדי שכולם יקבלו את
-                הכסף בחזרה. בקלות.
+                נמאס לרדוף אחרי חברים? Groupay עוזרת לכם לעקוב אחרי הוצאות משותפות בטיולים,
+                עם שותפים או באירועים, כדי שכולם יקבלו את הכסף בחזרה. בקלות.
               </p>
+
               <Box className={styles.buttonContainer}>
                 <GoogleLoginButton onLogIn={handleLogin} />
-                <Button onClick= {scrollToSteps} variant = "outlined"> למד עוד</Button>
-                
-               
+                <Button onClick={scrollToSteps} variant="outlined">למד עוד</Button>
               </Box>
             </Box>
 
@@ -94,32 +83,29 @@ export function LandingPage() {
               />
             </Box>
           </Box>
+        </Box>
       </Box>
 
       <Box id="steps-section" className={styles.stepsSection}>
         <Box className={styles.stepsContainer}>
           <Box className={styles.stepsHeader}>
             <h2 className={styles.stepsTitle}>כל כך פשוט, שזה כמעט כיף</h2>
-            <p className={styles.stepsSubtitle}>
-              ניהול הוצאות קבוצתיות בשלושה צעדים פשוטים.
-            </p>
+            <p className={styles.stepsSubtitle}>ניהול הוצאות קבוצתיות בשלושה צעדים פשוטים.</p>
           </Box>
 
           <Box className={styles.stepsGrid}>
             {steps.map((step, index) => (
-
               <Card key={index} className={styles.stepCard}>
                 <Box className={styles.stepIcon}>{step.icon}</Box>
-                <h3 className={styles.stepTitle}>
-                  {index + 1}. {step.title}
-                </h3>
+                <h3 className={styles.stepTitle}>{index + 1}. {step.title}</h3>
                 <p className={styles.stepDescription}>{step.description}</p>
               </Card>
             ))}
           </Box>
         </Box>
       </Box>
-      <Footer/>
+
+      <Footer />
     </>
   );
 }

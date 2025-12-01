@@ -1,11 +1,16 @@
-
 .heroSection {
   min-height: 100vh;
   display: flex;
   align-items: center;
   justify-content: center;
+  padding: 48px 24px 72px;
 }
 
+.heroInner {
+  width: 100%;
+  max-width: 1120px;
+  margin: 0 auto;
+}
 
 .heroContent {
   display: flex;
@@ -60,13 +65,12 @@
 }
 
 .stepsSection {
-  padding: 4rem 0 6rem 0;
+  padding: 64px 24px 96px;
 }
 
 .stepsContainer {
-  max-width: 1280px;
+  max-width: 1120px;
   margin: 0 auto;
-  padding: 0 1rem;
 }
 
 .stepsHeader {
@@ -94,7 +98,8 @@
 
 .stepCard {
   padding: 2rem;
-  border: 1px solid rgba(6, 124, 128, 0.15);}
+  border: 1px solid rgba(6, 124, 128, 0.15);
+}
 
 .stepIcon {
   color: var(--primary);
@@ -132,6 +137,8 @@
 
   .subtitle {
     font-size: 1.25rem;
+    margin-left: 0;
+    margin-right: 0;
   }
 
   .buttonContainer {
@@ -140,14 +147,6 @@
 
   .logo {
     max-width: 35rem;
-  }
-
-  .stepsTitle {
-    font-size: 3rem;
-  }
-
-  .stepsSubtitle {
-    font-size: 1.25rem;
   }
 
   .stepsGrid {
@@ -160,5 +159,3 @@
     font-size: 4rem;
   }
 }
-
-
