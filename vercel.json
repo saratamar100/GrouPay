@@ -2,7 +2,7 @@
   "crons": [
     {
       "path": "/api/reminder?secret=r43ut9un4takjdkfqk9214kjlsajdf9u",
-      "schedule": "30 13 * * *"
+      "schedule": "0 6 * * *"
     }
   ]
 }
