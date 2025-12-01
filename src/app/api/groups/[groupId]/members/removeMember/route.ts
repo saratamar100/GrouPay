@@ -17,22 +17,25 @@ export async function POST(req: NextRequest) {
 
     const db = await getDb();
     const groupsCollection = db.collection("group");
+    const usersCollection = db.collection("user");
 
-    // בדיקה אם הקבוצה קיימת
     const group = await groupsCollection.findOne({ _id: new ObjectId(groupId) });
     if (!group) {
       return NextResponse.json({ error: "קבוצה לא נמצאה" }, { status: 404 });
     }
 
-    // בדיקה אם המשתמש בכלל חבר בקבוצה
     if (!group.members?.some((m: any) => m.id === userId)) {
       return NextResponse.json({ message: "המשתמש לא חבר בקבוצה" });
     }
 
-    // הסרת המשתמש
     await groupsCollection.updateOne(
       { _id: new ObjectId(groupId) },
       { $pull: { members: { id: userId } } }
+    );
+
+    await usersCollection.updateOne(
+      { _id: new ObjectId(userId) },
+      { $pull: { groupId: new ObjectId(groupId) } }
     );
 
     return NextResponse.json({ message: "חבר הוסר בהצלחה" });
