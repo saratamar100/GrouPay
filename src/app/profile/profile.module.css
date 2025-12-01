@@ -1,24 +1,63 @@
 .pageRoot {
   padding-block: 32px;
+  background: radial-gradient(circle at top, #e7f6f7 0, #f4f6f8 45%, #ffffff 100%);
 }
+
 @media (min-width: 600px) {
-  .pageRoot { padding-block: 48px; }
+  .pageRoot {
+    padding-block: 48px;
+  }
 }
 
 .card {
-  border-radius: 16px;
-  padding: 40px;
-  box-shadow: 0 6px 18px rgba(6,124,128,0.15);
-  transition: background 0.3s ease, border-color 0.3s ease;
+  border-radius: 18px;
+  padding: 28px 20px;
+  box-shadow: 0 6px 18px rgba(6, 124, 128, 0.12);
+  transition: background 0.3s ease, border-color 0.3s ease, transform 0.2s ease,
+    box-shadow 0.2s ease;
 }
+
+@media (min-width: 600px) {
+  .card {
+    padding: 40px 36px;
+  }
+}
+
 .cardView {
   background: #ffffff;
   border-top: 6px solid #d5e8e8;
 }
+
 .cardEdit {
   background: #f3fafa;
   border-top: 6px solid #067c80;
 }
+
+/* Avatar */
+
+.avatar {
+  width: 96px !important;
+  height: 96px !important;
+  margin: 0 auto 16px;
+  box-shadow: 0 6px 14px rgba(6, 124, 128, 0.25);
+  font-size: 2.4rem;
+  font-weight: 700;
+  background: linear-gradient(135deg, #067c80, #0aa1a5);
+  color: #ffffff;
+  transition: transform 0.2s ease, box-shadow 0.2s ease, filter 0.2s ease;
+}
+
+.avatarEditable {
+  cursor: pointer;
+}
+
+.avatarEditable:hover {
+  transform: translateY(-2px) scale(1.03);
+  box-shadow: 0 10px 22px rgba(6, 124, 128, 0.32);
+  filter: brightness(1.02);
+}
+
+/* Title */
 
 .title {
   font-weight: 900 !important;
@@ -28,7 +67,11 @@
   margin-bottom: 32px !important;
 }
 
-.fieldBlock { margin-bottom: 20px; }
+/* Fields */
+
+.fieldBlock {
+  margin-bottom: 20px;
+}
 
 .fieldLabel {
   display: flex;
@@ -45,27 +88,43 @@
   opacity: 0.9;
   transition: color 0.3s ease, transform 0.2s ease;
 }
-.editActive .fieldIcon { color: #055e61; transform: scale(1.05); }
+
+.editActive .fieldIcon {
+  color: #055e61;
+  transform: scale(1.05);
+}
 
 .fieldText {
   padding: 12px 0;
   font-size: 1rem;
   color: #333;
-  border-bottom: 1px solid rgba(0,0,0,0.08);
+  border-bottom: 1px solid rgba(0, 0, 0, 0.08);
 }
+
+/* Input */
 
 .fieldInput {
   width: 100%;
   font-size: 1rem;
   padding: 10px 12px;
   border: none;
-  border-radius: 6px;
+  border-radius: 8px;
   background: #e6f5f5;
   color: #064243;
   outline: none;
-  transition: background 0.2s ease;
+  transition: background 0.2s ease, box-shadow 0.2s ease, transform 0.1s ease;
 }
-.fieldInput:focus { background: #d2f0f0; }
+
+.fieldInput:focus {
+  background: #d2f0f0;
+  box-shadow: 0 0 0 1px rgba(6, 124, 128, 0.3);
+  transform: translateY(-1px);
+}
+
+.fieldInputError {
+  box-shadow: 0 0 0 1px rgba(211, 47, 47, 0.5);
+  background: #fdeaea;
+}
 
 .errorText {
   margin-top: 6px;
@@ -73,6 +132,9 @@
   color: #d32f2f;
   font-size: 0.85rem;
 }
+
+/* CTA Button */
+
 .ctaRow {
   margin-top: 36px;
   display: flex;
@@ -90,10 +152,26 @@
   color: #fff;
   background: var(--primary);
   cursor: pointer;
-  box-shadow: 0 6px 14px rgba(0,0,0,0.25);
-  transition: background-color .25s ease, transform .2s ease, box-shadow .2s ease;
+  box-shadow: 0 6px 14px rgba(0, 0, 0, 0.25);
+  transition: background-color 0.25s ease, transform 0.2s ease,
+    box-shadow 0.2s ease;
 }
-.fabInline:hover { transform: translateY(-3px); }
-.fabEdit { background-color: #067c80; }  
-.fabSave { background-color: #09999d; } 
-.fabDisabled { opacity: .5; cursor: not-allowed; box-shadow: none; transform: none !important; }
+
+.fabInline:hover {
+  transform: translateY(-3px);
+}
+
+.fabEdit {
+  background: linear-gradient(135deg, #067c80, #0a9fa3);
+}
+
+.fabSave {
+  background: linear-gradient(135deg, #09999d, #0fb7bb);
+}
+
+.fabDisabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  box-shadow: none;
+  transform: none !important;
+}

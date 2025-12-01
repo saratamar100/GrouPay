@@ -4,44 +4,58 @@ import { ObjectId } from "mongodb";
 
 export async function POST(request: NextRequest) {
   try {
-    const { id, name, email, phone } = await request.json();
+    const { id, name, photoURL } = await request.json();
 
-    if (!id)
+    if (!id) {
       return NextResponse.json(
         { error: "לא התקבל ID של המשתמש" },
         { status: 400 }
       );
+    }
 
     const db = await getDb("groupay_db");
     const users = db.collection("user");
 
-    const updateFields: any = {};
-    if (name) updateFields.name = name;
-    if (email) updateFields.email = email;
-    if (phone) updateFields.phone = phone;
+    const trimmedName = typeof name === "string" ? name.trim() : "";
 
-    if (Object.keys(updateFields).length === 0)
+    if (!trimmedName && !photoURL) {
       return NextResponse.json(
         { error: "לא נשלחו שדות לעדכון" },
         { status: 400 }
       );
+    }
 
-    const result = await users.updateOne(
+    const updateFields: Record<string, unknown> = {};
+    if (trimmedName) updateFields.name = trimmedName;
+    if (photoURL) updateFields.photoURL = photoURL;
+
+    const result = await users.findOneAndUpdate(
       { _id: new ObjectId(id) },
-      { $set: updateFields }
+      { $set: updateFields },
+      { returnDocument: "after" }
     );
 
-    if (result.matchedCount === 0)
+    if (!result) {
       return NextResponse.json(
         { error: "המשתמש לא נמצא במערכת" },
         { status: 404 }
       );
+    }
 
     return NextResponse.json(
-      { message: "הפרטים עודכנו בהצלחה" },
+      {
+        message: "הפרופיל עודכן בהצלחה",
+        user: {
+          id: result._id.toString(),
+          name: result.name,
+          email: result.email,
+          photoURL: result.photoURL ?? null,
+        },
+      },
       { status: 200 }
     );
-  } catch {
+  } catch (err) {
+    console.error("PROFILE UPDATE ERROR:", err);
     return NextResponse.json(
       { error: "שגיאה בשרת" },
       { status: 500 }

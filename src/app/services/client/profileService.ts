@@ -1,5 +1,15 @@
-export async function updateUserProfile(payload: any) {
+export async function updateUserProfile(
+  id: string,
+  name: string,
+  photoURL?: string | null
+) {
   try {
+    const payload = {
+      id,
+      name,
+      photoURL: photoURL || null,
+    };
+
     const res = await fetch("/api/profile", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -10,8 +20,14 @@ export async function updateUserProfile(payload: any) {
 
     if (!res.ok) throw new Error(data?.error || "עדכון נכשל");
 
-    return { success: true, message: data?.message || "הפרופיל עודכן בהצלחה" };
+    return {
+      success: true,
+      user: data?.user ?? null,
+    };
   } catch (err: any) {
-    return { success: false, message: err?.message || "שגיאה בעדכון הפרופיל" };
+    return {
+      success: false,
+      message: err?.message || "שגיאה בעדכון הפרופיל",
+    };
   }
 }
