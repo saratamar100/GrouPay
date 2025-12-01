@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import "./globals.css";
 import { Providers } from "./providers";
 import { Heebo } from "next/font/google";
+import Footer from "./components/Footer/Footer";
 
 const mainFont = Heebo({
   variable: "--font-main",
@@ -21,8 +22,11 @@ export default function RootLayout({
 }) {
   return (
     <html lang="he" dir="rtl">
-      <body className={`${mainFont.variable} antialiased`}>
-        <Providers>{children}</Providers>
+      <body className={`${mainFont.variable} antialiased layoutRoot`}>
+        <Providers>
+          <main className="layoutMain">{children}</main>
+          <Footer />
+        </Providers>
       </body>
     </html>
   );
