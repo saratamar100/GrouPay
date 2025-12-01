@@ -75,27 +75,30 @@ export async function POST(req: NextRequest) {
     const groupsCollection = db.collection("group");
     const usersCollection = db.collection("user");
 
-    // בדיקה אם הקבוצה קיימת
     const group = await groupsCollection.findOne({ _id: new ObjectId(groupId) });
     if (!group) {
       return NextResponse.json({ error: "קבוצה לא נמצאה" }, { status: 404 });
     }
 
-    // בדיקה אם המשתמש כבר חבר בקבוצה
     if (group.members?.some((m: any) => m.id === userId)) {
       return NextResponse.json({ message: "המשתמש כבר חבר בקבוצה" });
     }
 
-    // קבלת שם המשתמש מטבלת users
     const user = await usersCollection.findOne({ _id: new ObjectId(userId) });
     if (!user) {
       return NextResponse.json({ error: "משתמש לא נמצא" }, { status: 404 });
     }
 
-    // הוספת המשתמש עם id ושם
     await groupsCollection.updateOne(
       { _id: new ObjectId(groupId) },
       { $push: { members: { id: userId, name: user.name } } }
+    );
+
+    await usersCollection.updateOne(
+      { _id: new ObjectId(userId) },
+      {
+        $addToSet: { groupId: new ObjectId(groupId) },
+      }
     );
 
     return NextResponse.json({ message: "חבר נוסף בהצלחה" });
