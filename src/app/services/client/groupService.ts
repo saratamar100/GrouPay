@@ -1,7 +1,10 @@
 import type { Group, Expense, Member } from "@/app/types/types";
 import { ObjectId } from "mongodb";
 
-export async function getGroup(groupId: string, userId:string | undefined): Promise<Group> {
+export async function getGroup(
+  groupId: string,
+  userId: string | undefined
+): Promise<Group> {
   // const res = await fetch(`/api/groups/${groupId}`);
   const res = await fetch(`/api/groups/${groupId}?userId=${userId}`);
   if (!res.ok) {
@@ -89,10 +92,11 @@ export async function updateExpense(
   return res.json();
 }
 
-
 interface GroupCreationPayload {
   name: string;
   memberIds: string[];
+  notifications: boolean;
+  isActive: boolean;
 }
 export async function createGroup(
   payload: GroupCreationPayload
