@@ -30,7 +30,8 @@ export const monthlyReminder = async () => {
     .collection("group")
     .find({ notifications: true })
     .toArray();
-    const users = await db
+
+  const users = await db
     .collection("user")
     .find({})
     .toArray();
@@ -45,21 +46,26 @@ export const monthlyReminder = async () => {
 
       for (const debt of debts) {
         if (debt.amount < 0) {
-            console.log(debt.id)
-            console.log(members[0])
-          const payeeName =members.find((m: any) => m.id.equals( debt.id))?.name || "Unknown";
-          message += `You need to pay ${-debt.amount} to ${payeeName}\n`;
+          const payeeName =
+            members.find((m: any) =>
+              m.id.equals ? m.id.equals(debt.id) : m.id.toString() === debt.id.toString()
+            )?.name || "לא ידוע";
+          message += `את/ה חייב/ת ${-debt.amount} ש"ח ל-${payeeName}\n`;
         }
       }
-      console.log({message});
+
       if (message !== "") {
-        const member = members.find((m: any) => m.id.toString() === user);
+        const member = members.find((m: any) =>
+          m.id.equals ? m.id.equals(user) : m.id.toString() === user
+        );
         if (member) {
-          const email = users.find((u:any) => u._id.toString() === user)?.email;
-          const subject = `Monthly Reminder for Group ${group.name}`;
-          const text = `Hello ${member.name},\n\nHere is your monthly reminder for group ${group.name}:\n\n${message}\nPlease settle your debts at your earliest convenience.\n\nBest regards,\nGroPay Team`;
-          await sendEmail(email, subject, text);
-          console.log(`Reminder sent to ${member.name} (${email})`);
+          const email = users.find((u: any) => u._id.toString() === user)?.email;
+          if (email) {
+            const subject = `תזכורת חודשית לקבוצה ${group.name}`;
+            const text = `שלום ${member.name},\n\nזוהי תזכורת חודשית עבור הקבוצה ${group.name}:\n\n${message}\nאנא סגור את החובות שלך בהקדם האפשרי.\n\nבברכה,\nצוות GrouPay`;
+            await sendEmail(email, subject, text);
+            console.log(`Reminder sent to ${member.name} (${email})`);
+          }
         }
       }
     }
