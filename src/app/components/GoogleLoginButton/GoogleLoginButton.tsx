@@ -1,3 +1,4 @@
+"use client";
 import { signInWithGoogle } from "@/app/services/client/authHelpers";
 import { addUser } from "@/app/services/client/login";
 import { User } from "@/app/types/types";

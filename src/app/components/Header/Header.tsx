@@ -12,6 +12,7 @@ import {
 import { useRouter, usePathname } from "next/navigation";
 import styles from "./Header.module.css";
 import { useLoginStore } from "@/app/store/loginStore";
+import { fetchLogout } from "@/app/services/client/logoutService";
 import ExitToAppIcon from "@mui/icons-material/ExitToApp";
 import HomeIcon from "@mui/icons-material/Home";
 import InfoIcon from "@mui/icons-material/Info";
@@ -32,8 +33,9 @@ const Header: React.FC = () => {
 
   const handleLogout = () => {
     logout();
+    fetchLogout()
     setMenuAnchor(null);
-    router.push("/");
+    //router.push("/");
   };
 
   const isDashboard = pathname === "/dashboard";

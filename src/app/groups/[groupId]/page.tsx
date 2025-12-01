@@ -1,17 +1,17 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
 
 import Header from "@/app/components/Header/Header";
 import { useGroupData } from "@/app/hooks/useGroupData";
 import { GroupExpensesList } from "@/app/components/GroupExpensesList/GroupExpensesList";
 import { GroupDraftRow } from "@/app/components/GroupDraftRow/GroupDraftRow";
-import {GroupMembersSidebar} from "@/app/components/GroupMembersSidebar/GroupMembersSidebar"
+import { GroupMembersSidebar } from "@/app/components/GroupMembersSidebar/GroupMembersSidebar";
 import AdvancedExpense from "@/app/components/AdvancedExpense/AdvancedExpense";
 import { useLoginStore } from "@/app/store/loginStore";
 import { formatILS } from "@/app/utils/money";
+import Link from "next/link";
 
 import {
   Box,
@@ -19,15 +19,9 @@ import {
   Container,
   Divider,
   Fab,
-  IconButton,
-  List,
-  ListItem,
-  ListItemText,
   Paper,
   Typography,
 } from "@mui/material";
-
-import CloseIcon from "@mui/icons-material/Close";
 import AddIcon from "@mui/icons-material/Add";
 
 import styles from "./GroupPage.module.css";
@@ -39,8 +33,6 @@ export default function GroupPage() {
   const router = useRouter();
   const user = useLoginStore((state) => state.loggedUser);
   const userId = user?.id;
-
-  const [userChecked, setUserChecked] = useState(false);
   const [isMembersOpen, setIsMembersOpen] = useState(false);
 
   const {
@@ -55,46 +47,29 @@ export default function GroupPage() {
     openAdvancedForExisting,
     closeAdvanced,
     handleAdvancedSave,
-  } = useGroupData(groupId);
+  } = useGroupData(groupId, userId);
 
   useEffect(() => {
-    setUserChecked(true);
-  }, []);
+    if (!groupId || !userId) return;
+    reload();
+  }, [groupId, userId, reload]);
 
   useEffect(() => {
-    if (!userChecked) return;
-
-    if (!userId) {
+    if (!state.loading && (state.error || !state.group)) {
+      console.log(state.error || "הקבוצה לא נמצאה");
       router.replace("/");
-      return;
     }
-
-    if (groupId) reload();
-  }, [userChecked, userId, groupId, reload, router]);
+  }, [state.loading, state.error, state.group, router]);
 
   const members = state.group?.members || [];
-  const expenses = Array.isArray(state.group?.expenses) ? state.group.expenses : [];
+  const expenses = Array.isArray(state.group?.expenses)
+    ? state.group.expenses
+    : [];
 
   const totalExpenses = useMemo(
     () => expenses.reduce((sum, e) => sum + (Number(e.amount) || 0), 0),
     [expenses]
   );
-
-  if (!userChecked) {
-    return (
-      <Container className={styles.centerState}>
-        <CircularProgress />
-      </Container>
-    );
-  }
-
-  if (!groupId) {
-    return (
-      <div style={{ padding: 24, color: "crimson" }}>
-        חסר מזהה קבוצה בנתיב
-      </div>
-    );
-  }
 
   if (state.loading) {
     return (
@@ -105,11 +80,7 @@ export default function GroupPage() {
   }
 
   if (state.error || !state.group) {
-    return (
-      <div style={{ padding: 24, color: "crimson" }}>
-        {state.error || "הקבוצה לא נמצאה"}
-      </div>
-    );
+    return null;
   }
 
   return (
@@ -161,6 +132,7 @@ export default function GroupPage() {
 
             <Box className={styles.cardsWrap}>
               <GroupExpensesList
+                userId = {userId}
                 expenses={expenses}
                 onDelete={deleteExpense}
                 onEdit={openAdvancedForExisting}
