@@ -34,7 +34,7 @@ export async function getGroupWithExpensesService(groupId: string, userId: strin
   });
 
   if (!isMember) {
-    const err = new Error("אין לך גישה לקבוצה הזו");
+    const err: any = new Error("You do not have permission");
     (err as any).status = 403;
     throw err;
   }

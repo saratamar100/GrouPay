@@ -290,7 +290,7 @@ export async function updateExpense(params: {
   }
 
   if (!new ObjectId(payerId).equals(new ObjectId(userId))) {
-    const err = new Error("אין הרשאה לבצע פעולה זו");
+    const err: any = new Error("You do not have permission");
     (err as any).status = 403;
     throw err;
   }
@@ -398,7 +398,7 @@ export async function deleteExpense(
   }
 
   if (!new ObjectId(payerId).equals(uid)) {
-    const err: any = new Error("אין הרשאה לבצע פעולה זו");
+    const err: any = new Error("You do not have permission");
     err.status = 403;
     throw err;
   }
