@@ -10,5 +10,6 @@ export async function GET(req: Request) {
     });
   }
   monthlyReminder();
+  console.log("Monthly reminders triggered");
   return new Response("Monthly reminders triggered");
 }
