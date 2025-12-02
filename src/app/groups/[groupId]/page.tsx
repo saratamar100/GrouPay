@@ -2,7 +2,15 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
-
+import {
+  InputAdornment,
+  TextField,
+  MenuItem,
+  Select,
+  FormControl,
+  InputLabel,
+} from "@mui/material";
+import SearchIcon from "@mui/icons-material/Search";
 import Header from "@/app/components/Header/Header";
 import { useGroupData } from "@/app/hooks/useGroupData";
 import { GroupExpensesList } from "@/app/components/GroupExpensesList/GroupExpensesList";
@@ -34,6 +42,12 @@ export default function GroupPage() {
   const user = useLoginStore((state) => state.loggedUser);
   const userId = user?.id;
   const [isMembersOpen, setIsMembersOpen] = useState(false);
+
+  const [searchTerm, setSearchTerm] = useState("");
+  const [filterPayerId, setFilterPayerId] = useState<string | null>(null);
+  const [sortBy, setSortBy] = useState<
+    "dateDesc" | "dateAsc" | "amountDesc" | "amountAsc"
+  >("dateDesc");
 
   const {
     state,
@@ -71,6 +85,38 @@ export default function GroupPage() {
     [expenses]
   );
 
+  const filteredAndSortedExpenses = useMemo(() => {
+    let list = expenses;
+
+    if (searchTerm) {
+      const termLower = searchTerm.toLowerCase();
+      list = list.filter((e) => e.name.toLowerCase().includes(termLower));
+    }
+
+    if (filterPayerId) {
+      list = list.filter((e) => {
+        if (!e.payer || !e.payer.id) return false;
+        const expensePayerIdString = e.payer.id.toString();
+        return expensePayerIdString === filterPayerId;
+      });
+    }
+
+    list = [...list].sort((a, b) => {
+      const dateA = new Date(a.date).getTime();
+      const dateB = new Date(b.date).getTime();
+      const amountA = Number(a.amount || 0);
+      const amountB = Number(b.amount || 0);
+
+      if (sortBy === "dateDesc") return dateB - dateA;
+      if (sortBy === "dateAsc") return dateA - dateB;
+      if (sortBy === "amountDesc") return amountB - amountA;
+      if (sortBy === "amountAsc") return amountA - amountB;
+      return 0;
+    });
+
+    return list;
+  }, [expenses, searchTerm, filterPayerId, sortBy]);
+
   if (state.loading) {
     return (
       <Container className={styles.loaderWrapper}>
@@ -95,7 +141,11 @@ export default function GroupPage() {
                 <Typography component="span" className={styles.totalLabel}>
                   סה״כ:
                 </Typography>
-                <Typography component="strong" className={styles.totalValue} dir="ltr">
+                <Typography
+                  component="strong"
+                  className={styles.totalValue}
+                  dir="ltr"
+                >
                   {formatILS(totalExpenses)}
                 </Typography>
               </Box>
@@ -130,10 +180,58 @@ export default function GroupPage() {
 
             <Divider className={styles.divider} />
 
+            <Box className={styles.controlsSection}>
+              <Box className={styles.filterOptionsBar}>
+                <FormControl size="small" sx={{ minWidth: 120 }}>
+                  <InputLabel>שולם ע״י</InputLabel>
+                  <Select
+                    value={filterPayerId || ""}
+                    label="שולם ע״י"
+                    onChange={(e) => setFilterPayerId(e.target.value as string)}
+                  >
+                    <MenuItem value="">כל המשלמים</MenuItem>
+                    {members.map((member) => (
+                      <MenuItem key={member.id} value={member.id}>
+                        {member.name}
+                      </MenuItem>
+                    ))}
+                  </Select>
+                </FormControl>
+
+                <FormControl size="small" sx={{ minWidth: 120 }}>
+                  <InputLabel>מיון</InputLabel>
+                  <Select
+                    value={sortBy}
+                    label="מיון"
+                    onChange={(e) => setSortBy(e.target.value as typeof sortBy)}
+                  >
+                    <MenuItem value="dateDesc">תאריך: חדש לישן</MenuItem>
+                    <MenuItem value="dateAsc">תאריך: ישן לחדש</MenuItem>
+                    <MenuItem value="amountDesc">סכום: מהגבוה לנמוך</MenuItem>
+                    <MenuItem value="amountAsc">סכום: מהנמוך לגבוה</MenuItem>
+                  </Select>
+                </FormControl>
+              </Box>
+
+              <TextField
+                size="small"
+                label="חיפוש הוצאה"
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className={styles.searchField}
+                InputProps={{
+                  startAdornment: (
+                    <InputAdornment position="start">
+                      <SearchIcon />
+                    </InputAdornment>
+                  ),
+                }}
+              />
+            </Box>
             <Box className={styles.cardsWrap}>
               <GroupExpensesList
-                userId = {userId}
-                expenses={expenses}
+                userId={userId}
+                expenses={filteredAndSortedExpenses}
                 onDelete={deleteExpense}
                 onEdit={openAdvancedForExisting}
                 hasDraft={!!state.draft}
@@ -165,15 +263,14 @@ export default function GroupPage() {
             </Box>
           </main>
 
-          {isMembersOpen && groupId && ( 
+          {isMembersOpen && groupId && (
             <GroupMembersSidebar
-            open={isMembersOpen}
-            members={members}
-            currentUserId={userId}
-            groupId={groupId}
-            onClose={() => setIsMembersOpen(false)}
-/>
-
+              open={isMembersOpen}
+              members={members}
+              currentUserId={userId}
+              groupId={groupId}
+              onClose={() => setIsMembersOpen(false)}
+            />
           )}
         </Paper>
 
