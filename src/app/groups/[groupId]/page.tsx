@@ -2,7 +2,15 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
-
+import {
+  InputAdornment,
+  TextField,
+  MenuItem,
+  Select,
+  FormControl,
+  InputLabel,
+} from "@mui/material";
+import SearchIcon from "@mui/icons-material/Search";
 import Header from "@/app/components/Header/Header";
 import { useGroupData } from "@/app/hooks/useGroupData";
 import { GroupExpensesList } from "@/app/components/GroupExpensesList/GroupExpensesList";
@@ -34,6 +42,14 @@ export default function GroupPage() {
   const user = useLoginStore((state) => state.loggedUser);
   const userId = user?.id;
   const [isMembersOpen, setIsMembersOpen] = useState(false);
+
+  // ★★★ STATE חדש לפילטרים ומיון ★★★
+  const [searchTerm, setSearchTerm] = useState("");
+  const [filterPayerId, setFilterPayerId] = useState<string | null>(null);
+  const [sortBy, setSortBy] = useState<
+    "dateDesc" | "dateAsc" | "amountDesc" | "amountAsc"
+  >("dateDesc");
+  // ★★★ סוף STATE חדש ★★★
 
   const {
     state,
@@ -71,6 +87,40 @@ export default function GroupPage() {
     [expenses]
   );
 
+  // ★★★ לוגיקת הפילטור והמיון המרכזית ★★★
+  const filteredAndSortedExpenses = useMemo(() => {
+    let list = expenses;
+
+    // 1. סינון לפי מונח חיפוש (שם ההוצאה)
+    if (searchTerm) {
+      const termLower = searchTerm.toLowerCase();
+      list = list.filter((e) => e.name.toLowerCase().includes(termLower));
+    }
+
+    // 2. סינון לפי משלם (Payer)
+    if (filterPayerId) {
+      // e.payer הוא ObjectId, לכן ממירים אותו ל-string להשוואה
+      list = list.filter((e) => e.payer.toString() === filterPayerId);
+    }
+
+    // 3. מיון
+    list = [...list].sort((a, b) => {
+      const dateA = new Date(a.date).getTime();
+      const dateB = new Date(b.date).getTime();
+      const amountA = Number(a.amount || 0);
+      const amountB = Number(b.amount || 0);
+
+      if (sortBy === "dateDesc") return dateB - dateA;
+      if (sortBy === "dateAsc") return dateA - dateB;
+      if (sortBy === "amountDesc") return amountB - amountA;
+      if (sortBy === "amountAsc") return amountA - amountB;
+      return 0;
+    });
+
+    return list;
+  }, [expenses, searchTerm, filterPayerId, sortBy]);
+  // ★★★ סוף לוגיקת הפילטור והמיון ★★★
+
   if (state.loading) {
     return (
       <Container className={styles.loaderWrapper}>
@@ -95,7 +145,11 @@ export default function GroupPage() {
                 <Typography component="span" className={styles.totalLabel}>
                   סה״כ:
                 </Typography>
-                <Typography component="strong" className={styles.totalValue} dir="ltr">
+                <Typography
+                  component="strong"
+                  className={styles.totalValue}
+                  dir="ltr"
+                >
                   {formatILS(totalExpenses)}
                 </Typography>
               </Box>
@@ -130,10 +184,60 @@ export default function GroupPage() {
 
             <Divider className={styles.divider} />
 
+            {/* ★★★ שורת הפילטרים והמיון החדשה ★★★ */}
+            <Box className={styles.filterBar}>
+              <TextField
+                size="small"
+                label="חיפוש הוצאה"
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                InputProps={{
+                  startAdornment: (
+                    <InputAdornment position="start">
+                      <SearchIcon />
+                    </InputAdornment>
+                  ),
+                }}
+              />
+
+              <FormControl size="small" sx={{ minWidth: 120 }}>
+                <InputLabel>שולם ע״י</InputLabel>
+                <Select
+                  // ★★★ התיקון כאן: ודא שהערך הוא מחרוזת, החלף null במחרוזת ריקה ★★★
+                  value={filterPayerId === null ? "" : filterPayerId}
+                  label="שולם ע״י"
+                  onChange={(e) => setFilterPayerId(e.target.value as string)}
+                >
+                  <MenuItem value="">כל המשלמים</MenuItem>
+                  {/* ודא שאתה לא מנסה למפות (map) אם members הוא null/undefined */}
+                  {members.map((member) => (
+                    <MenuItem key={member.id} value={member.id}>
+                      {member.name}
+                    </MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
+
+              <FormControl size="small" sx={{ minWidth: 120 }}>
+                <InputLabel>מיון</InputLabel>
+                <Select
+                  value={sortBy}
+                  label="מיון"
+                  onChange={(e) => setSortBy(e.target.value as typeof sortBy)}
+                >
+                  <MenuItem value="dateDesc">תאריך: חדש לישן</MenuItem>
+                  <MenuItem value="dateAsc">תאריך: ישן לחדש</MenuItem>
+                  <MenuItem value="amountDesc">סכום: מהגבוה לנמוך</MenuItem>
+                  <MenuItem value="amountAsc">סכום: מהנמוך לגבוה</MenuItem>
+                </Select>
+              </FormControl>
+            </Box>
+            {/* ★★★ סוף שורת הפילטרים ★★★ */}
+
             <Box className={styles.cardsWrap}>
               <GroupExpensesList
-                userId = {userId}
-                expenses={expenses}
+                userId={userId}
+                expenses={filteredAndSortedExpenses}
                 onDelete={deleteExpense}
                 onEdit={openAdvancedForExisting}
                 hasDraft={!!state.draft}
@@ -165,15 +269,14 @@ export default function GroupPage() {
             </Box>
           </main>
 
-          {isMembersOpen && groupId && ( 
+          {isMembersOpen && groupId && (
             <GroupMembersSidebar
-            open={isMembersOpen}
-            members={members}
-            currentUserId={userId}
-            groupId={groupId}
-            onClose={() => setIsMembersOpen(false)}
-/>
-
+              open={isMembersOpen}
+              members={members}
+              currentUserId={userId}
+              groupId={groupId}
+              onClose={() => setIsMembersOpen(false)}
+            />
           )}
         </Paper>
 
