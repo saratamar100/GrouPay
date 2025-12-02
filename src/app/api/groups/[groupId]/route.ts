@@ -3,7 +3,7 @@ import { getGroupWithExpensesService } from "@/app/services/server/group";
 
 export async function GET(
   req: NextRequest,
-  context: { params: Promise<{ groupId: string }> } // שימי לב: Promise
+  context: { params: Promise<{ groupId: string }> } 
 ) {
   try {
     const { groupId } = await context.params;

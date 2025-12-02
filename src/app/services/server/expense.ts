@@ -40,6 +40,12 @@ export async function createExpense(params: {
     throw err;
   }
 
+  const memberMap = new Map<string, string>(
+    members.map((m: any) => [m.id.toString(), m.name])
+  );
+
+
+
   if (!members || !Array.isArray(members) || members.length === 0) {
     const err = new Error("Members must be a non-empty array");
     (err as any).status = 400;
@@ -76,7 +82,12 @@ export async function createExpense(params: {
   const expenseDoc = {
     name: name.trim(),
     amount,
-    payer: new ObjectId(payer),
+   payer: payer
+          ? {
+              id: new ObjectId(payer),
+              name: memberMap.get(payer),
+            }
+          : null,
     split: finalSplit.map((s) => ({
       userId: new ObjectId(s.userId),
       amount: s.amount,
@@ -137,20 +148,13 @@ export async function getGroupExpenses(groupId: string) {
     .toArray();
 
   const normalizedExpenses = expenseList.map((e: any) => {
-    const payerId = e.payer?.toString?.() ?? e.payer;
-
     return {
       id: e._id.toString(),
       name: e.name,
       amount: e.amount,
       date: e.date,
       receiptUrl: e.receiptUrl ?? null,
-      payer: payerId
-        ? {
-            id: payerId,
-            name: memberMap.get(payerId),
-          }
-        : null,
+      payer: e.payer,    
       split: (e.split || []).map((s: any) => {
         const userId = s.userId?.toString?.() ?? s.userId;
 
@@ -209,7 +213,8 @@ export async function getExpense(groupId: string, expenseId: string) {
     throw err;
   }
 
-  const payerId = expense.payer?.toString?.() ?? expense.payer;
+  const payerId = expense.payer;
+  console.log(payerId)
 
   return {
     id: expense._id.toString(),
@@ -281,7 +286,7 @@ export async function updateExpense(params: {
     throw err;
   }
 
-  const payerId = current.payer?.toString();
+  const payerId = current.payer?.id;
 
   if (!payerId || !ObjectId.isValid(payerId)) {
     const err = new Error("Invalid payer id");
@@ -389,7 +394,7 @@ export async function deleteExpense(
     throw err;
   }
 
-  const payerId = expense.payer?.toString?.() ?? expense.payer;
+  const payerId = expense.payer.id;
 
   if (!payerId || !ObjectId.isValid(payerId)) {
     const err = new Error("Invalid payer id");
