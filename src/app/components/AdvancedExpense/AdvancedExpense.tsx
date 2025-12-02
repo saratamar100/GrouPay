@@ -12,7 +12,6 @@ import {
   Typography,
   Divider,
   TextField,
-  Box,
 } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
 import type { Member } from "@/app/types/types";
@@ -20,6 +19,7 @@ import type { SplitDetail } from "@/app/utils/split";
 import { useAdvancedExpense } from "@/app/hooks/useAdvancedExpense";
 import { toMoney, formatILS } from "@/app/utils/money";
 import styles from "./AdvancedExpense.module.css";
+import { useState } from "react";
 
 type AdvancedExpenseProps = {
   open: boolean;
@@ -50,6 +50,8 @@ export default function AdvancedExpense({
   onClose,
   onSave,
 }: AdvancedExpenseProps) {
+  const [isSaving, setIsSaving] = useState(false);
+
   const {
     selected,
     perUser,
@@ -88,6 +90,19 @@ export default function AdvancedExpense({
       : diff > 0
       ? styles.diffPositive
       : styles.diffNegative;
+
+  const handleSaveWrapper = async () => {
+    if (isSaving) return;
+    setIsSaving(true);
+    try {
+      await handleSave();
+      onClose();
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setIsSaving(false);
+    }
+  };
 
   return (
     <Dialog
@@ -237,16 +252,17 @@ export default function AdvancedExpense({
           variant="text"
           onClick={onClose}
           className={styles.secondaryBtn}
+          disabled={isSaving}
         >
           ביטול
         </Button>
         <Button
           variant="contained"
-          onClick={handleSave}
-          disabled={selected.length === 0 || diff !== 0}
+          onClick={handleSaveWrapper}
+          disabled={selected.length === 0 || diff !== 0 || isSaving}
           className={styles.firstBtn}
         >
-          שמירה
+          {isSaving ? "שומר..." : "שמירה"}
         </Button>
       </DialogActions>
     </Dialog>
