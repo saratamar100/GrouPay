@@ -1,7 +1,10 @@
 import { ObjectId } from "mongodb";
-import { getDb } from "./mongo";
+import { getDb } from "@/app/services/server/mongo";
 
-export async function getGroupWithExpensesService(groupId: string, userId: string) {
+export async function getGroupWithExpensesService(
+  groupId: string,
+  userId: string
+) {
   if (!groupId || !ObjectId.isValid(groupId)) {
     const err = new Error("groupId לא חוקי");
     (err as any).status = 400;
@@ -24,8 +27,6 @@ export async function getGroupWithExpensesService(groupId: string, userId: strin
   }
 
   const members = Array.isArray(group.members) ? group.members : [];
-  console.log("members:", group.members);
-  console.log("userId:", userId);
 
   const isMember = members.some((m: any) => {
     const memberId = m.userId ?? m.id ?? m._id;
@@ -35,12 +36,18 @@ export async function getGroupWithExpensesService(groupId: string, userId: strin
 
   if (!isMember) {
     const err: any = new Error("You do not have permission");
-    (err as any).status = 403;
+    err.status = 403;
     throw err;
   }
 
   const memberMap = new Map<string, string>(
-    members.map((m: any) => [m.id.toString(), m.name])
+    members
+      .map((m: any) => {
+        const id = (m.userId ?? m.id ?? m._id)?.toString?.();
+        if (!id) return null;
+        return [id, m.name] as [string, string];
+      })
+      .filter(Boolean) as [string, string][]
   );
 
   const expenseIdValues = Array.isArray(group.expenses) ? group.expenses : [];
@@ -57,37 +64,51 @@ export async function getGroupWithExpensesService(groupId: string, userId: strin
 
   if (expenseObjectIds.length > 0) {
     const rawExpenses = await expensesCol
-      .find({ _id: { $in: expenseObjectIds } }, { projection: { groupId: 0 } })
+      .find(
+        { _id: { $in: expenseObjectIds } },
+        { projection: { groupId: 0 } }
+      )
       .toArray();
 
     expensesList = rawExpenses.map((e: any) => {
-      const payerId = e.payer?.toString?.() ?? e.payer;
+      const rawPayer = e.payer ?? null;
+
+      let payer: { id: string; name: string } | null = null;
+
+      if (rawPayer && rawPayer.id) {
+        const payerId =
+          rawPayer.id?.toString?.() ?? String(rawPayer.id ?? "");
+        const payerNameFromMembers = payerId ? memberMap.get(payerId) : undefined;
+
+        payer = {
+          id: payerId,
+          name: rawPayer.name ?? payerNameFromMembers ?? "",
+        };
+      }
+
+      const split = Array.isArray(e.split)
+        ? e.split.map((s: any) => {
+            const rawSplitId = s.userId ?? s.id ?? s._id;
+            const splitId = rawSplitId?.toString?.();
+            const splitMemberName = splitId ? memberMap.get(splitId) : undefined;
+
+            return {
+              id: splitId,
+              name: splitMemberName ?? "",
+              amount: s.amount,
+            };
+          })
+        : [];
 
       return {
         id: e._id.toString(),
         name: e.name ?? "",
-        amount: typeof e.amount === "number" ? e.amount : Number(e.amount ?? 0),
+        amount:
+          typeof e.amount === "number" ? e.amount : Number(e.amount ?? 0),
         date: e.date ?? null,
         receiptUrl: e.receiptUrl ?? null,
-
-        payer: payerId
-          ? {
-              id: payerId,
-              name: memberMap.get(payerId),
-            }
-          : null,
-
-        split: Array.isArray(e.split)
-          ? e.split.map((s: any) => {
-              const splitUserId = s.userId?.toString?.() ?? s.userId;
-
-              return {
-                id: splitUserId,
-                name: memberMap.get(splitUserId),
-                amount: s.amount,
-              };
-            })
-          : [],
+        payer,
+        split,
       };
     });
   }
@@ -95,7 +116,7 @@ export async function getGroupWithExpensesService(groupId: string, userId: strin
   return {
     id: group._id.toString(),
     name: group.name ?? "",
-    members: members,
+    members,
     expenses: expensesList,
   };
 }

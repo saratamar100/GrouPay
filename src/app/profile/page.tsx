@@ -165,7 +165,6 @@ export default function ProfilePage() {
           </Paper>
         </Container>
       </Box>
-      <Footer/>
     </>
   );
 }

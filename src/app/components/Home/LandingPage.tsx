@@ -105,7 +105,6 @@ export function LandingPage() {
         </Box>
       </Box>
 
-      <Footer />
     </>
   );
 }

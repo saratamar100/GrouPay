@@ -75,7 +75,6 @@ export default function DashboardTest() {
         <Box className={styles.loaderWrapper}>
           <CircularProgress />
         </Box>
-        <Footer />
       </>
     );
   }
@@ -87,7 +86,6 @@ export default function DashboardTest() {
         <Box className={styles.main}>
           <Typography color="error">שגיאה: {error}</Typography>
         </Box>
-        <Footer />
       </>
     );
   }
@@ -170,7 +168,6 @@ export default function DashboardTest() {
         )}
       </Box>
 
-      <Footer />
     </>
   );
 }

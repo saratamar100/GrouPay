@@ -20,6 +20,8 @@ export function GroupExpensesList({
   
   
 }) {
+
+
   if ((!expenses || expenses.length === 0) && !hasDraft) {
     return (
       <Paper elevation={0} className={styles.emptyState}>
