@@ -43,13 +43,11 @@ export default function GroupPage() {
   const userId = user?.id;
   const [isMembersOpen, setIsMembersOpen] = useState(false);
 
-  // ★★★ STATE חדש לפילטרים ומיון ★★★
   const [searchTerm, setSearchTerm] = useState("");
   const [filterPayerId, setFilterPayerId] = useState<string | null>(null);
   const [sortBy, setSortBy] = useState<
     "dateDesc" | "dateAsc" | "amountDesc" | "amountAsc"
   >("dateDesc");
-  // ★★★ סוף STATE חדש ★★★
 
   const {
     state,
@@ -87,23 +85,22 @@ export default function GroupPage() {
     [expenses]
   );
 
-  // ★★★ לוגיקת הפילטור והמיון המרכזית ★★★
   const filteredAndSortedExpenses = useMemo(() => {
     let list = expenses;
 
-    // 1. סינון לפי מונח חיפוש (שם ההוצאה)
     if (searchTerm) {
       const termLower = searchTerm.toLowerCase();
       list = list.filter((e) => e.name.toLowerCase().includes(termLower));
     }
 
-    // 2. סינון לפי משלם (Payer)
     if (filterPayerId) {
-      // e.payer הוא ObjectId, לכן ממירים אותו ל-string להשוואה
-      list = list.filter((e) => e.payer.toString() === filterPayerId);
+      list = list.filter((e) => {
+        if (!e.payer || !e.payer.id) return false;
+        const expensePayerIdString = e.payer.id.toString();
+        return expensePayerIdString === filterPayerId;
+      });
     }
 
-    // 3. מיון
     list = [...list].sort((a, b) => {
       const dateA = new Date(a.date).getTime();
       const dateB = new Date(b.date).getTime();
@@ -119,7 +116,6 @@ export default function GroupPage() {
 
     return list;
   }, [expenses, searchTerm, filterPayerId, sortBy]);
-  // ★★★ סוף לוגיקת הפילטור והמיון ★★★
 
   if (state.loading) {
     return (
@@ -184,13 +180,45 @@ export default function GroupPage() {
 
             <Divider className={styles.divider} />
 
-            {/* ★★★ שורת הפילטרים והמיון החדשה ★★★ */}
-            <Box className={styles.filterBar}>
+            <Box className={styles.controlsSection}>
+              <Box className={styles.filterOptionsBar}>
+                <FormControl size="small" sx={{ minWidth: 120 }}>
+                  <InputLabel>שולם ע״י</InputLabel>
+                  <Select
+                    value={filterPayerId || ""}
+                    label="שולם ע״י"
+                    onChange={(e) => setFilterPayerId(e.target.value as string)}
+                  >
+                    <MenuItem value="">כל המשלמים</MenuItem>
+                    {members.map((member) => (
+                      <MenuItem key={member.id} value={member.id}>
+                        {member.name}
+                      </MenuItem>
+                    ))}
+                  </Select>
+                </FormControl>
+
+                <FormControl size="small" sx={{ minWidth: 120 }}>
+                  <InputLabel>מיון</InputLabel>
+                  <Select
+                    value={sortBy}
+                    label="מיון"
+                    onChange={(e) => setSortBy(e.target.value as typeof sortBy)}
+                  >
+                    <MenuItem value="dateDesc">תאריך: חדש לישן</MenuItem>
+                    <MenuItem value="dateAsc">תאריך: ישן לחדש</MenuItem>
+                    <MenuItem value="amountDesc">סכום: מהגבוה לנמוך</MenuItem>
+                    <MenuItem value="amountAsc">סכום: מהנמוך לגבוה</MenuItem>
+                  </Select>
+                </FormControl>
+              </Box>
+
               <TextField
                 size="small"
                 label="חיפוש הוצאה"
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
+                className={styles.searchField}
                 InputProps={{
                   startAdornment: (
                     <InputAdornment position="start">
@@ -199,41 +227,7 @@ export default function GroupPage() {
                   ),
                 }}
               />
-
-              <FormControl size="small" sx={{ minWidth: 120 }}>
-                <InputLabel>שולם ע״י</InputLabel>
-                <Select
-                  // ★★★ התיקון כאן: ודא שהערך הוא מחרוזת, החלף null במחרוזת ריקה ★★★
-                  value={filterPayerId === null ? "" : filterPayerId}
-                  label="שולם ע״י"
-                  onChange={(e) => setFilterPayerId(e.target.value as string)}
-                >
-                  <MenuItem value="">כל המשלמים</MenuItem>
-                  {/* ודא שאתה לא מנסה למפות (map) אם members הוא null/undefined */}
-                  {members.map((member) => (
-                    <MenuItem key={member.id} value={member.id}>
-                      {member.name}
-                    </MenuItem>
-                  ))}
-                </Select>
-              </FormControl>
-
-              <FormControl size="small" sx={{ minWidth: 120 }}>
-                <InputLabel>מיון</InputLabel>
-                <Select
-                  value={sortBy}
-                  label="מיון"
-                  onChange={(e) => setSortBy(e.target.value as typeof sortBy)}
-                >
-                  <MenuItem value="dateDesc">תאריך: חדש לישן</MenuItem>
-                  <MenuItem value="dateAsc">תאריך: ישן לחדש</MenuItem>
-                  <MenuItem value="amountDesc">סכום: מהגבוה לנמוך</MenuItem>
-                  <MenuItem value="amountAsc">סכום: מהנמוך לגבוה</MenuItem>
-                </Select>
-              </FormControl>
             </Box>
-            {/* ★★★ סוף שורת הפילטרים ★★★ */}
-
             <Box className={styles.cardsWrap}>
               <GroupExpensesList
                 userId={userId}
