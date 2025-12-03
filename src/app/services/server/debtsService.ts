@@ -20,7 +20,7 @@ export const calculateTotalDebt = async (groupId: string) => {
   }
   const paymentsCollection = db.collection("payment");
   const payments = await paymentsCollection
-    .find({ groupId: groupId })
+    .find({ groupId: new ObjectId(groupId) })
     .toArray();
   for (const payment of payments) {
     if (payment.status === "completed") {
@@ -84,5 +84,5 @@ export const calculateTotalDebt = async (groupId: string) => {
     { _id: new ObjectId(groupId) },
     { $set: { group_debts: debts } }
   );
-  console.log({ expenses, groupId });
+  console.log({ payedAmounts, owedAmounts, payments });
 };

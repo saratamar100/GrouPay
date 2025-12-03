@@ -197,8 +197,8 @@ export function GroupBalanceDisplay({ groupId }: GroupBalanceDisplayProps) {
                 <span className={styles.name}>{otherUser.name}</span>
                 <span className={styles.status}>
                   {isPayer
-                    ? `שלם ל־${otherUser.name}`
-                    : `קיבל מ־${otherUser.name}`}
+                    ? `שילמת ל־${otherUser.name}`
+                    : `קיבלת מ־${otherUser.name}`}
                 </span>
               </div>
             );
