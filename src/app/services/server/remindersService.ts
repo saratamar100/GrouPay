@@ -12,6 +12,7 @@ export const sendEmail = async (to: string, subject: string, text: string) => {
       pass: process.env.MAIL_PASS,
     },
   });
+  
 
   try {
     console.log(`[sendEmail] Verifying transporter...`);
