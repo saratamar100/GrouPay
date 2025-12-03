@@ -12,7 +12,7 @@
 .sidebar {
   width: 260px;
   flex-shrink: 0;
-  background: #f9fafb;
+  background: var(--bg-white);
   border-radius: 20px;
   padding: 16px 16px 12px;
   display: flex;
@@ -40,6 +40,7 @@
 .membersList {
   margin: 0;
   padding: 0;
+  list-style: none;
 }
 
 .memberItem {
@@ -50,3 +51,59 @@
   font-size: 0.95rem;
 }
 
+.suggestionsList {
+  border: 1px solid rgba(0,0,0,0.1);
+  border-radius: 6px;
+  margin-top: 4px;
+  background-color: var(--bg-white);
+}
+
+.suggestionItem {
+  padding: 4px 8px;
+  cursor: pointer;
+}
+
+.suggestionItem:hover {
+  background-color: #eee;
+}
+
+/* מודאל */
+.inviteModal {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background-color: var(--bg-white);
+  box-shadow: 0px 4px 6px rgba(0,0,0,0.1);
+  border-radius: 12px;
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+  min-width: 280px;
+  text-align: center;
+  border: 2px solid var(--primary-dark);
+  animation: pop 0.3s ease-out;
+}
+
+.inviteModalButton {
+  background-color: var(--primary);
+  color: #fff;
+}
+
+.inviteModalIcons {
+  display: flex;
+  gap: 16px;
+}
+
+@keyframes pop {
+  0% {
+    transform: translate(-50%, -50%) scale(0.7);
+    opacity: 0;
+  }
+  100% {
+    transform: translate(-50%, -50%) scale(1);
+    opacity: 1;
+  }
+}

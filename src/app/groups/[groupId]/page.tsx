@@ -306,14 +306,16 @@ export default function GroupPage() {
             </Box>
           </main>
 
-          {isMembersOpen && groupId && (
-            <GroupMembersSidebar
-              open={isMembersOpen}
-              members={members}
-              currentUserId={userId}
-              groupId={groupId}
-              onClose={() => setIsMembersOpen(false)}
-            />
+          {isMembersOpen && groupId && ( 
+          <GroupMembersSidebar
+            open={isMembersOpen}
+            members={members}
+            currentUserId={userId}
+            groupId={groupId}
+            onClose={() => setIsMembersOpen(false)}
+            onMemberAdded={reload} 
+          />
+
           )}
         </Paper>
 
