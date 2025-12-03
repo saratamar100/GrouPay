@@ -13,6 +13,7 @@ import SaveOutlinedIcon from "@mui/icons-material/SaveOutlined";
 import EditOutlinedIcon from "@mui/icons-material/EditOutlined";
 import toast, { Toaster } from "react-hot-toast";
 import { useRef } from "react";
+import {User} from "@/app/types/types"
 
 import { useLoginStore } from "@/app/store/loginStore";
 import { useProfile } from "@/app/hooks/useProfile";
@@ -22,9 +23,11 @@ import Footer from "../components/Footer/Footer";
 import styles from "./profile.module.css";
 
 export default function ProfilePage() {
-  const loggedUser = useLoginStore((state) => state.loggedUser);
-  const setLoggedUser = useLoginStore((state) => state.setLoggedUser);
+  const loginStore = useLoginStore();
+  const user = loginStore.loggedUser;
 
+  
+ 
   const {
     canEdit,
     setCanEdit,
@@ -37,15 +40,19 @@ export default function ProfilePage() {
     handleFocus,
     save,
     setDrafts,
-  } = useProfile(loggedUser);
+  } = useProfile(user);
 
   const fileInputRef = useRef<HTMLInputElement | null>(null);
 
   const { file: avatarFile, previewUrl, setFile } = useFilePreview(
-    loggedUser?.photoURL || null
+    user?.photoURL || null
   );
 
-  if (!loggedUser) return null;
+  if (!user) return null;
+
+  const handleSave = (user: User) => {
+      loginStore.setLoggedUser(user);
+  };
 
   const handleAvatarClick = () => {
     if (!canEdit) return;
@@ -62,7 +69,7 @@ export default function ProfilePage() {
   const handleAction = async () => {
     if (!canEdit) {
       setDrafts({
-        name: loggedUser.name,
+        name: user.name,
       });
       setCanEdit(true);
       return;
@@ -72,12 +79,7 @@ export default function ProfilePage() {
 
     if (result.success) {
       if (result.user) {
-        setLoggedUser(result.user);
-      } else {
-        setLoggedUser({
-          ...loggedUser,
-          name: drafts.name,
-        });
+        handleSave(result.user)
       }
       toast.success("הפרופיל עודכן בהצלחה");
     } else {
@@ -102,11 +104,11 @@ export default function ProfilePage() {
             />
 
             <Avatar className={`${styles.avatar} ${canEdit ? styles.avatarEditable : ""}`}
-              src={previewUrl || loggedUser.photoURL || undefined}
+              src={previewUrl || user.photoURL || undefined}
               onClick={handleAvatarClick}
            
             >
-              {loggedUser.name[0]}
+              {user.name[0]}
             </Avatar>
 
             <Typography variant="h4" className={styles.title}>
@@ -117,7 +119,7 @@ export default function ProfilePage() {
               <div className={styles.fieldBlock}>
                 <label className={styles.fieldLabel}>שם מלא</label>
                 {!canEdit ? (
-                  <div className={styles.fieldText}>{loggedUser.name}</div>
+                  <div className={styles.fieldText}>{user.name}</div>
                 ) : (
                   <>
                     <input
@@ -140,7 +142,7 @@ export default function ProfilePage() {
 
               <div className={styles.fieldBlock}>
                 <label className={styles.fieldLabel}>אימייל</label>
-                <div className={styles.fieldText}>{loggedUser.email}</div>
+                <div className={styles.fieldText}>{user.email}</div>
               </div>
             </Stack>
 

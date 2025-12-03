@@ -52,6 +52,8 @@ export function useProfile(user: User | null) {
     return Object.keys(next).length === 0;
   };
 
+
+
   const handleChange = (field: keyof DraftUser, value: string) => {
     setDrafts((prev) => ({ ...prev, [field]: value }));
     if (touched[field]) {
