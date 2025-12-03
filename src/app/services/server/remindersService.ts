@@ -3,6 +3,8 @@ import nodemailer from "nodemailer";
 import { ObjectId } from "mongodb";
 
 export const sendEmail = async (to: string, subject: string, text: string) => {
+  console.log(`[sendEmail] Preparing to send email to ${to} with subject: "${subject}"`);
+
   const transporter = nodemailer.createTransport({
     service: "gmail",
     auth: {
@@ -12,17 +14,26 @@ export const sendEmail = async (to: string, subject: string, text: string) => {
   });
 
   try {
-    await transporter.sendMail({
+    console.log(`[sendEmail] Verifying transporter...`);
+    await transporter.verify();
+    console.log(`[sendEmail] Transporter verified successfully.`);
+
+    console.log(`[sendEmail] Sending email...`);
+    const info = await transporter.sendMail({
       from: process.env.MAIL_USER,
       to,
       subject,
       text,
     });
-    console.log(`Email sent to ${to}`);
+
+    console.log(`[sendEmail] Email sent successfully! MessageId: ${info.messageId}`);
+    console.log(`[sendEmail] Response: ${info.response}`);
   } catch (error: any) {
-    console.error(`Error sending email to ${to}:`, error);
+    console.error(`[sendEmail] Error sending email to ${to}:`, error?.message);
+    console.error(error);
   }
 };
+
 
 const sendGroupDebtNotifications = async ({
   groups,
