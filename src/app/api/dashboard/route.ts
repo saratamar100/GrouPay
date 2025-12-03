@@ -52,7 +52,6 @@
 //           return sum + (d.amount || 0);
 //         }, 0);
 
-
 //         return {
 //           groupId: group._id,
 //           groupName: group.name,
@@ -69,7 +68,6 @@
 // }
 
 // =============================================
-
 
 // import { NextResponse } from "next/server";
 // import { getDb } from "@/app/services/server/mongo";
@@ -125,7 +123,6 @@
 //           return sum + (d.amount || 0);
 //         }, 0);
 
-
 //         return {
 //           groupId: group._id,
 //           groupName: group.name,
@@ -142,7 +139,6 @@
 // }
 
 // ===================================
-
 
 // import { NextResponse } from "next/server";
 // import { getDb } from "@/app/services/server/mongo";
@@ -238,9 +234,7 @@
 //   }
 // }
 
-
 // =======================================================
-
 
 import { NextResponse } from "next/server";
 import { getDb } from "@/app/services/server/mongo";
@@ -276,7 +270,10 @@ export async function GET(request: Request) {
     console.log("Validating user.groupId format");
     if (!Array.isArray(user.groupId)) {
       console.log("user.groupId is not an array");
-      return NextResponse.json({ error: "Invalid user.groupId format" }, { status: 500 });
+      return NextResponse.json(
+        { error: "Invalid user.groupId format" },
+        { status: 500 }
+      );
     }
 
     console.log("Converting groupId list to ObjectId array");
@@ -309,11 +306,15 @@ export async function GET(request: Request) {
             groupId: group._id,
             groupName: group.name,
             balance,
+            isActive: group.isActive,
           };
         }
 
         console.log("Calculating balance");
-        const balance = userDebtsArray.reduce((sum: number, d: any) => sum + (d.amount || 0), 0);
+        const balance = userDebtsArray.reduce(
+          (sum: number, d: any) => sum + (d.amount || 0),
+          0
+        );
 
         console.log("Finished group", group._id, "balance:", balance);
 
@@ -321,6 +322,7 @@ export async function GET(request: Request) {
           groupId: group._id,
           groupName: group.name,
           balance,
+          isActive: group.isActive,
         };
       })
       .filter(Boolean);
@@ -329,7 +331,8 @@ export async function GET(request: Request) {
     return NextResponse.json(result);
   } catch (err: unknown) {
     console.log("Error occurred:", err);
-    const message = err instanceof Error ? err.message : "Internal server error";
+    const message =
+      err instanceof Error ? err.message : "Internal server error";
     return NextResponse.json({ error: message }, { status: 500 });
   }
 }

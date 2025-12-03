@@ -17,7 +17,7 @@ export async function getGroupWithExpensesService(
 
   const group = await groups.findOne(
     { _id: new ObjectId(groupId) },
-    { projection: { name: 1, members: 1, expenses: 1 } }
+    { projection: { name: 1, members: 1, expenses: 1, isActive: 1 } }
   );
 
   if (!group) {
@@ -55,7 +55,8 @@ export async function getGroupWithExpensesService(
   const expenseObjectIds: ObjectId[] = expenseIdValues
     .map((id: any) => {
       if (id instanceof ObjectId) return id;
-      if (typeof id === "string" && ObjectId.isValid(id)) return new ObjectId(id);
+      if (typeof id === "string" && ObjectId.isValid(id))
+        return new ObjectId(id);
       return null;
     })
     .filter((id: ObjectId | null): id is ObjectId => id !== null);
@@ -64,10 +65,7 @@ export async function getGroupWithExpensesService(
 
   if (expenseObjectIds.length > 0) {
     const rawExpenses = await expensesCol
-      .find(
-        { _id: { $in: expenseObjectIds } },
-        { projection: { groupId: 0 } }
-      )
+      .find({ _id: { $in: expenseObjectIds } }, { projection: { groupId: 0 } })
       .toArray();
 
     expensesList = rawExpenses.map((e: any) => {
@@ -76,9 +74,10 @@ export async function getGroupWithExpensesService(
       let payer: { id: string; name: string } | null = null;
 
       if (rawPayer && rawPayer.id) {
-        const payerId =
-          rawPayer.id?.toString?.() ?? String(rawPayer.id ?? "");
-        const payerNameFromMembers = payerId ? memberMap.get(payerId) : undefined;
+        const payerId = rawPayer.id?.toString?.() ?? String(rawPayer.id ?? "");
+        const payerNameFromMembers = payerId
+          ? memberMap.get(payerId)
+          : undefined;
 
         payer = {
           id: payerId,
@@ -90,7 +89,9 @@ export async function getGroupWithExpensesService(
         ? e.split.map((s: any) => {
             const rawSplitId = s.userId ?? s.id ?? s._id;
             const splitId = rawSplitId?.toString?.();
-            const splitMemberName = splitId ? memberMap.get(splitId) : undefined;
+            const splitMemberName = splitId
+              ? memberMap.get(splitId)
+              : undefined;
 
             return {
               id: splitId,
@@ -103,8 +104,7 @@ export async function getGroupWithExpensesService(
       return {
         id: e._id.toString(),
         name: e.name ?? "",
-        amount:
-          typeof e.amount === "number" ? e.amount : Number(e.amount ?? 0),
+        amount: typeof e.amount === "number" ? e.amount : Number(e.amount ?? 0),
         date: e.date ?? null,
         receiptUrl: e.receiptUrl ?? null,
         payer,
@@ -118,5 +118,6 @@ export async function getGroupWithExpensesService(
     name: group.name ?? "",
     members,
     expenses: expensesList,
+    isActive: group.isActive,
   };
 }

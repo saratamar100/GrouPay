@@ -12,9 +12,8 @@ export async function getUserGroups(userId: string): Promise<GroupShort[]> {
     id: g.groupId,
     name: g.groupName,
     balance: g.balance,
+    isActive: g.isActive,
   }));
 
   return groups;
 }
-
-

@@ -9,11 +9,9 @@ import {
   updateExpense,
 } from "@/app/services/client/groupService";
 import type { SplitDetail } from "@/app/utils/split";
-import {uploadToCloudinary} from "@/app/services/client/uploadService"
+import { uploadToCloudinary } from "@/app/services/client/uploadService";
 import { toMoney } from "../utils/money";
 import { useLoginStore } from "@/app/store/loginStore";
-
-
 
 type DraftExpense = Omit<Expense, "id" | "payer"> & {
   id: "DRAFT";
@@ -40,13 +38,45 @@ type AdvState =
       expenseId?: string;
     };
 
-export function useGroupData(groupId: string | undefined,userId:string|undefined) {
+export interface GroupDataResult {
+  state: {
+    group: Group | null;
+    draft: DraftExpense | null;
+    loading: boolean;
+    saving: boolean;
+    error: string | null;
+    expenses: Expense[];
+    adv: AdvState;
+  };
+  reload: () => void;
+  startDraftExpense: () => void;
+  cancelDraft: () => void;
+  updateDraftField: (key: keyof DraftExpense, value: any) => void;
+  addFromDraft: () => Promise<void>;
+  deleteExpense: (id: string) => Promise<void>;
+  openAdvancedForDraft: () => void;
+  openAdvancedForExisting: (expenseId: string) => void;
+  closeAdvanced: () => void;
+  setGroupActiveStatus: (newStatus: boolean) => Promise<void>;
+  handleAdvancedSave: (payload: {
+    split: SplitDetail[];
+    receiptFile?: File | null;
+    receiptUrl?: string | null;
+    name?: string;
+    amount?: number;
+  }) => Promise<void>;
+}
+
+export function useGroupData(
+  groupId: string | undefined,
+  userId: string | undefined
+) {
   const [group, setGroup] = useState<Group | null>(null);
   const [draft, setDraft] = useState<DraftExpense | null>(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  
+
   const [adv, setAdv] = useState<AdvState>({
     open: false,
     mode: null,
@@ -55,7 +85,6 @@ export function useGroupData(groupId: string | undefined,userId:string|undefined
     split: [],
     receiptUrl: null,
   });
-
 
   const expenses: Expense[] = useMemo(
     () => (Array.isArray(group?.expenses) ? group!.expenses : []),
@@ -66,27 +95,24 @@ export function useGroupData(groupId: string | undefined,userId:string|undefined
   const currentUserId = currentUser ? currentUser.id : null;
   const currentUserName = currentUser ? currentUser.name : null;
 
+  const reload = useCallback(() => {
+    if (!groupId) return;
 
- const reload = useCallback(() => {
-  if (!groupId) return;
-  
-  setLoading(true);
+    setLoading(true);
 
-  getGroup(groupId, userId)
-    .then((g) => {
-      console.log(g);
-      setGroup(g);
-      setError(null);
-    })
-    .catch((e: any) => {
-      setError(e?.message || "שגיאה בטעינת נתוני קבוצה");
-    })
-    .finally(() => {
-      setLoading(false);
-    });
-
-}, [groupId, userId]);
-
+    getGroup(groupId, userId)
+      .then((g) => {
+        console.log(g);
+        setGroup(g);
+        setError(null);
+      })
+      .catch((e: any) => {
+        setError(e?.message || "שגיאה בטעינת נתוני קבוצה");
+      })
+      .finally(() => {
+        setLoading(false);
+      });
+  }, [groupId, userId]);
 
   const startDraftExpense = useCallback(() => {
     if (!group) return;
@@ -98,7 +124,7 @@ export function useGroupData(groupId: string | undefined,userId:string|undefined
       payer = { id: currentUserId, name: currentUserName };
     }
     if (!payer) {
-      return
+      return;
     }
 
     setDraft({
@@ -114,15 +140,18 @@ export function useGroupData(groupId: string | undefined,userId:string|undefined
 
   const cancelDraft = useCallback(() => setDraft(null), []);
 
-  const updateDraftField = useCallback((key: keyof DraftExpense, value: any) => {
-    setDraft((d) => {
-      if (!d) return d;
-      if (key === "amount") {
-        return { ...d, amount: toMoney(String(value)) } as DraftExpense;
-      }
-      return { ...d, [key]: value } as DraftExpense;
-    });
-  }, []);
+  const updateDraftField = useCallback(
+    (key: keyof DraftExpense, value: any) => {
+      setDraft((d) => {
+        if (!d) return d;
+        if (key === "amount") {
+          return { ...d, amount: toMoney(String(value)) } as DraftExpense;
+        }
+        return { ...d, [key]: value } as DraftExpense;
+      });
+    },
+    []
+  );
 
   const addFromDraft = useCallback(async () => {
     if (!draft || !group) return;
@@ -169,11 +198,13 @@ export function useGroupData(groupId: string | undefined,userId:string|undefined
     async (id: string) => {
       if (!group) return;
       const ok =
-        typeof window === "undefined" ? true : window.confirm("למחוק את ההוצאה הזו?");
+        typeof window === "undefined"
+          ? true
+          : window.confirm("למחוק את ההוצאה הזו?");
       if (!ok) return;
       try {
         setSaving(true);
-        await delExpense(group.id, id ,userId);
+        await delExpense(group.id, id, userId);
         const fresh = await getGroupExpenses(group.id);
         setGroup({ ...group, expenses: fresh });
       } catch (e: any) {
@@ -261,122 +292,144 @@ export function useGroupData(groupId: string | undefined,userId:string|undefined
   }, []);
 
   const handleAdvancedSave = useCallback(
-  async (payload: {
-    split: SplitDetail[];
-    receiptFile?: File | null;
-    receiptUrl?: string | null;
-    name?: string;
-    amount?: number;
-  }) => {
-    
-    if (!adv.open || !adv.mode) return;
+    async (payload: {
+      split: SplitDetail[];
+      receiptFile?: File | null;
+      receiptUrl?: string | null;
+      name?: string;
+      amount?: number;
+    }) => {
+      if (!adv.open || !adv.mode) return;
 
-    const { split, receiptFile, receiptUrl, name, amount } = payload;
+      const { split, receiptFile, receiptUrl, name, amount } = payload;
 
-    let finalReceiptUrl: string | null = null;
-    if (receiptFile) {
-      try {
-        finalReceiptUrl = await uploadToCloudinary(receiptFile);
-      } catch (err) {
-        console.error("Cloudinary upload failed:", err);
+      let finalReceiptUrl: string | null = null;
+      if (receiptFile) {
+        try {
+          finalReceiptUrl = await uploadToCloudinary(receiptFile);
+        } catch (err) {
+          console.error("Cloudinary upload failed:", err);
+          finalReceiptUrl = receiptUrl ?? null;
+        }
+      } else {
         finalReceiptUrl = receiptUrl ?? null;
       }
-    } else {
-      finalReceiptUrl = receiptUrl ?? null;
-    }
 
-    if (adv.mode === "draft") {
-      if (!draft || !group) return;
+      if (adv.mode === "draft") {
+        if (!draft || !group) return;
 
-      const payerId = draft.payer.id;
-      const dateISO =
-        draft.date instanceof Date
-          ? draft.date.toISOString()
-          : new Date(draft.date).toISOString();
+        const payerId = draft.payer.id;
+        const dateISO =
+          draft.date instanceof Date
+            ? draft.date.toISOString()
+            : new Date(draft.date).toISOString();
 
-      const finalName = (name ?? draft.name ?? "").trim();
-      const finalAmount = Number(amount ?? draft.amount ?? 0) || 0;
+        const finalName = (name ?? draft.name ?? "").trim();
+        const finalAmount = Number(amount ?? draft.amount ?? 0) || 0;
 
-      const finalSplitUI =
-        (split && split.length > 0 ? split : adv.split) || [];
+        const finalSplitUI =
+          (split && split.length > 0 ? split : adv.split) || [];
 
-      if (!finalName || !Number.isFinite(finalAmount) || finalAmount <= 0) {
+        if (!finalName || !Number.isFinite(finalAmount) || finalAmount <= 0) {
+          return;
+        }
+
+        try {
+          setSaving(true);
+
+          const apiSplit = finalSplitUI.map((s) => ({
+            userId: s.id,
+            amount: s.amount,
+          }));
+
+          await createExpense(group.id, group.members, {
+            name: finalName,
+            amount: finalAmount,
+            payer: payerId,
+            split: apiSplit,
+            date: dateISO as any,
+            receiptUrl: finalReceiptUrl,
+          });
+
+          const fresh = await getGroupExpenses(group.id);
+          setGroup({ ...group, expenses: fresh });
+          setDraft(null);
+        } finally {
+          setSaving(false);
+        }
+
+        closeAdvanced();
         return;
       }
 
-      try {
-        setSaving(true);
+      if (adv.mode === "existing" && adv.expenseId && group) {
+        const current = expenses.find((e) => e.id === adv.expenseId) || null;
 
-        const apiSplit = finalSplitUI.map((s) => ({
-          userId: s.id,
-          amount: s.amount,
-        }));
+        const finalName = (name ?? current?.name ?? "").trim();
+        const finalAmount = Number(amount ?? current?.amount ?? 0) || 0;
 
-        await createExpense(group.id, group.members, {
-          name: finalName,
-          amount: finalAmount,
-          payer: payerId,
-          split: apiSplit,
-          date: dateISO as any,
-          receiptUrl: finalReceiptUrl,
-        });
+        const finalSplitUI =
+          (split && split.length > 0 ? split : adv.split) || [];
 
-        const fresh = await getGroupExpenses(group.id);
-        setGroup({ ...group, expenses: fresh });
-        setDraft(null);
-      } finally {
-        setSaving(false);
-      }
+        if (!finalName || !Number.isFinite(finalAmount) || finalAmount <= 0) {
+          return;
+        }
 
-      closeAdvanced();
-      return;
-    }
+        try {
+          setSaving(true);
 
-    if (adv.mode === "existing" && adv.expenseId && group) {
-      const current = expenses.find((e) => e.id === adv.expenseId) || null;
+          const apiSplit = finalSplitUI.map((s) => ({
+            userId: s.id,
+            amount: s.amount,
+          }));
 
-      const finalName = (name ?? current?.name ?? "").trim();
-      const finalAmount = Number(amount ?? current?.amount ?? 0) || 0;
+          await updateExpense(group.id, adv.expenseId, userId, {
+            name: finalName,
+            amount: finalAmount,
+            split: apiSplit,
+            receiptUrl: finalReceiptUrl,
+          });
 
-      const finalSplitUI =
-        (split && split.length > 0 ? split : adv.split) || [];
+          const fresh = await getGroupExpenses(group.id);
+          setGroup({ ...group, expenses: fresh });
+        } catch (e: any) {
+          alert(e?.message || "שגיאה בעדכון ההוצאה");
+        } finally {
+          setSaving(false);
+        }
 
-      if (!finalName || !Number.isFinite(finalAmount) || finalAmount <= 0) {
+        closeAdvanced();
         return;
       }
+    },
+    [adv, draft, group, expenses, closeAdvanced]
+  );
 
-      
+  const setGroupActiveStatus = useCallback(
+    async (newStatus: boolean) => {
+      if (!group || !groupId) return;
+      setGroup((prevGroup) => {
+        if (!prevGroup) return prevGroup;
+        return { ...prevGroup, isActive: newStatus };
+      });
 
       try {
-        setSaving(true);
-
-        const apiSplit = finalSplitUI.map((s) => ({
-          userId: s.id,
-          amount: s.amount,
-        }));
-
-        await updateExpense(group.id, adv.expenseId,userId, {
-          name: finalName,
-          amount: finalAmount,
-          split: apiSplit,
-          receiptUrl: finalReceiptUrl,
+        await fetch(`/api/groups/${groupId}/status`, {
+          method: "PATCH",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ isActive: newStatus }),
         });
-
-        const fresh = await getGroupExpenses(group.id);
-        setGroup({ ...group, expenses: fresh });
-      } catch (e: any) {
-        alert(e?.message || "שגיאה בעדכון ההוצאה");
-      } finally {
-        setSaving(false);
+      } catch (error) {
+        console.error("API error during status toggle:", error);
+        setGroup((prevGroup) => {
+          if (!prevGroup) return prevGroup;
+          return { ...prevGroup, isActive: !newStatus };
+        });
+        throw new Error("שגיאה בשרת. הסטטוס לא השתנה.");
       }
-
-      closeAdvanced();
-      return;
-    }
-  },
-  [adv, draft, group, expenses, closeAdvanced]
-);
-
+    },
+    [group, groupId, setGroup]
+  );
 
   return {
     state: {
@@ -398,5 +451,6 @@ export function useGroupData(groupId: string | undefined,userId:string|undefined
     openAdvancedForExisting,
     closeAdvanced,
     handleAdvancedSave,
-  } as const;
+    setGroupActiveStatus,
+  } as GroupDataResult;
 }
