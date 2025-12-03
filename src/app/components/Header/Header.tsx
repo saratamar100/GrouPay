@@ -35,7 +35,7 @@ const Header: React.FC = () => {
     logout();
     fetchLogout()
     setMenuAnchor(null);
-    //router.push("/");
+    router.push("/");
   };
 
   const isDashboard = pathname === "/dashboard";
@@ -68,7 +68,7 @@ const Header: React.FC = () => {
             <InfoIcon />
           </IconButton>
 
-          {loggedUser && (
+         
             <>
               <IconButton
                 className={isProfile ? styles.activeIcon : styles.iconButton}
@@ -103,7 +103,6 @@ const Header: React.FC = () => {
                 </MenuItem>
               </Menu>
             </>
-          )}
         </Box>
       </Toolbar>
     </AppBar>

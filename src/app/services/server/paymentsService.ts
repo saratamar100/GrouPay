@@ -11,6 +11,9 @@ export async function fetchPendingPaymentsForGroup(
   const group = await groupsCollection.findOne({ _id: new ObjectId(groupId) });
   if (!group || !group.payments) return [];
 
+  const userObjectId = new ObjectId(userId);
+
+
   const paymentsIds = group.payments;
   const paymentsCollection = db.collection("payment");
   const payments = await paymentsCollection
@@ -18,8 +21,8 @@ export async function fetchPendingPaymentsForGroup(
       _id: { $in: paymentsIds }, //change to groupId?
       status: "pending",
       $or: [
-        { "payer.id": userId },
-        { "payee.id":userId },
+        { "payer.id": userObjectId },
+        { "payee.id":userObjectId },
       ],
     })
     .toArray();
@@ -58,9 +61,9 @@ export async function createPayment(
   const paymentsCollection = db.collection("payment");
 
   const existingPending = await paymentsCollection.findOne({
-    groupId: groupId,
-    "payee.id":payee.id,
-    "payer.id": payer.id,
+    groupId: new ObjectId(groupId),
+    "payee.id":new ObjectId(payee.id),
+    "payer.id": new ObjectId(payer.id),
     status: "pending",
   });
 
@@ -69,10 +72,21 @@ export async function createPayment(
   }
 
   const newPayment = {
-    payee, //: new ObjectId(payeeId),
-    payer, //: new ObjectId(payerId),
+     payee: payee
+          ? {
+              id: new ObjectId(payee.id),
+              name: payee.name,
+            }
+          : null,
+          payer: payer
+          ? {
+              id: new ObjectId(payer.id),
+              name: payer.name,
+            }
+          : null,
+   
     amount,
-    groupId,
+    groupId : new ObjectId(groupId),
     status: "pending",
     date: new Date(),
   };

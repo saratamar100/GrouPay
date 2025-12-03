@@ -2,7 +2,17 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
-
+import {
+  InputAdornment,
+  TextField,
+  MenuItem,
+  Select,
+  FormControl,
+  InputLabel,
+  Switch,
+  FormControlLabel,
+} from "@mui/material";
+import SearchIcon from "@mui/icons-material/Search";
 import Header from "@/app/components/Header/Header";
 import { useGroupData } from "@/app/hooks/useGroupData";
 import { GroupExpensesList } from "@/app/components/GroupExpensesList/GroupExpensesList";
@@ -35,6 +45,12 @@ export default function GroupPage() {
   const userId = user?.id;
   const [isMembersOpen, setIsMembersOpen] = useState(false);
 
+  const [searchTerm, setSearchTerm] = useState("");
+  const [filterPayerId, setFilterPayerId] = useState<string | null>(null);
+  const [sortBy, setSortBy] = useState<
+    "dateDesc" | "dateAsc" | "amountDesc" | "amountAsc"
+  >("dateDesc");
+
   const {
     state,
     startDraftExpense,
@@ -47,10 +63,33 @@ export default function GroupPage() {
     openAdvancedForExisting,
     closeAdvanced,
     handleAdvancedSave,
+    setGroupActiveStatus,
   } = useGroupData(groupId, userId);
 
+  const handleToggleActive = async (
+    event: React.ChangeEvent<HTMLInputElement>
+  ) => {
+    const newStatus = event.target.checked;
+    const currentGroupId = state.group?.id;
+    if (!currentGroupId) return;
+
+    try {
+      await setGroupActiveStatus(newStatus);
+    } catch (error) {
+      console.error("Error updating group status:", error);
+      alert(`אירעה שגיאה בעדכון מצב הקבוצה. נסה שוב.`);
+    }
+  };
+
   useEffect(() => {
-    if (!groupId || !userId) return;
+    console.log(
+      `DEBUG: Checking Dependencies. GroupID: ${groupId}, UserID: ${userId}`
+    );
+    if (!groupId || !userId) {
+      console.log("DEBUG: Fetch skipped due to missing ID/User.");
+      return;
+    }
+
     reload();
   }, [groupId, userId, reload]);
 
@@ -61,6 +100,7 @@ export default function GroupPage() {
     }
   }, [state.loading, state.error, state.group, router]);
 
+  console.log("GroupPage render - state:", state.group);
   const members = state.group?.members || [];
   const expenses = Array.isArray(state.group?.expenses)
     ? state.group.expenses
@@ -70,6 +110,38 @@ export default function GroupPage() {
     () => expenses.reduce((sum, e) => sum + (Number(e.amount) || 0), 0),
     [expenses]
   );
+
+  const filteredAndSortedExpenses = useMemo(() => {
+    let list = expenses;
+
+    if (searchTerm) {
+      const termLower = searchTerm.toLowerCase();
+      list = list.filter((e) => e.name.toLowerCase().includes(termLower));
+    }
+
+    if (filterPayerId) {
+      list = list.filter((e) => {
+        if (!e.payer || !e.payer.id) return false;
+        const expensePayerIdString = e.payer.id.toString();
+        return expensePayerIdString === filterPayerId;
+      });
+    }
+
+    list = [...list].sort((a, b) => {
+      const dateA = new Date(a.date).getTime();
+      const dateB = new Date(b.date).getTime();
+      const amountA = Number(a.amount || 0);
+      const amountB = Number(b.amount || 0);
+
+      if (sortBy === "dateDesc") return dateB - dateA;
+      if (sortBy === "dateAsc") return dateA - dateB;
+      if (sortBy === "amountDesc") return amountB - amountA;
+      if (sortBy === "amountAsc") return amountA - amountB;
+      return 0;
+    });
+
+    return list;
+  }, [expenses, searchTerm, filterPayerId, sortBy]);
 
   if (state.loading) {
     return (
@@ -83,6 +155,8 @@ export default function GroupPage() {
     return null;
   }
 
+  const isActiveStatus = state.group?.isActive || false;
+
   return (
     <>
       <Header />
@@ -95,7 +169,11 @@ export default function GroupPage() {
                 <Typography component="span" className={styles.totalLabel}>
                   סה״כ:
                 </Typography>
-                <Typography component="strong" className={styles.totalValue} dir="ltr">
+                <Typography
+                  component="strong"
+                  className={styles.totalValue}
+                  dir="ltr"
+                >
                   {formatILS(totalExpenses)}
                 </Typography>
               </Box>
@@ -109,6 +187,21 @@ export default function GroupPage() {
                   הקבוצות שלי
                 </Link>
               </Box>
+            </Box>
+
+            <Box className={styles.statusToggleContainer}>
+              <FormControlLabel
+                control={
+                  <Switch
+                    checked={isActiveStatus}
+                    onChange={handleToggleActive}
+                    name="isActiveSwitch"
+                    color="primary"
+                  />
+                }
+                label={isActiveStatus ? "קבוצה פעילה" : "קבוצה לא פעילה"}
+                labelPlacement="start"
+              />
             </Box>
 
             <Typography
@@ -130,10 +223,58 @@ export default function GroupPage() {
 
             <Divider className={styles.divider} />
 
+            <Box className={styles.controlsSection}>
+              <Box className={styles.filterOptionsBar}>
+                <FormControl size="small" sx={{ minWidth: 120 }}>
+                  <InputLabel>שולם ע״י</InputLabel>
+                  <Select
+                    value={filterPayerId || ""}
+                    label="שולם ע״י"
+                    onChange={(e) => setFilterPayerId(e.target.value as string)}
+                  >
+                    <MenuItem value="">כל המשלמים</MenuItem>
+                    {members.map((member) => (
+                      <MenuItem key={member.id} value={member.id}>
+                        {member.name}
+                      </MenuItem>
+                    ))}
+                  </Select>
+                </FormControl>
+
+                <FormControl size="small" sx={{ minWidth: 120 }}>
+                  <InputLabel>מיון</InputLabel>
+                  <Select
+                    value={sortBy}
+                    label="מיון"
+                    onChange={(e) => setSortBy(e.target.value as typeof sortBy)}
+                  >
+                    <MenuItem value="dateDesc">תאריך: חדש לישן</MenuItem>
+                    <MenuItem value="dateAsc">תאריך: ישן לחדש</MenuItem>
+                    <MenuItem value="amountDesc">סכום: מהגבוה לנמוך</MenuItem>
+                    <MenuItem value="amountAsc">סכום: מהנמוך לגבוה</MenuItem>
+                  </Select>
+                </FormControl>
+              </Box>
+
+              <TextField
+                size="small"
+                label="חיפוש הוצאה"
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className={styles.searchField}
+                InputProps={{
+                  startAdornment: (
+                    <InputAdornment position="start">
+                      <SearchIcon />
+                    </InputAdornment>
+                  ),
+                }}
+              />
+            </Box>
             <Box className={styles.cardsWrap}>
               <GroupExpensesList
-                userId = {userId}
-                expenses={expenses}
+                userId={userId}
+                expenses={filteredAndSortedExpenses}
                 onDelete={deleteExpense}
                 onEdit={openAdvancedForExisting}
                 hasDraft={!!state.draft}
@@ -172,7 +313,7 @@ export default function GroupPage() {
             currentUserId={userId}
             groupId={groupId}
             onClose={() => setIsMembersOpen(false)}
-            onMemberAdded={reload} // <-- כאן מוסיפים את reload
+            onMemberAdded={reload} 
           />
 
           )}

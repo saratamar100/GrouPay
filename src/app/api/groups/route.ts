@@ -64,6 +64,8 @@ export async function POST(request: Request) {
       name: newGroupData.name,
       members: membersForClient,
       expenses: newGroupData.expenses,
+      isActive: newGroupData.isActive,
+      notifications: newGroupData.notifications,
     };
 
     return NextResponse.json(createdGroup, { status: 201 });
