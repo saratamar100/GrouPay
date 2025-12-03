@@ -38,7 +38,7 @@ export async function fetchPendingPayments(
   currentUserId: string
 ): Promise<Payment[]> {
   try {
-    const url = `/api/groups/${groupId}/payment/pending?userId=${currentUserId}`;
+    const url = `/api/groups/${groupId}/payment?status=pending&userId=${currentUserId}`;
     const res = await fetch(url, { method: "GET" });
 
     if (!res.ok) {
@@ -84,3 +84,20 @@ export const updatePaymentStatus = async (
     return false;
   }
 };
+export async function fetchCompletedPayments(
+  groupId: string,
+  currentUserId: string
+): Promise<Payment[]> {
+  try {
+    const url = `/api/groups/${groupId}/payment?status=completed&userId=${currentUserId}`;
+    const res = await fetch(url, { method: "GET" });  
+    if (!res.ok) {
+      const msg = await res.text();
+      throw new Error(msg || "Failed to fetch completed payments");
+    }
+    return await res.json();
+  } catch (err: any) {
+    console.error("fetchCompletedPayments error:", err);
+    return [];
+  }
+}

@@ -2,9 +2,10 @@ import { ObjectId } from "mongodb";
 import { getDb } from "./mongo";
 import { Member, Status } from "@/app/types/types";
 
-export async function fetchPendingPaymentsForGroup(
+export async function fetchPaymentsForGroup(
   groupId: string,
-  userId: string
+  userId: string,
+  status: string | null
 ) {
   const db = await getDb("groupay_db");
   const groupsCollection = db.collection("group");
@@ -13,27 +14,25 @@ export async function fetchPendingPaymentsForGroup(
 
   const userObjectId = new ObjectId(userId);
 
-
   const paymentsIds = group.payments;
   const paymentsCollection = db.collection("payment");
-  const payments = await paymentsCollection
-    .find({
-      _id: { $in: paymentsIds }, //change to groupId?
-      status: "pending",
-      $or: [
-        { "payer.id": userObjectId },
-        { "payee.id":userObjectId },
-      ],
-    })
-    .toArray();
-  return payments.map((p: any) => {
-  const { _id, ...rest } = p;
-  return {
-    id: _id.toString(),
-    ...rest,
+  const query: any = {
+    _id: { $in: paymentsIds }, 
+    $or: [{ "payer.id": userObjectId }, { "payee.id": userObjectId }],
   };
-});
+  if (status != null) {
+    query.status = status;
+  }
 
+  const payments = await paymentsCollection.find(query).toArray();
+
+  return payments.map((p: any) => {
+    const { _id, ...rest } = p;
+    return {
+      id: _id.toString(),
+      ...rest,
+    };
+  });
 }
 
 interface PaymentInput {
@@ -62,7 +61,7 @@ export async function createPayment(
 
   const existingPending = await paymentsCollection.findOne({
     groupId: new ObjectId(groupId),
-    "payee.id":new ObjectId(payee.id),
+    "payee.id": new ObjectId(payee.id),
     "payer.id": new ObjectId(payer.id),
     status: "pending",
   });
@@ -72,21 +71,21 @@ export async function createPayment(
   }
 
   const newPayment = {
-     payee: payee
-          ? {
-              id: new ObjectId(payee.id),
-              name: payee.name,
-            }
-          : null,
-          payer: payer
-          ? {
-              id: new ObjectId(payer.id),
-              name: payer.name,
-            }
-          : null,
-   
+    payee: payee
+      ? {
+          id: new ObjectId(payee.id),
+          name: payee.name,
+        }
+      : null,
+    payer: payer
+      ? {
+          id: new ObjectId(payer.id),
+          name: payer.name,
+        }
+      : null,
+
     amount,
-    groupId : new ObjectId(groupId),
+    groupId: new ObjectId(groupId),
     status: "pending",
     date: new Date(),
   };
