@@ -117,7 +117,7 @@ const sendGroupDebtNotifications = async ({
 export const monthlyReminder = async () => {
   console.log("=== Starting monthly reminder ===");
   const db = await getDb();
-
+  console.log("Connected to database");
   const groups = await db
     .collection("group")
     .find({ notifications: true })
