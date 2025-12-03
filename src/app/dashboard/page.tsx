@@ -100,9 +100,7 @@ export default function DashboardTest() {
             <Typography className={styles.title}>הקבוצות שלי</Typography>
 
             <Box className={styles.totalInline}>
-              <Typography className={styles.totalLabel}>
-                סה״כ יתרה:
-              </Typography>
+              <Typography className={styles.totalLabel}>סה״כ יתרה:</Typography>
               <Typography className={`${styles.totalValue} ${balanceClass}`}>
                 ₪{totalBalance.toFixed(0)}
               </Typography>
@@ -133,12 +131,19 @@ export default function DashboardTest() {
             {groups.map((g) => {
               const isDebt = g.balance < 0;
               const balanceDisplay = Math.abs(g.balance).toFixed(0);
+              const isGroupInactive = g.isActive === false;
+              const cardClasses = [
+                styles.groupCard,
+                isGroupInactive && styles.inactiveCard, // רק אם explicitly false
+              ]
+                .filter(Boolean)
+                .join(" ");
 
               return (
                 <Card
                   key={g.id}
                   onClick={() => goToGroup(g.id)}
-                  className={styles.groupCard}
+                  className={cardClasses}
                   elevation={3}
                 >
                   <CardContent className={styles.groupCardContent}>
@@ -148,6 +153,14 @@ export default function DashboardTest() {
                       gutterBottom
                     >
                       {g.name}
+                      {isGroupInactive && (
+                        <Chip
+                          label="לא פעיל"
+                          size="small"
+                          color="default"
+                          className={styles.inactiveChip}
+                        />
+                      )}
                     </Typography>
 
                     <Box className={styles.groupRow}>
@@ -167,7 +180,6 @@ export default function DashboardTest() {
           </div>
         )}
       </Box>
-
     </>
   );
 }
