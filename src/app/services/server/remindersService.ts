@@ -1,5 +1,6 @@
 import { getDb } from "./mongo";
 import nodemailer from "nodemailer";
+import { ObjectId } from "mongodb";
 
 export const sendEmail = async (to: string, subject: string, text: string) => {
   const transporter = nodemailer.createTransport({
@@ -34,12 +35,19 @@ const sendGroupDebtNotifications = async ({
   subjectBuilder: (group: any) => string;
   messageBuilder: (group: any, member: any, debtsMessage: string) => string;
 }) => {
+  console.log("=== Starting group debt notifications ===");
+  console.log(`Total groups to process: ${groups.length}`);
+
   for (const group of groups) {
+    console.log(`\nProcessing group: ${group.name} (id: ${group._id})`);
     const members = group.members || [];
     const groupDebts = group.group_debts || {};
+    console.log(`Number of members in group: ${members.length}`);
+    console.log(`Number of users with debts: ${Object.keys(groupDebts).length}`);
 
     for (const userId in groupDebts) {
       const debts = groupDebts[userId];
+      console.log(`\nChecking debts for userId: ${userId}, number of debts: ${debts.length}`);
       let debtsMessage = "";
 
       for (const debt of debts) {
@@ -52,37 +60,62 @@ const sendGroupDebtNotifications = async ({
             )?.name || "לא ידוע";
 
           debtsMessage += `את/ה חייב/ת ${-debt.amount} ש"ח ל-${payeeName}\n`;
+          console.log(`Debt found: ${-debt.amount} ILS to ${payeeName}`);
         }
       }
 
-      if (debtsMessage === "") continue;
+      if (debtsMessage === "") {
+        console.log("No debts to notify for this user.");
+        continue;
+      }
+
       const member = members.find((m: any) =>
         m.id.equals
           ? m.id.equals(userId)
           : m.id.toString() === userId.toString()
       );
-      if (!member) continue;
+
+      if (!member) {
+        console.log(`Member not found in group for userId: ${userId}`);
+        continue;
+      }
+
       const email = users.find((u: any) => u._id.toString() === userId)?.email;
-      if (!email) continue;
+      if (!email) {
+        console.log(`Email not found for userId: ${userId}`);
+        continue;
+      }
 
       const subject = subjectBuilder(group);
       const text = messageBuilder(group, member, debtsMessage);
 
-      await sendEmail(email, subject, text);
+      console.log(`Sending email to ${member.name} (${email}) with subject: "${subject}"`);
+      try {
+        await sendEmail(email, subject, text);
+        console.log(`Email successfully sent to ${email}`);
+      } catch (err: any) {
+        console.error(`Failed to send email to ${email}:`, err);
+      }
     }
   }
+
+  console.log("=== Finished group debt notifications ===");
 };
 
 export const monthlyReminder = async () => {
+  console.log("=== Starting monthly reminder ===");
   const db = await getDb();
 
   const groups = await db
     .collection("group")
     .find({ notifications: true })
     .toArray();
-  const users = await db.collection("user").find({}).toArray();
+  console.log(`Groups with notifications enabled: ${groups.length}`);
 
-  await sendGroupDebtNotifications({
+  const users = await db.collection("user").find({}).toArray();
+  console.log(`Total users found: ${users.length}`);
+
+ await sendGroupDebtNotifications({
     groups,
     users,
     subjectBuilder: (group) => `תזכורת חודשית לקבוצה ${group.name}`,
@@ -91,12 +124,11 @@ export const monthlyReminder = async () => {
       `זוהי תזכורת חודשית עבור הקבוצה "${group.name}":\n\n` +
       `${debtsMessage}\n` +
       `אנא סגור/י את החובות שלך.\n\nבברכה,\nצוות GrouPay`,
-  });
+   });
 };
 
-import { ObjectId } from "mongodb";
-
 export const inactiveGroupReminder = async (groupId: string) => {
+  console.log(`=== Starting inactive group reminder for groupId: ${groupId} ===`);
   const db = await getDb();
 
   const group = await db
@@ -107,8 +139,10 @@ export const inactiveGroupReminder = async (groupId: string) => {
     console.error(`Group ${groupId} not found`);
     return;
   }
+  console.log(`Processing inactive group: ${group.name}`);
 
   const users = await db.collection("user").find({}).toArray();
+  console.log(`Total users found: ${users.length}`);
 
   await sendGroupDebtNotifications({
     groups: [group],
