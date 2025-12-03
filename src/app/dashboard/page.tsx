@@ -16,6 +16,8 @@ import {
   Chip,
   Button,
   CircularProgress,
+  FormControlLabel,
+  Switch,
 } from "@mui/material";
 
 import styles from "./dashboard.module.css";
@@ -25,9 +27,17 @@ export default function DashboardTest() {
   const [error, setError] = useState<string | null>(null);
   const [loadingGroups, setLoadingGroups] = useState(true);
   const [userChecked, setUserChecked] = useState(false);
+  const [showAllGroups, setShowAllGroups] = useState(false);
 
   const user = useLoginStore((state) => state.loggedUser);
   const router = useRouter();
+
+  const filteredGroups = useMemo(() => {
+    if (showAllGroups) {
+      return groups;
+    }
+    return groups.filter((g) => g.isActive !== false);
+  }, [groups, showAllGroups]);
 
   useEffect(() => {
     setUserChecked(true);
@@ -107,6 +117,19 @@ export default function DashboardTest() {
             </Box>
           </Box>
 
+          <FormControlLabel
+            control={
+              <Switch
+                checked={showAllGroups}
+                onChange={(e) => setShowAllGroups(e.target.checked)}
+                name="showAllGroupsSwitch"
+                color="primary"
+              />
+            }
+            label={showAllGroups ? "הצג הכל" : "הצג קבוצות פעילות"}
+            labelPlacement="start"
+          />
+
           <Button variant="contained" onClick={goToCreateGroup}>
             יצירת קבוצה
           </Button>
@@ -128,17 +151,16 @@ export default function DashboardTest() {
           </Box>
         ) : (
           <div className={styles.groupsGrid}>
-            {groups.map((g) => {
+            {filteredGroups.map((g) => {
               const isDebt = g.balance < 0;
               const balanceDisplay = Math.abs(g.balance).toFixed(0);
               const isGroupInactive = g.isActive === false;
               const cardClasses = [
                 styles.groupCard,
-                isGroupInactive && styles.inactiveCard, // רק אם explicitly false
+                isGroupInactive && styles.inactiveCard,
               ]
                 .filter(Boolean)
                 .join(" ");
-
               return (
                 <Card
                   key={g.id}
