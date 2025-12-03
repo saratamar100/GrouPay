@@ -13,11 +13,15 @@ import {
   Divider,
   TextField,
 } from "@mui/material";
+
 import CloseIcon from "@mui/icons-material/Close";
-import type { Member } from "@/app/types/types";
-import type { SplitDetail } from "@/app/utils/split";
+import ReceiptLongOutlinedIcon from "@mui/icons-material/ReceiptLongOutlined";
+
+import type { Member,SplitDetail } from "@/app/types/types";
+
 import { useAdvancedExpense } from "@/app/hooks/useAdvancedExpense";
 import { toMoney, formatILS } from "@/app/utils/money";
+
 import styles from "./AdvancedExpense.module.css";
 import { useState } from "react";
 
@@ -51,6 +55,7 @@ export default function AdvancedExpense({
   onSave,
 }: AdvancedExpenseProps) {
   const [isSaving, setIsSaving] = useState(false);
+  const [fileName, setFileName] = useState<string | null>(null);
 
   const {
     selected,
@@ -79,17 +84,11 @@ export default function AdvancedExpense({
 
   const checkboxStyles = {
     color: "#067c80",
-    "&.Mui-checked": {
-      color: "#067c80",
-    },
+    "&.Mui-checked": { color: "#067c80" },
   };
 
   const diffClass =
-    diff === 0
-      ? ""
-      : diff > 0
-      ? styles.diffPositive
-      : styles.diffNegative;
+    diff === 0 ? "" : diff > 0 ? styles.diffPositive : styles.diffNegative;
 
   const handleSaveWrapper = async () => {
     if (isSaving) return;
@@ -97,8 +96,6 @@ export default function AdvancedExpense({
     try {
       await handleSave();
       onClose();
-    } catch (err) {
-      console.error(err);
     } finally {
       setIsSaving(false);
     }
@@ -114,17 +111,13 @@ export default function AdvancedExpense({
     >
       <DialogTitle className={styles.title}>
         <span>{title}</span>
-        <IconButton
-          aria-label="close"
-          onClick={onClose}
-          className={styles.closeBtn}
-        >
+        <IconButton onClick={onClose} className={styles.closeBtn}>
           <CloseIcon fontSize="small" />
         </IconButton>
       </DialogTitle>
 
-      <DialogContent dividers className={styles.content}>
-        <section className={`${styles.section} ${styles.basicSection}`}>
+      <DialogContent className={styles.content}>
+        <section className={styles.section}>
           <div className={styles.basicCard}>
             <TextField
               label="שם ההוצאה"
@@ -134,21 +127,23 @@ export default function AdvancedExpense({
               fullWidth
               className={styles.metaInput}
             />
+
             <TextField
               label="סכום"
               size="small"
               value={amountValue}
               onChange={(e) => setAmountValue(toMoney(e.target.value))}
               fullWidth
-              inputProps={{ inputMode: "decimal", dir: "ltr" }}
+              inputProps={{ dir: "ltr", inputMode: "decimal" }}
               className={styles.metaInput}
             />
           </div>
 
           <div className={styles.receiptCard}>
-            <Typography variant="subtitle2" className={styles.sectionTitle}>
+            <Typography className={styles.sectionTitle}>
               חשבונית / צילום מסך
             </Typography>
+
             <div className={styles.uploadRow}>
               <Button
                 variant="contained"
@@ -161,48 +156,56 @@ export default function AdvancedExpense({
                   type="file"
                   hidden
                   accept="image/*,.pdf"
-                  onChange={(e) =>
-                    handleFile(
-                      e.target.files?.[0] ? e.target.files[0] : null
-                    )
-                  }
+                  onChange={(e) => {
+                    const file = e.target.files?.[0] || null;
+                    setFileName(file ? file.name : null);
+                    handleFile(file);
+                  }}
                 />
               </Button>
 
               {receiptPreview && (
-                <div className={styles.previewWrap}>
-                  <img
-                    src={receiptPreview}
-                    alt="תצוגה מקדימה"
-                    className={styles.previewImg}
-                  />
+                <div className={styles.receiptBubble}>
+                  <button
+                    type="button"
+                    className={styles.fileNameBtn}
+                    onClick={() => window.open(receiptPreview!, "_blank")}
+                  >
+                    {fileName || "צפייה בקובץ"}
+                  </button>
+
+                  <IconButton
+                    className={styles.removeBtn}
+                    onClick={() => {
+                      handleFile(null);
+                      setFileName(null);
+                    }}
+                  >
+                    ✕
+                  </IconButton>
                 </div>
               )}
             </div>
           </div>
         </section>
 
-        <Divider className={styles.divider} />
-
         <section className={styles.section}>
           <div className={styles.rowHeader}>
-            <Typography variant="subtitle1" className={styles.sectionTitle}>
+            <Typography className={styles.sectionTitle}>
               משתתפים בחלוקה
             </Typography>
 
-            <div className={styles.rightTools}>
-              <FormControlLabel
-                control={
-                  <Checkbox
-                    checked={equalMode}
-                    onChange={(e) => setEqualMode(e.target.checked)}
-                    sx={checkboxStyles}
-                  />
-                }
-                label="חלוקה שווה"
-                className={styles.equalToggle}
-              />
-            </div>
+            <FormControlLabel
+              control={
+                <Checkbox
+                  checked={equalMode}
+                  onChange={(e) => setEqualMode(e.target.checked)}
+                  sx={checkboxStyles}
+                />
+              }
+              label="חלוקה שווה"
+              className={styles.equalToggle}
+            />
           </div>
 
           <div className={styles.membersList}>
@@ -218,15 +221,16 @@ export default function AdvancedExpense({
                     control={
                       <Checkbox
                         checked={checked}
-                        sx={checkboxStyles}
                         onChange={() => toggleMember(m.id)}
+                        sx={checkboxStyles}
                       />
                     }
                   />
+
                   <TextField
                     size="small"
                     className={styles.amountInput}
-                    inputProps={{ inputMode: "decimal", dir: "ltr" }}
+                    inputProps={{ dir: "ltr", inputMode: "decimal" }}
                     value={value}
                     onChange={(e) => setAmountFor(m.id, e.target.value)}
                     disabled={!checked || equalMode}
@@ -235,32 +239,23 @@ export default function AdvancedExpense({
               );
             })}
           </div>
-        </section>
 
-        {diff !== 0 && (
-          <div className={`${styles.totals} ${diffClass}`}>
-            <Typography>
-              הפרש:
-              <strong dir="ltr"> {formatILS(diff)}</strong>
-            </Typography>
-          </div>
-        )}
+          {diff !== 0 && (
+            <div className={`${styles.totals} ${diffClass}`}>
+              {formatILS(diff)}
+            </div>
+          )}
+        </section>
       </DialogContent>
 
       <DialogActions className={styles.actions}>
-        <Button
-          variant="text"
-          onClick={onClose}
-          className={styles.secondaryBtn}
-          disabled={isSaving}
-        >
+        <Button onClick={onClose} className={styles.secondaryBtn}>
           ביטול
         </Button>
         <Button
-          variant="contained"
-          onClick={handleSaveWrapper}
-          disabled={selected.length === 0 || diff !== 0 || isSaving}
           className={styles.firstBtn}
+          disabled={selected.length === 0 || diff !== 0 || isSaving}
+          onClick={handleSaveWrapper}
         >
           {isSaving ? "שומר..." : "שמירה"}
         </Button>

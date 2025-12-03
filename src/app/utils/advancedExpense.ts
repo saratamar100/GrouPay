@@ -1,5 +1,5 @@
 import type { Member } from "@/app/types/types";
-import type { SplitDetail } from "@/app/utils/split";
+import type { SplitDetail } from "@/app/types/types";
 
 export function buildSplit(
   selectedIds: string[],
@@ -10,7 +10,7 @@ export function buildSplit(
     const member = members.find((m) => m.id === id);
 
     return {
-      id,
+      userId: id,
       name: member?.name ?? "",
       amount: Number(perUser[id]) || 0,
     };

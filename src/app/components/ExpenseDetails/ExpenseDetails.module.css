@@ -1,120 +1,146 @@
-.paper {
-  border-radius: 14px;
+.dialogPaper {
+  border-radius: 20px;
+  overflow: hidden;
+  background: #ffffff !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
 }
 
 .header {
   display: flex;
-  align-items: center;
   justify-content: space-between;
+  align-items: center;
+  padding: 18px 24px;
   direction: rtl;
+  background: linear-gradient(135deg, #067c80, #32b9b2);
+  color: #ffffff;
 }
 
-.headerText {
+.titleBlock {
   display: flex;
   flex-direction: column;
   gap: 2px;
 }
 
-.subtitle {
-  font-size: 0.8rem;
-  color: #5a7a80;
+.title {
+  font-size: 20px;
+  font-weight: 700;
 }
 
-.title {
-  font-weight: 800;
-  color: #067c80;
+.subtitle {
+  font-size: 13px;
+  opacity: 0.9;
+}
+
+.headerRight {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.amountChip {
+  background: transparent !important;
+  border: 1.5px solid currentColor !important;
+  color: #ffffff !important;
+  font-weight: 600 !important;
 }
 
 .closeBtn {
-  color: #0a4e55;
+  background: rgba(255, 255, 255, 0.16);
+  color: #ffffff;
+}
+
+.closeBtn:hover {
+  background: rgba(255, 255, 255, 0.24);
 }
 
 .content {
-  direction: rtl;
-  background: #fdfefe;
-}
-
-.section {
-  margin-top: 8px;
-}
-
-.row {
+  padding: 20px 24px 24px;
   display: flex;
+  flex-direction: column;
+  gap: 20px;
+  direction: rtl;
+  background: #f5fafa;
+}
+
+.infoGrid {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.infoCard {
+  flex: 1;
+  min-width: 140px;
+  padding: 10px 12px;
+  border-radius: 14px;
+  background: #ffffff;
+  box-shadow: 0 4px 10px rgba(6, 124, 128, 0.12);
+  display: flex;
+  align-items: center;
   justify-content: space-between;
-  align-items: baseline;
-  margin-bottom: 6px;
 }
 
-.label {
-  color: #4f7076;
+.infoLabel {
+  font-size: 13px;
+  color: #6b7280;
 }
 
-.value {
-  font-weight: 600;
+.infoValue {
+  font-size: 14px;
+  font-weight: 500;
+  color: #111827;
 }
 
-.sectionTitle {
-  font-weight: 700;
-  margin-bottom: 6px;
+.receiptBtn {
   color: #067c80;
 }
 
-.emptySplit {
-  font-size: 0.9rem;
-  opacity: 0.8;
+.graphCard {
+  margin-top: 0;
+  padding: 12px 14px 10px;
+  border-radius: 16px;
+  background: #ffffff;
+  box-shadow: 0 4px 14px rgba(6, 124, 128, 0.12);
 }
 
-.splitList {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-  margin-top: 4px;
-}
-
-.splitRow {
-  display: flex;
-  justify-content: space-between;
-}
-
-.splitName {
-  font-weight: 500;
-}
-
-.splitAmount {
+.sectionTitle {
+  font-size: 14px;
   font-weight: 600;
+  margin-bottom: 6px;
+  color: #6b7280;
+
 }
 
-.divider {
-  margin: 10px 0;
+.graphWrapper {
+  position: relative;
+  height: 200px;
+  overflow: visible;
 }
 
-.actions {
-  direction: rtl;
+
+.recharts-tooltip-wrapper,
+.recharts-default-tooltip {
+  background: #ffffff !important;
+  opacity: 1 !important;
+  border-radius: 10px !important;
+  border: 1px solid #d1d5db !important;
+  box-shadow: 0 8px 20px rgba(15, 23, 42, 0.12) !important;
 }
 
-.primaryBtn {
-  background: #067c80 !important;
-  color: #ffffff !important;
-  border-radius: 12px !important;
-  padding: 8px 20px !important;
-  font-weight: 700 !important;
-  text-transform: none !important;
-  box-shadow: 0 8px 16px rgba(6, 124, 128, 0.2) !important;
+
+:global(.recharts-wrapper:focus),
+:global(.recharts-wrapper *:focus),
+:global(.recharts-wrapper:focus-visible),
+:global(.recharts-wrapper *:focus-visible) {
+  outline: none !important;
 }
 
-.primaryBtn:hover {
-  background: #05686d !important;
+:global(.recharts-sector),
+:global(.recharts-pie-sector) {
+  outline: none !important;
 }
 
-.secondaryBtn {
-  border-radius: 12px !important;
-  border: 1.5px solid rgba(6, 124, 128, 0.35) !important;
-  color: #067c80 !important;
-  text-transform: none !important;
-  font-weight: 600 !important;
-  padding: 6px 16px !important;
-}
-
-.secondaryBtn:hover {
-  background: rgba(6, 124, 128, 0.08) !important;
+:global(.recharts-wrapper svg) {
+  -webkit-tap-highlight-color: transparent;
 }

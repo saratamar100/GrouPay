@@ -8,7 +8,7 @@ import {
   getGroupExpenses,
   updateExpense,
 } from "@/app/services/client/groupService";
-import type { SplitDetail } from "@/app/utils/split";
+import type { SplitDetail } from "@/app/types/types";
 import {uploadToCloudinary} from "@/app/services/client/uploadService"
 import { toMoney } from "../utils/money";
 import { useLoginStore } from "@/app/store/loginStore";
@@ -145,6 +145,7 @@ export function useGroupData(groupId: string | undefined,userId:string|undefined
           ? draft.split.map((s: any) => ({
               userId: s.id ?? s.userId ?? s.user,
               amount: Number(s.amount) || 0,
+              name : s.name
             }))
           : [];
 
@@ -197,7 +198,7 @@ export function useGroupData(groupId: string | undefined,userId:string|undefined
         const id = item.id ?? item.userId ?? item.user ?? "";
         const member = group.members.find((m) => m.id === id);
         return {
-          id,
+          userId:id,
           name: member?.name ?? "",
           amount: Number(item.amount) || 0,
         };
@@ -228,7 +229,7 @@ export function useGroupData(groupId: string | undefined,userId:string|undefined
           const id = item.id ?? item.userId ?? item.user ?? "";
           const member = group.members.find((m) => m.id === id);
           return {
-            id,
+            userId:id,
             name: member?.name ?? "",
             amount: Number(item.amount) || 0,
           };
@@ -308,8 +309,9 @@ export function useGroupData(groupId: string | undefined,userId:string|undefined
         setSaving(true);
 
         const apiSplit = finalSplitUI.map((s) => ({
-          userId: s.id,
+          userId: s.userId,
           amount: s.amount,
+          name: s.name
         }));
 
         await createExpense(group.id, group.members, {
@@ -351,7 +353,7 @@ export function useGroupData(groupId: string | undefined,userId:string|undefined
         setSaving(true);
 
         const apiSplit = finalSplitUI.map((s) => ({
-          userId: s.id,
+          userId: s.userId,
           amount: s.amount,
         }));
 

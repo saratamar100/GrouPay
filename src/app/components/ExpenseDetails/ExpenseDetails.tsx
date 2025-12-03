@@ -1,35 +1,53 @@
-"use client";
-
-import { Dialog, DialogTitle, DialogContent, DialogActions } from "@mui/material";
-import { IconButton, Typography, Button, Divider } from "@mui/material";
+import {
+  Dialog,
+  DialogContent,
+  Box,
+  Typography,
+  IconButton,
+  Chip,
+} from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
 import ReceiptLongOutlinedIcon from "@mui/icons-material/ReceiptLongOutlined";
+import {
+  PieChart,
+  Pie,
+  Cell,
+  ResponsiveContainer,
+  Tooltip,
+  Legend,
+} from "recharts";
 import type { Expense, Member } from "@/app/types/types";
-import { formatILS } from "@/app/utils/money";
 import styles from "./ExpenseDetails.module.css";
 
-type Props = {
-  open: boolean;
-  expense: Expense | null;
-  members: Member[];
-  onClose: () => void;
+type SplitItem = {
+  name: string;
+  value: number;
+  color: string;
 };
 
-export default function ExpenseDetails({ open, expense, members, onClose }: Props) {
-  if (!expense) return null;
+const COLORS = ["#067c80", "#32b9b2", "#0a4f4d", "#5cd3c7", "#08979d", "#46c2b9"];
 
-  const payerId =
-    typeof expense.payer === "string"
-      ? expense.payer
-      : expense.payer && "id" in expense.payer
-      ? expense.payer.id
-      : undefined;
+export default function ExpenseDetails({
+  open,
+  expense,
+  onClose,
+}: {
+  open: boolean;
+  expense: Expense | null;
+  onClose: () => void;
+}) {
+  if (!open || !expense) return null;
 
-  const nameById = new Map<string, string>(members.map((m) => [m.id, m.name]));
-  const payerName = payerId ? nameById.get(payerId) || payerId : "";
+  const splitData: SplitItem[] =
+    expense.split?.map((s, i) => {
+      return {
+        name: s.name || "משתתף",
+        value: Number(s.amount),
+        color: COLORS[i % COLORS.length],
+      };
+    }) || [];
 
-  const formattedDate = formatDate(expense.date);
-  const split = expense.split || [];
+  const totalAmount = Number(expense.amount) || 0;
 
   return (
     <Dialog
@@ -37,109 +55,82 @@ export default function ExpenseDetails({ open, expense, members, onClose }: Prop
       onClose={onClose}
       fullWidth
       maxWidth="sm"
-      PaperProps={{ className: styles.paper }}
+      PaperProps={{ className: styles.dialogPaper }}
     >
-      <DialogTitle className={styles.header}>
-        <div className={styles.headerText}>
-          <Typography variant="subtitle2" className={styles.subtitle}>
-            פרטי הוצאה
+      <Box className={styles.header}>
+        <Box className={styles.titleBlock}>
+          <Typography className={styles.title}>{expense.name}</Typography>
+          <Typography className={styles.subtitle}>
+            {new Date(expense.date).toLocaleDateString("he-IL")}
           </Typography>
-          <Typography variant="h6" className={styles.title}>
-            {expense.name}
-          </Typography>
-        </div>
-        <IconButton onClick={onClose} className={styles.closeBtn} aria-label="סגירה">
-          <CloseIcon fontSize="small" />
-        </IconButton>
-      </DialogTitle>
+        </Box>
 
-      <DialogContent className={styles.content} dividers>
-        <div className={styles.section}>
-          <div className={styles.row}>
-            <Typography className={styles.label}>סכום</Typography>
-            <Typography className={styles.value} dir="ltr">
-              {formatILS(Number(expense.amount) || 0)}
+        <Box className={styles.headerRight}>
+          <IconButton onClick={onClose} className={styles.closeBtn}>
+            <CloseIcon />
+          </IconButton>
+        </Box>
+      </Box>
+
+      <DialogContent className={styles.content}>
+        <Box className={styles.infoGrid}>
+          <Box className={styles.infoCard}>
+            <Typography className={styles.infoLabel}>שילם/ה</Typography>
+            <Typography className={styles.infoValue}>
+              {expense.payer.name}
             </Typography>
-          </div>
+          </Box>
 
-          <div className={styles.row}>
-            <Typography className={styles.label}>מי שילם</Typography>
-            <Typography className={styles.value}>
-              {payerName || "לא ידוע"}
-            </Typography>
-          </div>
-
-          <div className={styles.row}>
-            <Typography className={styles.label}>תאריך</Typography>
-            <Typography className={styles.value}>{formattedDate}</Typography>
-          </div>
-        </div>
-
-        <Divider className={styles.divider} />
-
-        <div className={styles.section}>
-          <Typography className={styles.sectionTitle}>מי חייב וכמה</Typography>
-          {split.length === 0 && (
-            <Typography className={styles.emptySplit}>
-              אין חלוקה שמורה עבור הוצאה זו.
-            </Typography>
-          )}
-
-          {split.length > 0 && (
-            <div className={styles.splitList}>
-              {split.map((item, idx) => {
-                const memberName = nameById.get(item.userId) || item.userId;
-                return (
-                  <div key={item.userId + "-" + idx} className={styles.splitRow}>
-                    <Typography className={styles.splitName}>{memberName}</Typography>
-                    <Typography className={styles.splitAmount} dir="ltr">
-                      {formatILS(Number(item.amount) || 0)}
-                    </Typography>
-                  </div>
-                );
-              })}
-            </div>
-          )}
-        </div>
-
-        {expense.receiptUrl && (
-          <>
-            <Divider className={styles.divider} />
-            <div className={styles.section}>
-              <Typography className={styles.sectionTitle}>קבלה</Typography>
-              <Button
-                variant="outlined"
-                size="small"
-                startIcon={<ReceiptLongOutlinedIcon />}
-                href={expense.receiptUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                className={styles.secondaryBtn}
+          {expense.receiptUrl && (
+            <Box className={styles.infoCard}>
+              <Typography className={styles.infoLabel}>קבלה</Typography>
+              <IconButton
+                className={styles.receiptBtn}
+                onClick={() => window.open(expense.receiptUrl!, "_blank")}
               >
-                הצגת קבלה
-              </Button>
-            </div>
-          </>
+                <ReceiptLongOutlinedIcon />
+              </IconButton>
+            </Box>
+          )}
+        </Box>
+
+        {splitData.length > 0 && (
+          <Box className={styles.graphCard}>
+            <Typography className={styles.sectionTitle}>{ `סך הכל:  ${totalAmount.toLocaleString("he-IL")} ₪`}</Typography>
+
+            <Box className={styles.graphWrapper}>
+              <ResponsiveContainer width="100%" height={220}>
+                <PieChart>
+              <Pie
+                data={splitData}
+                dataKey="value"
+                nameKey="name"
+                cx="50%"
+                cy="45%"
+                outerRadius={80}
+                paddingAngle={0}      
+                stroke="none"       
+              >
+                {splitData.map((item, index) => (
+                  <Cell key={index} fill={item.color} />
+                ))}
+              </Pie>
+         
+
+                  <Tooltip
+                    formatter={(value, _name, props: any) => [
+                      `${Number(value).toLocaleString("he-IL")} ₪`,
+                      props.payload?.name || "",
+                    ]}
+                  />
+
+                
+                </PieChart>
+              </ResponsiveContainer>
+            </Box>
+          </Box>
         )}
       </DialogContent>
-
-      <DialogActions className={styles.actions}>
-        <Button onClick={onClose} variant="contained" className={styles.primaryBtn}>
-          סגירה
-        </Button>
-      </DialogActions>
     </Dialog>
   );
-}
-
-function formatDate(value: string | Date) {
-  const d = value instanceof Date ? value : new Date(value);
-  if (Number.isNaN(d.getTime())) return "";
-  return d.toLocaleString("he-IL", {
-    year: "numeric",
-    month: "2-digit",
-    day: "2-digit",
-    hour: "2-digit",
-    minute: "2-digit",
-  });
 }

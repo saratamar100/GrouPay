@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import type { Member } from "@/app/types/types";
-import type { SplitDetail } from "@/app/utils/split";
+import type { SplitDetail } from "@/app/types/types";
 import { toMoney, round2 } from "@/app/utils/money";
 import { calcEqual, isEqualSplit } from "@/app/utils/split";
 import { buildSplit } from "@/app/utils/advancedExpense";
@@ -49,11 +49,11 @@ export function useAdvancedExpense({
     setAmountValue(Number(amount) || 0);
 
     if (initialSplit && initialSplit.length > 0) {
-      const ids = initialSplit.map((s) => s.id);
+      const ids = initialSplit.map((s) => s.userId);
       setSelected(ids);
       setPerUser(
         Object.fromEntries(
-          initialSplit.map((s) => [s.id, Number(s.amount) || 0])
+          initialSplit.map((s) => [s.userId, Number(s.amount) || 0])
         )
       );
       setEqualMode(isEqualSplit(initialSplit));
