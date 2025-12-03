@@ -166,13 +166,14 @@ export default function GroupPage() {
           </main>
 
           {isMembersOpen && groupId && ( 
-            <GroupMembersSidebar
+          <GroupMembersSidebar
             open={isMembersOpen}
             members={members}
             currentUserId={userId}
             groupId={groupId}
             onClose={() => setIsMembersOpen(false)}
-/>
+            onMemberAdded={reload} // <-- כאן מוסיפים את reload
+          />
 
           )}
         </Paper>
