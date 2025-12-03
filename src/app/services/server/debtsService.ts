@@ -11,7 +11,7 @@ export const calculateTotalDebt = async (groupId: string) => {
     .toArray();
 
   for (const expense of expenses) {
-    const payerId = expense.payer; //correct?
+    const payerId = expense.payer.id; //correct?
     payedAmounts[payerId] = (payedAmounts[payerId] || 0) + expense.amount;
     for (const splitDetail of expense.split) {
       const userId = splitDetail.userId;
@@ -24,8 +24,8 @@ export const calculateTotalDebt = async (groupId: string) => {
     .toArray();
     for (const payment of payments) {
     if (payment.status === "completed") {
-      const payerId = payment.payer.id;
-      const payeeId = payment.payee.id;
+      const payerId = payment.payer.id.toString();
+      const payeeId = payment.payee.id.toString();
       payedAmounts[payerId] = (payedAmounts[payerId] || 0) + payment.amount;
       owedAmounts[payeeId] = (owedAmounts[payeeId] || 0) + payment.amount;
     }
