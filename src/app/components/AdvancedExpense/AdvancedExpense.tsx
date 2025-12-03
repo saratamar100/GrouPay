@@ -10,18 +10,13 @@ import {
   FormControlLabel,
   IconButton,
   Typography,
-  Divider,
   TextField,
 } from "@mui/material";
-
 import CloseIcon from "@mui/icons-material/Close";
-import ReceiptLongOutlinedIcon from "@mui/icons-material/ReceiptLongOutlined";
-
-import type { Member,SplitDetail } from "@/app/types/types";
-
+import type { Member } from "@/app/types/types";
+import type { SplitDetail } from "@/app/types/types";
 import { useAdvancedExpense } from "@/app/hooks/useAdvancedExpense";
 import { toMoney, formatILS } from "@/app/utils/money";
-
 import styles from "./AdvancedExpense.module.css";
 import { useState } from "react";
 
@@ -84,11 +79,17 @@ export default function AdvancedExpense({
 
   const checkboxStyles = {
     color: "#067c80",
-    "&.Mui-checked": { color: "#067c80" },
+    "&.Mui-checked": {
+      color: "#067c80",
+    },
   };
 
   const diffClass =
-    diff === 0 ? "" : diff > 0 ? styles.diffPositive : styles.diffNegative;
+    diff === 0
+      ? ""
+      : diff > 0
+      ? styles.diffPositive
+      : styles.diffNegative;
 
   const handleSaveWrapper = async () => {
     if (isSaving) return;
@@ -111,81 +112,85 @@ export default function AdvancedExpense({
     >
       <DialogTitle className={styles.title}>
         <span>{title}</span>
-        <IconButton onClick={onClose} className={styles.closeBtn}>
-          <CloseIcon fontSize="small" />
-        </IconButton>
       </DialogTitle>
 
       <DialogContent className={styles.content}>
-        <section className={styles.section}>
-          <div className={styles.basicCard}>
+        <section className={`${styles.section} ${styles.firstCard}`}>
+          <div className={styles.grid}>
             <TextField
               label="שם ההוצאה"
               size="small"
+              fullWidth
               value={nameValue}
               onChange={(e) => setNameValue(e.target.value)}
-              fullWidth
               className={styles.metaInput}
             />
-
             <TextField
               label="סכום"
               size="small"
+              fullWidth
               value={amountValue}
               onChange={(e) => setAmountValue(toMoney(e.target.value))}
-              fullWidth
               inputProps={{ dir: "ltr", inputMode: "decimal" }}
               className={styles.metaInput}
             />
           </div>
+        </section>
 
-          <div className={styles.receiptCard}>
-            <Typography className={styles.sectionTitle}>
-              חשבונית / צילום מסך
-            </Typography>
+        <section className={styles.section}>
+          <Typography className={styles.sectionTitle}>
+            חשבונית / קובץ מצורף
+          </Typography>
 
-            <div className={styles.uploadRow}>
-              <Button
-                variant="contained"
-                component="label"
-                size="small"
-                className={styles.uploadBtn}
-              >
-                העלאת קובץ
-                <input
-                  type="file"
-                  hidden
-                  accept="image/*,.pdf"
-                  onChange={(e) => {
-                    const file = e.target.files?.[0] || null;
-                    setFileName(file ? file.name : null);
-                    handleFile(file);
+          <div className={styles.receiptRow}>
+            {receiptPreview ? (
+              <div className={styles.receiptBubble}>
+                <button
+                  type="button"
+                  className={styles.fileNameBtn}
+                  onClick={() => {
+                    if (typeof window !== "undefined") {
+                      window.open(receiptPreview, "_blank");
+                    }
                   }}
-                />
-              </Button>
+                >
 
-              {receiptPreview && (
-                <div className={styles.receiptBubble}>
-                  <button
-                    type="button"
-                    className={styles.fileNameBtn}
-                    onClick={() => window.open(receiptPreview!, "_blank")}
-                  >
-                    {fileName || "צפייה בקובץ"}
-                  </button>
+                  <span>{fileName || "צפייה בקובץ"}</span>
+                </button>
 
-                  <IconButton
-                    className={styles.removeBtn}
-                    onClick={() => {
-                      handleFile(null);
-                      setFileName(null);
-                    }}
-                  >
-                    ✕
-                  </IconButton>
-                </div>
-              )}
-            </div>
+                <button
+                  type="button"
+                  className={styles.removeBtn}
+                  onClick={() => {
+                    handleFile(null);
+                    setFileName(null);
+                  }}
+                >
+                  ✕
+                </button>
+              </div>
+            ) : (
+              <div className={styles.noFile}>לא הועלה קובץ</div>
+            )}
+
+            <Button
+              variant="contained"
+              component="label"
+              size="small"
+              className={styles.uploadBtn}
+            >
+              העלאת קובץ
+              <input
+                type="file"
+                hidden
+                accept="image/*,.pdf"
+                onChange={(e) => {
+                  const file = e.target.files?.[0] || null;
+                  setFileName(file ? file.name : null);
+                  handleFile(file);
+                }}
+              />
+            </Button>
           </div>
         </section>
 
@@ -196,6 +201,7 @@ export default function AdvancedExpense({
             </Typography>
 
             <FormControlLabel
+              label="חלוקה שווה"
               control={
                 <Checkbox
                   checked={equalMode}
@@ -203,7 +209,6 @@ export default function AdvancedExpense({
                   sx={checkboxStyles}
                 />
               }
-              label="חלוקה שווה"
               className={styles.equalToggle}
             />
           </div>
@@ -221,16 +226,15 @@ export default function AdvancedExpense({
                     control={
                       <Checkbox
                         checked={checked}
-                        onChange={() => toggleMember(m.id)}
                         sx={checkboxStyles}
+                        onChange={() => toggleMember(m.id)}
                       />
                     }
                   />
-
                   <TextField
                     size="small"
                     className={styles.amountInput}
-                    inputProps={{ dir: "ltr", inputMode: "decimal" }}
+                    inputProps={{ inputMode: "decimal", dir: "ltr" }}
                     value={value}
                     onChange={(e) => setAmountFor(m.id, e.target.value)}
                     disabled={!checked || equalMode}
@@ -239,23 +243,32 @@ export default function AdvancedExpense({
               );
             })}
           </div>
-
-          {diff !== 0 && (
-            <div className={`${styles.totals} ${diffClass}`}>
-              {formatILS(diff)}
-            </div>
-          )}
         </section>
+
+        {diff !== 0 && (
+          <div className={`${styles.totals} ${diffClass}`}>
+            <Typography>
+              הפרש:
+              <strong dir="ltr"> {formatILS(diff)}</strong>
+            </Typography>
+          </div>
+        )}
       </DialogContent>
 
       <DialogActions className={styles.actions}>
-        <Button onClick={onClose} className={styles.secondaryBtn}>
+        <Button
+          variant="text"
+          onClick={onClose}
+          className={styles.secondaryBtn}
+          disabled={isSaving}
+        >
           ביטול
         </Button>
         <Button
-          className={styles.firstBtn}
-          disabled={selected.length === 0 || diff !== 0 || isSaving}
+          variant="contained"
           onClick={handleSaveWrapper}
+          disabled={selected.length === 0 || diff !== 0 || isSaving}
+          className={styles.firstBtn}
         >
           {isSaving ? "שומר..." : "שמירה"}
         </Button>
