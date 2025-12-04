@@ -123,7 +123,6 @@ export function GroupBalanceDisplay({ groupId }: GroupBalanceDisplayProps) {
 
           {debts.map((debt) => {
             const isDebt = debt.amount < 0;
-            console.log(debt.amount)
             return (
               <div key={debt.member.id} className={styles.transactionRow}>
                 <span className={styles.amount}>{debt.amount.toFixed(2)}</span>
