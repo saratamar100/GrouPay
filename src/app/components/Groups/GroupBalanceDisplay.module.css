@@ -154,3 +154,66 @@
   text-underline-offset: 2px;
   font-size: 0.96rem;
 }
+@media (max-width: 600px) {
+  .balanceCard {
+    padding: 1rem;
+    border-radius: 12px;
+  }
+  .header {
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 8px;
+    padding-bottom: 0.75rem;
+  }
+
+  .header h2 {
+    font-size: 1.3rem;
+  }
+
+  .transactionRow {
+    display: grid;
+    grid-template-columns: 1fr 1.5fr 1fr;
+    grid-template-rows: auto auto;
+
+    padding: 0.75rem;
+    gap: 0.5rem 1rem;
+  }
+
+  .amount {
+    grid-row: 1 / 2;
+    grid-column: 1 / 2;
+    font-size: 1.1rem;
+  }
+
+  .name {
+    grid-row: 1 / 2;
+    grid-column: 2 / 3;
+    font-size: 0.9rem;
+  }
+
+  .status {
+    grid-row: 1 / 2;
+    grid-column: 3 / 4;
+    text-align: left;
+  }
+
+  .actionButton {
+    grid-row: 2 / 3;
+    grid-column: 1 / 4;
+
+    max-width: 220px;
+    width: 100%;
+
+    justify-self: center;
+    align-self: center;
+
+    padding: 0.6rem 1rem;
+    font-size: 0.85rem;
+  }
+  .totalBalance {
+    font-size: 1rem;
+  }
+  .emptyState {
+    font-size: 1rem;
+  }
+}
