@@ -5,6 +5,11 @@ import { Debt, Payment } from "@/app/types/types";
 import styles from "./GroupBalanceDisplay.module.css";
 import { fetchGroupBalance } from "@/app/services/client/balanceService";
 import { useLoginStore } from "@/app/store/loginStore";
+import { formatILS } from "@/app/utils/money";
+import { getGroup } from "@/app/services/client/groupService";
+
+import { Box, Link, Typography } from "@mui/material";
+
 import {
   createPayment,
   fetchPendingPayments,
@@ -22,6 +27,7 @@ export function GroupBalanceDisplay({ groupId }: GroupBalanceDisplayProps) {
   const [completedPayments, setCompletedPayments] = useState<Payment[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [groupName, setGroupName] = useState<string | null>(null);
 
   const currentUser = useLoginStore((state) => state.loggedUser);
   const currentUserId = currentUser?.id;
@@ -34,6 +40,11 @@ export function GroupBalanceDisplay({ groupId }: GroupBalanceDisplayProps) {
       setError(null);
 
       try {
+        const groupDetails = await getGroup(groupId, currentUserId);
+
+        // שמירת השם ב-State
+        setGroupName(groupDetails.name);
+
         const [balanceData, pendingData, completedData] = await Promise.all([
           fetchGroupBalance(groupId, currentUserId as string),
           fetchPendingPayments(groupId, currentUserId as string),
@@ -51,7 +62,8 @@ export function GroupBalanceDisplay({ groupId }: GroupBalanceDisplayProps) {
     }
 
     loadData();
-  }, [groupId, currentUserId]);
+  }, [groupId, groupName, currentUserId]);
+  console.log("groupname" + groupName);
 
   const totalBalance = useMemo(
     () => debts.reduce((sum, debt) => sum + debt.amount, 0),
@@ -104,14 +116,35 @@ export function GroupBalanceDisplay({ groupId }: GroupBalanceDisplayProps) {
       {/* יתרות בחשבון */}
       <div className={styles.balanceCard}>
         <header className={styles.header}>
+          <Box className={styles.breadcrumb}>
+            <Link href="/dashboard" className={styles.linkLike}>
+              <Typography component="span" className={styles.bcBase}>
+                הקבוצות שלי
+              </Typography>
+            </Link>
+
+            <span className={styles.bcSep}> ‹ </span>
+
+            <Link href={`/groups/${groupId}`} className={styles.linkLike}>
+              <Typography component="span" className={styles.bcBase}>
+                {groupName}
+              </Typography>
+            </Link>
+
+            <span className={styles.bcSep}> ‹ </span>
+
+            <Typography component="span" className={styles.bcCurrent}>
+              היתרות שלי
+            </Typography>
+          </Box>
+
           <h2>יתרות בחשבון</h2>
           <div className={styles.totalBalance}>
             <span>סך הכל: </span>
             <span
               className={totalBalance >= 0 ? styles.positive : styles.negative}
             >
-              {totalBalance > 0 ? "+" : ""}
-              {totalBalance}
+              {formatILS(totalBalance)}
             </span>
           </div>
         </header>
