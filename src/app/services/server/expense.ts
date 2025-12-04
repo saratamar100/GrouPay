@@ -279,6 +279,8 @@ export async function updateExpense(params: {
     throw err;
   }
 
+  
+
   if (
     name === undefined &&
     amount === undefined &&
@@ -292,13 +294,31 @@ export async function updateExpense(params: {
 
   const db = await getDb("groupay_db");
   const expensesCol = db.collection("expense");
+  const groupsCol = db.collection("group");
 
   const eid = new ObjectId(expenseId);
   const current = await expensesCol.findOne({ _id: eid });
-
   if (!current) {
-    const err = new Error("Expense not found in the specified group");
+    const err = new Error("Expense not found");
     (err as any).status = 404;
+    throw err;
+  }
+
+
+  const group = await groupsCol.findOne(
+    { _id: eid },
+    { projection: { isActive: 1, name: 1 } }
+  );
+
+  if (!group) {
+    const err = new Error("Group nit found");
+    (err as any).status = 404;
+    throw err;
+  }
+
+  if (!group.isActive) {
+    const err = new Error(`Group "${group.name}" no longer active`);
+    (err as any).status = 403;
     throw err;
   }
 
@@ -410,6 +430,24 @@ export async function deleteExpense(
     throw err;
   }
 
+  
+  const group = await groupsCol.findOne(
+    { _id: gid, expenses: eid },
+    { projection: { _id: 1 } }
+  );
+
+  if (!group) {
+    const err = new Error("Expense does not belong to the specified group");
+    (err as any).status = 404;
+    throw err;
+  }
+
+  if (!group.isActive) {
+    const err = new Error(`Group "${group.name}" no longer active`);
+    (err as any).status = 403;
+    throw err;
+  }
+
   const payerId = expense.payer.id;
 
   if (!payerId || !ObjectId.isValid(payerId)) {
@@ -421,17 +459,6 @@ export async function deleteExpense(
   if (!new ObjectId(payerId).equals(uid)) {
     const err: any = new Error("You do not have permission");
     err.status = 403;
-    throw err;
-  }
-
-  const group = await groupsCol.findOne(
-    { _id: gid, expenses: eid },
-    { projection: { _id: 1 } }
-  );
-
-  if (!group) {
-    const err = new Error("Expense does not belong to the specified group");
-    (err as any).status = 404;
     throw err;
   }
 
