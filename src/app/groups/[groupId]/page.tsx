@@ -156,13 +156,19 @@ export default function GroupPage() {
   }
 
   const isActiveStatus = state.group?.isActive || false;
+  const isGroupInactive = !isActiveStatus;
 
   return (
     <>
       <Header />
 
       <Container component="section" className={styles.pageRoot}>
-        <Paper elevation={4} className={styles.pageShell}>
+        <Paper
+          elevation={4}
+          className={`${styles.pageShell} ${
+            isGroupInactive ? styles.dimmedContent : ""
+          }`}
+        >
           <main className={styles.main}>
             <Box className={styles.topBar}>
               <Box className={styles.total}>
@@ -223,7 +229,11 @@ export default function GroupPage() {
 
             <Divider className={styles.divider} />
 
-            <Box className={styles.controlsSection}>
+            <Box
+              className={
+                styles.controlsSection + " " + styles.contentAndControls
+              }
+            >
               <Box className={styles.filterOptionsBar}>
                 <FormControl size="small" sx={{ minWidth: 120 }}>
                   <InputLabel>שולם ע״י</InputLabel>
@@ -299,23 +309,22 @@ export default function GroupPage() {
                 color="primary"
                 aria-label="הוספת הוצאה"
                 onClick={startDraftExpense}
-                disabled={state.saving}
+                disabled={state.saving || !state.group?.isActive}
               >
                 <AddIcon sx={{ fontSize: 30 }} />
               </Fab>
             </Box>
           </main>
 
-          {isMembersOpen && groupId && ( 
-          <GroupMembersSidebar
-            open={isMembersOpen}
-            members={members}
-            currentUserId={userId}
-            groupId={groupId}
-            onClose={() => setIsMembersOpen(false)}
-            onMemberAdded={reload} 
-          />
-
+          {isMembersOpen && groupId && (
+            <GroupMembersSidebar
+              open={isMembersOpen}
+              members={members}
+              currentUserId={userId}
+              groupId={groupId}
+              onClose={() => setIsMembersOpen(false)}
+              onMemberAdded={reload}
+            />
           )}
         </Paper>
 

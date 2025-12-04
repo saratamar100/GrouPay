@@ -127,10 +127,30 @@
   font-size: 1.1rem;
 }
 
-
 .loaderWrapper {
   display: flex;
   justify-content: center;
   align-items: center;
   min-height: 300px;
+}
+
+.bcCurrent {
+  font-weight: 600;
+  color: var(--primary);
+}
+
+.bcSep {
+  opacity: 0.6;
+}
+
+.linkLike {
+  background: none;
+  border: none;
+  padding: 0;
+  color: var(--primary);
+  cursor: pointer;
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 2px;
+  font-size: 0.96rem;
 }
