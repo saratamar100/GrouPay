@@ -89,7 +89,7 @@ export function GroupBalanceDisplay({ groupId }: GroupBalanceDisplayProps) {
   const handleCreatePayment = async (debt: Debt) => {
     if (!currentUserId) return;
     try {
-      await createPayment(debt.member, Math.abs(debt.amount), groupId, {
+      await createPayment(debt.member, debt.amount, groupId, {
         id: currentUserId,
         name: currentUser?.name || "Unknown",
       });
@@ -156,11 +156,10 @@ export function GroupBalanceDisplay({ groupId }: GroupBalanceDisplayProps) {
 
           {debts.map((debt) => {
             const isDebt = debt.amount < 0;
-            const absAmount = Math.abs(debt.amount);
-
+            console.log(debt.amount)
             return (
               <div key={debt.member.id} className={styles.transactionRow}>
-                <span className={styles.amount}>{absAmount.toFixed(0)}</span>
+                <span className={styles.amount}>{debt.amount}</span>
                 <span className={styles.name}>{debt.member.name}</span>
                 <span
                   className={`${styles.status} ${
