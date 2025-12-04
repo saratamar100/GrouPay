@@ -9,6 +9,7 @@ import {
   createPayment,
   fetchPendingPayments,
   updatePaymentStatus,
+  fetchCompletedPayments,
 } from "@/app/services/client/paymentsService";
 
 interface GroupBalanceDisplayProps {
@@ -18,6 +19,7 @@ interface GroupBalanceDisplayProps {
 export function GroupBalanceDisplay({ groupId }: GroupBalanceDisplayProps) {
   const [debts, setDebts] = useState<Debt[]>([]);
   const [pendingPayments, setPendingPayments] = useState<Payment[]>([]);
+  const [completedPayments, setCompletedPayments] = useState<Payment[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -32,13 +34,15 @@ export function GroupBalanceDisplay({ groupId }: GroupBalanceDisplayProps) {
       setError(null);
 
       try {
-        const [balanceData, pendingData] = await Promise.all([
+        const [balanceData, pendingData, completedData] = await Promise.all([
           fetchGroupBalance(groupId, currentUserId as string),
           fetchPendingPayments(groupId, currentUserId as string),
+          fetchCompletedPayments(groupId, currentUserId as string),
         ]);
 
         setDebts(balanceData);
         setPendingPayments(pendingData);
+        setCompletedPayments(completedData);
       } catch (err: any) {
         setError(err.message);
       } finally {
@@ -58,36 +62,37 @@ export function GroupBalanceDisplay({ groupId }: GroupBalanceDisplayProps) {
   if (isLoading) return <div>טוען נתונים...</div>;
   if (error) return <div>שגיאה: {error}</div>;
 
+  const refreshData = async () => {
+    if (!currentUserId) return;
+    const [balanceData, pendingData, completedData] = await Promise.all([
+      fetchGroupBalance(groupId, currentUserId),
+      fetchPendingPayments(groupId, currentUserId),
+      fetchCompletedPayments(groupId, currentUserId),
+    ]);
+    setDebts(balanceData);
+    setPendingPayments(pendingData);
+    setCompletedPayments(completedData);
+  };
+
   const handleCreatePayment = async (debt: Debt) => {
     if (!currentUserId) return;
     try {
-      await createPayment(
-        debt.member,
-        Math.abs(debt.amount),
-        groupId,
-        { id: currentUserId, name: currentUser?.name || "Unknown" }
-      );
-      const [balanceData, pendingData] = await Promise.all([
-        fetchGroupBalance(groupId, currentUserId),
-        fetchPendingPayments(groupId, currentUserId),
-      ]);
-      setDebts(balanceData);
-      setPendingPayments(pendingData);
+      await createPayment(debt.member, Math.abs(debt.amount), groupId, {
+        id: currentUserId,
+        name: currentUser?.name || "Unknown",
+      });
+      await refreshData();
     } catch (err: any) {
       console.error("Error creating payment:", err.message);
     }
   };
-  const handleConfirm = async (payment:Payment) => {
+
+  const handleConfirm = async (payment: Payment) => {
     try {
       if (!payment) return;
       const success = await updatePaymentStatus(payment, groupId, "completed");
       if (success) {
-        const [balanceData, pendingData] = await Promise.all([
-          fetchGroupBalance(groupId, currentUserId),
-          fetchPendingPayments(groupId, currentUserId),
-        ]);
-        setDebts(balanceData);
-        setPendingPayments(pendingData);
+        await refreshData();
       }
     } catch (err: any) {
       console.error("Error confirming payment:", err.message);
@@ -96,6 +101,7 @@ export function GroupBalanceDisplay({ groupId }: GroupBalanceDisplayProps) {
 
   return (
     <div className={styles.pageContainer}>
+      {/* יתרות בחשבון */}
       <div className={styles.balanceCard}>
         <header className={styles.header}>
           <h2>יתרות בחשבון</h2>
@@ -143,6 +149,7 @@ export function GroupBalanceDisplay({ groupId }: GroupBalanceDisplayProps) {
           })}
         </div>
 
+        {/* תשלומים ממתינים */}
         <header className={styles.header} style={{ marginTop: "2rem" }}>
           <h2>תשלומים ממתינים</h2>
         </header>
@@ -152,7 +159,7 @@ export function GroupBalanceDisplay({ groupId }: GroupBalanceDisplayProps) {
             <div className={styles.emptyState}>אין תשלומים ממתינים.</div>
           )}
 
-          {pendingPayments.map((p : Payment) => {
+          {pendingPayments.map((p: Payment) => {
             const isPayer = p.payer.id === currentUserId;
             const otherUser = isPayer ? p.payee : p.payer;
 
@@ -164,11 +171,35 @@ export function GroupBalanceDisplay({ groupId }: GroupBalanceDisplayProps) {
                 {!isPayer && (
                   <button
                     className={`${styles.actionButton} ${styles.payButton}`}
-                    onClick={()=>handleConfirm(p)}
+                    onClick={() => handleConfirm(p)}
                   >
                     אשר תקבול
                   </button>
                 )}
+              </div>
+            );
+          })}
+        </div>
+
+        {/* תשלומים שהושלמו */}
+        <header className={styles.header} style={{ marginTop: "2rem" }}>
+          <h2>תשלומים שהושלמו</h2>
+        </header>
+
+        <div className={styles.transactionsList}>
+          {completedPayments.map((p: Payment) => {
+            const isPayer = p.payer.id === currentUserId;
+            const otherUser = isPayer ? p.payee : p.payer;
+
+            return (
+              <div key={p.id} className={styles.transactionRow}>
+                <span className={styles.amount}>{p.amount}</span>
+                <span className={styles.name}>{otherUser.name}</span>
+                <span className={styles.status}>
+                  {isPayer
+                    ? `שילמת ל־${otherUser.name}`
+                    : `קיבלת מ־${otherUser.name}`}
+                </span>
               </div>
             );
           })}

@@ -9,6 +9,8 @@ import {
   Select,
   FormControl,
   InputLabel,
+  Switch,
+  FormControlLabel,
 } from "@mui/material";
 import SearchIcon from "@mui/icons-material/Search";
 import Header from "@/app/components/Header/Header";
@@ -61,10 +63,33 @@ export default function GroupPage() {
     openAdvancedForExisting,
     closeAdvanced,
     handleAdvancedSave,
+    setGroupActiveStatus,
   } = useGroupData(groupId, userId);
 
+  const handleToggleActive = async (
+    event: React.ChangeEvent<HTMLInputElement>
+  ) => {
+    const newStatus = event.target.checked;
+    const currentGroupId = state.group?.id;
+    if (!currentGroupId) return;
+
+    try {
+      await setGroupActiveStatus(newStatus);
+    } catch (error) {
+      console.error("Error updating group status:", error);
+      alert(`אירעה שגיאה בעדכון מצב הקבוצה. נסה שוב.`);
+    }
+  };
+
   useEffect(() => {
-    if (!groupId || !userId) return;
+    console.log(
+      `DEBUG: Checking Dependencies. GroupID: ${groupId}, UserID: ${userId}`
+    );
+    if (!groupId || !userId) {
+      console.log("DEBUG: Fetch skipped due to missing ID/User.");
+      return;
+    }
+
     reload();
   }, [groupId, userId, reload]);
 
@@ -75,6 +100,7 @@ export default function GroupPage() {
     }
   }, [state.loading, state.error, state.group, router]);
 
+  console.log("GroupPage render - state:", state.group);
   const members = state.group?.members || [];
   const expenses = Array.isArray(state.group?.expenses)
     ? state.group.expenses
@@ -129,6 +155,8 @@ export default function GroupPage() {
     return null;
   }
 
+  const isActiveStatus = state.group?.isActive || false;
+
   return (
     <>
       <Header />
@@ -159,6 +187,21 @@ export default function GroupPage() {
                   הקבוצות שלי
                 </Link>
               </Box>
+            </Box>
+
+            <Box className={styles.statusToggleContainer}>
+              <FormControlLabel
+                control={
+                  <Switch
+                    checked={isActiveStatus}
+                    onChange={handleToggleActive}
+                    name="isActiveSwitch"
+                    color="primary"
+                  />
+                }
+                label={isActiveStatus ? "קבוצה פעילה" : "קבוצה לא פעילה"}
+                labelPlacement="start"
+              />
             </Box>
 
             <Typography
@@ -263,14 +306,16 @@ export default function GroupPage() {
             </Box>
           </main>
 
-          {isMembersOpen && groupId && (
-            <GroupMembersSidebar
-              open={isMembersOpen}
-              members={members}
-              currentUserId={userId}
-              groupId={groupId}
-              onClose={() => setIsMembersOpen(false)}
-            />
+          {isMembersOpen && groupId && ( 
+          <GroupMembersSidebar
+            open={isMembersOpen}
+            members={members}
+            currentUserId={userId}
+            groupId={groupId}
+            onClose={() => setIsMembersOpen(false)}
+            onMemberAdded={reload} 
+          />
+
           )}
         </Paper>
 

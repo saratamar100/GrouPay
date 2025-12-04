@@ -16,6 +16,8 @@ import {
   Chip,
   Button,
   CircularProgress,
+  FormControlLabel,
+  Switch,
 } from "@mui/material";
 
 import styles from "./dashboard.module.css";
@@ -25,9 +27,17 @@ export default function DashboardTest() {
   const [error, setError] = useState<string | null>(null);
   const [loadingGroups, setLoadingGroups] = useState(true);
   const [userChecked, setUserChecked] = useState(false);
+  const [showAllGroups, setShowAllGroups] = useState(false);
 
   const user = useLoginStore((state) => state.loggedUser);
   const router = useRouter();
+
+  const filteredGroups = useMemo(() => {
+    if (showAllGroups) {
+      return groups;
+    }
+    return groups.filter((g) => g.isActive !== false);
+  }, [groups, showAllGroups]);
 
   useEffect(() => {
     setUserChecked(true);
@@ -100,14 +110,25 @@ export default function DashboardTest() {
             <Typography className={styles.title}>הקבוצות שלי</Typography>
 
             <Box className={styles.totalInline}>
-              <Typography className={styles.totalLabel}>
-                סה״כ יתרה:
-              </Typography>
+              <Typography className={styles.totalLabel}>סה״כ יתרה:</Typography>
               <Typography className={`${styles.totalValue} ${balanceClass}`}>
                 ₪{totalBalance.toFixed(0)}
               </Typography>
             </Box>
           </Box>
+
+          <FormControlLabel
+            control={
+              <Switch
+                checked={showAllGroups}
+                onChange={(e) => setShowAllGroups(e.target.checked)}
+                name="showAllGroupsSwitch"
+                color="primary"
+              />
+            }
+            label={showAllGroups ? "הצג הכל" : "הצג קבוצות פעילות"}
+            labelPlacement="start"
+          />
 
           <Button variant="contained" onClick={goToCreateGroup}>
             יצירת קבוצה
@@ -130,15 +151,21 @@ export default function DashboardTest() {
           </Box>
         ) : (
           <div className={styles.groupsGrid}>
-            {groups.map((g) => {
+            {filteredGroups.map((g) => {
               const isDebt = g.balance < 0;
               const balanceDisplay = Math.abs(g.balance).toFixed(0);
-
+              const isGroupInactive = g.isActive === false;
+              const cardClasses = [
+                styles.groupCard,
+                isGroupInactive && styles.inactiveCard,
+              ]
+                .filter(Boolean)
+                .join(" ");
               return (
                 <Card
                   key={g.id}
                   onClick={() => goToGroup(g.id)}
-                  className={styles.groupCard}
+                  className={cardClasses}
                   elevation={3}
                 >
                   <CardContent className={styles.groupCardContent}>
@@ -148,6 +175,14 @@ export default function DashboardTest() {
                       gutterBottom
                     >
                       {g.name}
+                      {isGroupInactive && (
+                        <Chip
+                          label="לא פעיל"
+                          size="small"
+                          color="default"
+                          className={styles.inactiveChip}
+                        />
+                      )}
                     </Typography>
 
                     <Box className={styles.groupRow}>
@@ -167,7 +202,6 @@ export default function DashboardTest() {
           </div>
         )}
       </Box>
-
     </>
   );
 }

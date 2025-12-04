@@ -15,6 +15,7 @@ export interface GroupShort {
   id: GroupId;
   name: string;
   balance: number;
+  isActive: boolean;
 }
 export type Member = {
   id: UserId;
@@ -25,6 +26,8 @@ export interface Group {
   name: string;
   members: Member[];
   expenses: Expense[];
+  isActive: boolean;
+  notifications: boolean;
 }
 export interface Debt {
   member: Member;
