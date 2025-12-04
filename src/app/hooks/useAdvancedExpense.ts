@@ -122,6 +122,8 @@ export function useAdvancedExpense({
     setPerUser((p) => ({ ...p, [id]: toMoney(value) }));
   };
 
+  
+
   const handleSave = () => {
     const split = buildSplit(selected, members, perUser);
 
@@ -133,6 +135,11 @@ export function useAdvancedExpense({
       amount: amountValue,
     });
   };
+
+  const resetReceipt = () => {
+    setFile(null);
+  };
+
 
   return {
     selected,
@@ -150,5 +157,7 @@ export function useAdvancedExpense({
     setAmountFor,
     handleFile: setFile,
     handleSave,
+    resetReceipt,
+
   };
 }

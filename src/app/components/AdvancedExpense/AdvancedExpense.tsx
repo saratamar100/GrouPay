@@ -8,13 +8,10 @@ import {
   Button,
   Checkbox,
   FormControlLabel,
-  IconButton,
   Typography,
   TextField,
 } from "@mui/material";
-import CloseIcon from "@mui/icons-material/Close";
-import type { Member } from "@/app/types/types";
-import type { SplitDetail } from "@/app/types/types";
+import type { Member,SplitDetail } from "@/app/types/types";
 import { useAdvancedExpense } from "@/app/hooks/useAdvancedExpense";
 import { toMoney, formatILS } from "@/app/utils/money";
 import styles from "./AdvancedExpense.module.css";
@@ -67,6 +64,8 @@ export default function AdvancedExpense({
     setAmountFor,
     handleFile,
     handleSave,
+    resetReceipt,
+
   } = useAdvancedExpense({
     open,
     name,
@@ -105,7 +104,6 @@ export default function AdvancedExpense({
   return (
     <Dialog
       open={open}
-      onClose={onClose}
       fullWidth
       maxWidth="sm"
       PaperProps={{ className: styles.paper }}
@@ -131,7 +129,6 @@ export default function AdvancedExpense({
               fullWidth
               value={amountValue}
               onChange={(e) => setAmountValue(toMoney(e.target.value))}
-              inputProps={{ dir: "ltr", inputMode: "decimal" }}
               className={styles.metaInput}
             />
           </div>
@@ -158,16 +155,6 @@ export default function AdvancedExpense({
                   <span>{fileName || "צפייה בקובץ"}</span>
                 </button>
 
-                <button
-                  type="button"
-                  className={styles.removeBtn}
-                  onClick={() => {
-                    handleFile(null);
-                    setFileName(null);
-                  }}
-                >
-                  ✕
-                </button>
               </div>
             ) : (
               <div className={styles.noFile}>לא הועלה קובץ</div>
@@ -258,7 +245,11 @@ export default function AdvancedExpense({
       <DialogActions className={styles.actions}>
         <Button
           variant="text"
-          onClick={onClose}
+          onClick={() => {
+            setFileName(null); 
+            resetReceipt();
+            onClose();        
+  }}
           className={styles.secondaryBtn}
           disabled={isSaving}
         >
