@@ -279,6 +279,12 @@ export async function updateExpense(params: {
     throw err;
   }
 
+  if (!ObjectId.isValid(userId)) {
+    const err = new Error("Invalid or missing userId");
+    (err as any).status = 400;
+    throw err;
+  }
+
   if (
     name === undefined &&
     amount === undefined &&
@@ -292,13 +298,33 @@ export async function updateExpense(params: {
 
   const db = await getDb("groupay_db");
   const expensesCol = db.collection("expense");
+  const groupsCol = db.collection("group");
 
+  const gid = new ObjectId(groupId);
   const eid = new ObjectId(expenseId);
-  const current = await expensesCol.findOne({ _id: eid });
+  const uid = new ObjectId(userId);
 
+  const current = await expensesCol.findOne({ _id: eid });
   if (!current) {
-    const err = new Error("Expense not found in the specified group");
+    const err = new Error("Expense not found");
     (err as any).status = 404;
+    throw err;
+  }
+
+  const group = await groupsCol.findOne(
+    { _id: gid, expenses: eid },
+    { projection: { _id: 1, isActive: 1, name: 1 } }
+  );
+
+  if (!group) {
+    const err = new Error("Expense does not belong to the specified group");
+    (err as any).status = 404;
+    throw err;
+  }
+
+  if (!group.isActive) {
+    const err = new Error(`הקבוצה "${group.name}" אינה פעילה — אי אפשר לערוך הוצאה`);
+    (err as any).status = 403;
     throw err;
   }
 
@@ -310,9 +336,9 @@ export async function updateExpense(params: {
     throw err;
   }
 
-  if (!new ObjectId(payerId).equals(new ObjectId(userId))) {
+  if (!new ObjectId(payerId).equals(uid)) {
     const err: any = new Error("You do not have permission");
-    (err as any).status = 403;
+    err.status = 403;
     throw err;
   }
 
@@ -361,12 +387,11 @@ export async function updateExpense(params: {
     throw err;
   }
 
-   try {
+  try {
     await calculateTotalDebt(groupId);
   } catch (err) {
-    console.error("Failed to recalculate debts after expense deletion:", err);
+    console.error("Failed to recalculate debts after expense update:", err);
   }
-
 
   return { ok: true };
 }
@@ -410,7 +435,24 @@ export async function deleteExpense(
     throw err;
   }
 
-  const payerId = expense.payer.id;
+  const group = await groupsCol.findOne(
+    { _id: gid, expenses: eid },
+    { projection: { _id: 1, isActive: 1, name: 1 } }
+  );
+
+  if (!group) {
+    const err = new Error("Expense does not belong to the specified group");
+    (err as any).status = 404;
+    throw err;
+  }
+
+  if (!group.isActive) {
+    const err = new Error(`הקבוצה "${group.name}" אינה פעילה — אי אפשר למחוק הוצאה`);
+    (err as any).status = 403;
+    throw err;
+  }
+
+  const payerId = expense.payer?.id;
 
   if (!payerId || !ObjectId.isValid(payerId)) {
     const err = new Error("Invalid payer id");
@@ -421,17 +463,6 @@ export async function deleteExpense(
   if (!new ObjectId(payerId).equals(uid)) {
     const err: any = new Error("You do not have permission");
     err.status = 403;
-    throw err;
-  }
-
-  const group = await groupsCol.findOne(
-    { _id: gid, expenses: eid },
-    { projection: { _id: 1 } }
-  );
-
-  if (!group) {
-    const err = new Error("Expense does not belong to the specified group");
-    (err as any).status = 404;
     throw err;
   }
 
