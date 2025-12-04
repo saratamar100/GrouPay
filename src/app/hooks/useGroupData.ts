@@ -9,8 +9,7 @@ import {
   updateExpense,
 } from "@/app/services/client/groupService";
 import type { SplitDetail } from "@/app/types/types";
-import { uploadToCloudinary } from "@/app/services/client/uploadService";
-import { toMoney } from "../utils/money";
+import {uploadToCloudinary} from "@/app/services/client/uploadService"
 import { useLoginStore } from "@/app/store/loginStore";
 
 type DraftExpense = Omit<Expense, "id" | "payer"> & {
@@ -145,7 +144,7 @@ export function useGroupData(
       setDraft((d) => {
         if (!d) return d;
         if (key === "amount") {
-          return { ...d, amount: toMoney(String(value)) } as DraftExpense;
+          return { ...d, amount: value} as DraftExpense;
         }
         return { ...d, [key]: value } as DraftExpense;
       });
@@ -229,7 +228,7 @@ export function useGroupData(
         const id = item.id ?? item.userId ?? item.user ?? "";
         const member = group.members.find((m) => m.id === id);
         return {
-          userId :id,
+          userId:id,
           name: member?.name ?? "",
           amount: Number(item.amount) || 0,
         };
@@ -338,11 +337,11 @@ export function useGroupData(
         try {
           setSaving(true);
 
-          const apiSplit = finalSplitUI.map((s) => ({
-            userId: s.userId,
-            amount: s.amount,
-            name : s.name
-          }));
+        const apiSplit = finalSplitUI.map((s) => ({
+          userId: s.userId,
+          amount: s.amount,
+          name: s.name
+        }));
 
           await createExpense(group.id, group.members, {
             name: finalName,
@@ -380,10 +379,10 @@ export function useGroupData(
         try {
           setSaving(true);
 
-          const apiSplit = finalSplitUI.map((s) => ({
-            userId: s.userId,
-            amount: s.amount,
-          }));
+        const apiSplit = finalSplitUI.map((s) => ({
+          userId: s.userId,
+          amount: s.amount,
+        }));
 
           await updateExpense(group.id, adv.expenseId, userId, {
             name: finalName,
