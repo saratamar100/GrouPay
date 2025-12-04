@@ -1,10 +1,9 @@
-import type { Expense } from "@/app/types/types";
+import type { Expense, Member } from "@/app/types/types";
 import { IconButton, Paper, Typography } from "@mui/material";
 import DeleteOutlineIcon from "@mui/icons-material/DeleteOutline";
 import EditOutlinedIcon from "@mui/icons-material/EditOutlined";
 import { formatILS } from "@/app/utils/money";
 import styles from "./GroupExpenseRow.module.css";
-import {Member} from "@/app/types/types"
 
 export function GroupExpenseRow({
   userId,
@@ -12,16 +11,21 @@ export function GroupExpenseRow({
   onDelete,
   onEdit,
   payer,
+  onOpenDetails,
 }: {
-  userId:string | undefined,
+  userId: string | undefined;
   e: Expense;
   onDelete: (id: string) => void;
   onEdit?: (id: string) => void;
   payer?: Member;
+  onOpenDetails?: (expense: Expense) => void;
 }) {
   return (
     <Paper elevation={0} className={styles.row}>
-      <div className={styles.card}>
+      <div
+        className={styles.card}
+        onClick={() => onOpenDetails?.(e)} 
+      >
         <div className={styles.right}>
           <Typography variant="body1" className={styles.name}>
             {e.name}
@@ -43,22 +47,27 @@ export function GroupExpenseRow({
               <IconButton
                 size="small"
                 className={styles.editBtn}
-                onClick={() => onEdit?.(e.id)}
+                onClick={(event) => {
+                  event.stopPropagation(); 
+                  onEdit?.(e.id);
+                }}
               >
                 <EditOutlinedIcon fontSize="small" />
               </IconButton>
 
               <IconButton
                 size="small"
-                onClick={() => onDelete(e.id)}
                 className={styles.deleteBtn}
+                onClick={(event) => {
+                  event.stopPropagation(); 
+                  onDelete?.(e.id);
+                }}
               >
                 <DeleteOutlineIcon fontSize="small" />
               </IconButton>
             </>
           )}
         </div>
-
       </div>
     </Paper>
   );

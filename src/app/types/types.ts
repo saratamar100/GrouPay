@@ -38,9 +38,11 @@ export interface GroupTransactions {
   payments: Payment[];
 }
 
-interface SplitDetail {
+export interface SplitDetail {
   userId: UserId;
   amount: number;
+  name: string;
+
 }
 
 export interface Expense {

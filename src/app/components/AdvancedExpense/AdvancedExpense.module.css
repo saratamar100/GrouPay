@@ -1,5 +1,7 @@
 .paper {
   border-radius: 24px;
+  overflow: hidden;
+  box-shadow: 0 18px 40px rgba(6, 124, 128, 0.22);
 }
 
 .title {
@@ -8,29 +10,39 @@
   justify-content: space-between;
   direction: rtl;
   font-weight: 800;
-  color: var(--primary);
-}
-
-.closeBtn {
-  color: var(--ink);
+  padding: 16px 22px 14px;
+  background: linear-gradient(135deg, #067c80, #32b9b2);
+  color: #ffffff;
 }
 
 .content {
   direction: rtl;
-  background: var(--panel-bg);
+  background: #f5fafa;
+  padding: 26px 24px 22px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
 }
 
 .section {
-  margin-bottom: 12px;
+  background: #ffffff;
+  border-radius: 18px;
+  padding: 16px 18px 18px;
+  box-shadow: 0 6px 18px rgba(6, 124, 128, 0.09);
+  border: 1px solid rgba(6, 124, 128, 0.08);
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-bottom: 8px;
 }
 
-.basicSection {
-  margin-bottom: 16px;
+.firstCard {
+  margin-top: 24px;
 }
 
-.basicCard {
+.grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
   gap: 12px;
 }
 
@@ -51,37 +63,64 @@
 }
 
 .sectionTitle {
-  color: var(--ink);
+  color: #111827;
   font-weight: 700;
+  font-size: 14px;
 }
 
-.receiptCard {
-  margin-top: 12px;
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
-
-.uploadRow {
+.receiptRow {
   display: flex;
   align-items: center;
-  gap: 12px;
+  justify-content: space-between;
+  gap: 10px;
   flex-wrap: wrap;
 }
 
-
-.previewWrap {
+.receiptBubble {
   display: inline-flex;
   align-items: center;
-  gap: 8px;
+  gap: 6px;
+  padding: 6px 8px 6px 4px;
+  border-radius: 999px;
+  background: linear-gradient(135deg, #e6fffb, #def9f4);
+  border: 1px solid rgba(6, 124, 128, 0.3);
 }
 
-.previewImg {
-  width: 80px;
-  height: 80px;
-  object-fit: cover;
-  border-radius: 8px;
-  border: 1px solid var(--line);
+.fileNameBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  border: none;
+  background: transparent;
+  padding: 0;
+  margin: 0;
+  cursor: pointer;
+  font-size: 13px;
+  color: #067c80;
+}
+
+.fileNameBtn span {
+  max-width: 170px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.removeBtn {
+  width: 22px;
+  height: 22px;
+  border-radius: 999px;
+  border: none;
+  font-size: 13px;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.noFile {
+  font-size: 13px;
+  color: #6b7280;
 }
 
 .rowHeader {
@@ -91,13 +130,8 @@
   gap: 12px;
 }
 
-.rightTools {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-}
-
-.equalToggle {
+.equalToggle,
+.memberCheck {
   margin: 0;
 }
 
@@ -105,18 +139,13 @@
   display: flex;
   flex-direction: column;
   gap: 8px;
-  margin-top: 8px;
 }
 
 .memberRow {
   display: grid;
   grid-template-columns: 1fr 120px;
-  align-items: center;
   gap: 10px;
-}
-
-.memberCheck {
-  margin: 0;
+  align-items: center;
 }
 
 .amountInput input {
@@ -126,12 +155,13 @@
 }
 
 .totals {
-  margin-top: 10px;
+  margin-top: 6px;
   display: inline-flex;
   align-items: center;
   padding: 6px 12px;
   border-radius: 999px;
   font-weight: 700;
+  font-size: 13px;
 }
 
 .diffPositive {
@@ -144,13 +174,10 @@
   background: linear-gradient(135deg, #ffebee, #ffcdd2);
 }
 
-.divider {
-  margin: 10px 0 14px 0;
-}
-
 .actions {
   direction: rtl;
   gap: 12px;
+  padding: 10px 24px 18px;
 }
 
 .firstBtn {
@@ -160,7 +187,7 @@
   padding: 8px 22px !important;
   font-weight: 700 !important;
   text-transform: none !important;
-  box-shadow: 0 8px 18px rgba(6, 124, 128, 0.2) !important;
+  box-shadow: 0 8px 18px rgba(6, 124, 128, 0.22) !important;
 }
 
 .firstBtn:disabled {
@@ -169,13 +196,9 @@
   box-shadow: none !important;
 }
 
-.firstBtn:not(:disabled):hover {
-  background: #05686d !important;
-}
-
 .secondaryBtn {
   border-radius: 12px !important;
-  border: 1.5px solid rgba(6, 124, 128, 0.3) !important;
+  border: 1.5px solid rgba(6, 124, 128, 0.35) !important;
   color: #067c80 !important;
   padding: 8px 22px !important;
   font-weight: 600 !important;
@@ -183,10 +206,18 @@
 }
 
 .secondaryBtn:hover {
-  background: rgba(6, 124, 128, 0.08) !important;
+  background: rgba(6, 124, 128, 0.06) !important;
 }
 
 @media (max-width: 768px) {
+  .content {
+    padding: 22px 16px 18px;
+  }
+
+  .section {
+    padding: 14px 14px 16px;
+  }
+
   .memberRow {
     grid-template-columns: 1fr 100px;
   }

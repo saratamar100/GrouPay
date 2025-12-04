@@ -8,14 +8,10 @@ import {
   Button,
   Checkbox,
   FormControlLabel,
-  IconButton,
   Typography,
-  Divider,
   TextField,
 } from "@mui/material";
-import CloseIcon from "@mui/icons-material/Close";
-import type { Member } from "@/app/types/types";
-import type { SplitDetail } from "@/app/utils/split";
+import type { Member,SplitDetail } from "@/app/types/types";
 import { useAdvancedExpense } from "@/app/hooks/useAdvancedExpense";
 import { toMoney, formatILS } from "@/app/utils/money";
 import styles from "./AdvancedExpense.module.css";
@@ -51,6 +47,7 @@ export default function AdvancedExpense({
   onSave,
 }: AdvancedExpenseProps) {
   const [isSaving, setIsSaving] = useState(false);
+  const [fileName, setFileName] = useState<string | null>(null);
 
   const {
     selected,
@@ -67,6 +64,8 @@ export default function AdvancedExpense({
     setAmountFor,
     handleFile,
     handleSave,
+    resetReceipt,
+
   } = useAdvancedExpense({
     open,
     name,
@@ -97,8 +96,6 @@ export default function AdvancedExpense({
     try {
       await handleSave();
       onClose();
-    } catch (err) {
-      console.error(err);
     } finally {
       setIsSaving(false);
     }
@@ -107,102 +104,100 @@ export default function AdvancedExpense({
   return (
     <Dialog
       open={open}
-      onClose={onClose}
       fullWidth
       maxWidth="sm"
       PaperProps={{ className: styles.paper }}
     >
       <DialogTitle className={styles.title}>
         <span>{title}</span>
-        <IconButton
-          aria-label="close"
-          onClick={onClose}
-          className={styles.closeBtn}
-        >
-          <CloseIcon fontSize="small" />
-        </IconButton>
       </DialogTitle>
 
-      <DialogContent dividers className={styles.content}>
-        <section className={`${styles.section} ${styles.basicSection}`}>
-          <div className={styles.basicCard}>
+      <DialogContent className={styles.content}>
+        <section className={`${styles.section} ${styles.firstCard}`}>
+          <div className={styles.grid}>
             <TextField
               label="שם ההוצאה"
               size="small"
+              fullWidth
               value={nameValue}
               onChange={(e) => setNameValue(e.target.value)}
-              fullWidth
               className={styles.metaInput}
             />
             <TextField
               label="סכום"
               size="small"
+              fullWidth
               value={amountValue}
               onChange={(e) => setAmountValue(toMoney(e.target.value))}
-              fullWidth
-              inputProps={{ inputMode: "decimal", dir: "ltr" }}
               className={styles.metaInput}
             />
           </div>
+        </section>
 
-          <div className={styles.receiptCard}>
-            <Typography variant="subtitle2" className={styles.sectionTitle}>
-              חשבונית / צילום מסך
-            </Typography>
-            <div className={styles.uploadRow}>
-              <Button
-                variant="contained"
-                component="label"
-                size="small"
-                className={styles.uploadBtn}
-              >
-                העלאת קובץ
-                <input
-                  type="file"
-                  hidden
-                  accept="image/*,.pdf"
-                  onChange={(e) =>
-                    handleFile(
-                      e.target.files?.[0] ? e.target.files[0] : null
-                    )
-                  }
-                />
-              </Button>
+        <section className={styles.section}>
+          <Typography className={styles.sectionTitle}>
+            חשבונית / קובץ מצורף
+          </Typography>
 
-              {receiptPreview && (
-                <div className={styles.previewWrap}>
-                  <img
-                    src={receiptPreview}
-                    alt="תצוגה מקדימה"
-                    className={styles.previewImg}
-                  />
-                </div>
-              )}
-            </div>
+          <div className={styles.receiptRow}>
+            {receiptPreview ? (
+              <div className={styles.receiptBubble}>
+                <button
+                  type="button"
+                  className={styles.fileNameBtn}
+                  onClick={() => {
+                    if (typeof window !== "undefined") {
+                      window.open(receiptPreview, "_blank");
+                    }
+                  }}
+                >
+
+                  <span>{fileName || "צפייה בקובץ"}</span>
+                </button>
+
+              </div>
+            ) : (
+              <div className={styles.noFile}>לא הועלה קובץ</div>
+            )}
+
+            <Button
+              variant="contained"
+              component="label"
+              size="small"
+              className={styles.uploadBtn}
+            >
+              העלאת קובץ
+              <input
+                type="file"
+                hidden
+                accept="image/*,.pdf"
+                onChange={(e) => {
+                  const file = e.target.files?.[0] || null;
+                  setFileName(file ? file.name : null);
+                  handleFile(file);
+                }}
+              />
+            </Button>
           </div>
         </section>
 
-        <Divider className={styles.divider} />
-
         <section className={styles.section}>
           <div className={styles.rowHeader}>
-            <Typography variant="subtitle1" className={styles.sectionTitle}>
+            <Typography className={styles.sectionTitle}>
               משתתפים בחלוקה
             </Typography>
 
-            <div className={styles.rightTools}>
-              <FormControlLabel
-                control={
-                  <Checkbox
-                    checked={equalMode}
-                    onChange={(e) => setEqualMode(e.target.checked)}
-                    sx={checkboxStyles}
-                  />
-                }
-                label="חלוקה שווה"
-                className={styles.equalToggle}
-              />
-            </div>
+            <FormControlLabel
+              label="חלוקה שווה"
+              control={
+                <Checkbox
+                  checked={equalMode}
+                  onChange={(e) => setEqualMode(e.target.checked)}
+                  sx={checkboxStyles}
+                />
+              }
+              className={styles.equalToggle}
+            />
           </div>
 
           <div className={styles.membersList}>
@@ -250,7 +245,11 @@ export default function AdvancedExpense({
       <DialogActions className={styles.actions}>
         <Button
           variant="text"
-          onClick={onClose}
+          onClick={() => {
+            setFileName(null); 
+            resetReceipt();
+            onClose();        
+  }}
           className={styles.secondaryBtn}
           disabled={isSaving}
         >

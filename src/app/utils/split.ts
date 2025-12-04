@@ -1,10 +1,6 @@
 import { round2 } from "./money";
 
-export type SplitDetail = {
-  id: string;
-  name: string;
-  amount: number;
-};
+import {SplitDetail} from "../types/types"
 
 export function calcEqual(total: number, count: number): number[] {
   if (!count || total <= 0) return Array(count).fill(0);
@@ -21,8 +17,8 @@ export function calcEqual(total: number, count: number): number[] {
 }
 
 export function isEqualSplit(split: SplitDetail[]): boolean {
-  if (!split.length) return true;
-  const total = split.reduce((s, x) => s + (Number(x.amount) || 0), 0);
+  if (!split) return true;
+  const total = split.reduce((s, x) => s + (Number(x) || 0), 0);
   const avg = total / split.length;
   return split.every((x) => Math.abs(Number(x.amount) - avg) < 0.01);
 }
