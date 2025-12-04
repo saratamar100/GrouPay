@@ -1,9 +1,13 @@
 import { ObjectId } from "mongodb";
 import { getDb } from "./mongo";
 import { calculateTotalDebt } from "./debtsService";
+import { round2 } from "@/app/utils/money";
 
 type MemberInput = { id: string; name: string };
 type SplitInput = { userId: string; amount: number };
+
+
+
 
 export async function createExpense(params: {
   groupId: string;
@@ -40,29 +44,40 @@ export async function createExpense(params: {
     throw err;
   }
 
-  const memberMap = new Map<string, string>(
-    members.map((m: any) => [m.id.toString(), m.name])
-  );
-
-
-
   if (!members || !Array.isArray(members) || members.length === 0) {
     const err = new Error("Members must be a non-empty array");
     (err as any).status = 400;
     throw err;
   }
 
+  const memberMap = new Map<string, string>(
+    members.map((m: any) => [m.id.toString(), m.name])
+  );
+
   let finalSplit: SplitInput[];
 
   if (!split || split.length === 0) {
-    const equalShare = amount / members.length;
-    finalSplit = members.map((m) => ({
-      userId: m.id,
-      amount: equalShare,
-    }));
+    const perHead = round2(amount / members.length);
+    let remaining = amount;
+
+    finalSplit = members.map((m, index) => {
+      const share =
+        index === members.length - 1 ? round2(remaining) : perHead;
+      remaining = round2(remaining - share);
+
+      return {
+        userId: m.id,
+        amount: share,
+      };
+    });
   } else {
-    const total = split.reduce(
-      (sum: number, s: SplitInput) => sum + Number(s.amount || 0),
+    const roundedSplit: SplitInput[] = split.map((s) => ({
+      userId: s.userId,
+      amount: round2(Number(s.amount || 0)),
+    }));
+
+    const total = roundedSplit.reduce(
+      (sum, s) => sum + s.amount,
       0
     );
 
@@ -72,7 +87,7 @@ export async function createExpense(params: {
       throw err;
     }
 
-    finalSplit = split;
+    finalSplit = roundedSplit;
   }
 
   const db = await getDb("groupay_db");
@@ -81,16 +96,16 @@ export async function createExpense(params: {
 
   const expenseDoc = {
     name: name.trim(),
-    amount,
-   payer: payer
-          ? {
-              id: new ObjectId(payer),
-              name: memberMap.get(payer),
-            }
-          : null,
+    amount: round2(amount),
+    payer: payer
+      ? {
+          id: new ObjectId(payer),
+          name: memberMap.get(payer),
+        }
+      : null,
     split: finalSplit.map((s) => ({
       userId: new ObjectId(s.userId),
-      amount: s.amount,
+      amount: round2(s.amount),
     })),
     date: new Date(),
     receiptUrl: receiptUrl ?? null,
@@ -115,6 +130,7 @@ export async function createExpense(params: {
     ...expenseDoc,
   };
 }
+
 
 export async function getGroupExpenses(groupId: string) {
   if (!ObjectId.isValid(groupId)) {
