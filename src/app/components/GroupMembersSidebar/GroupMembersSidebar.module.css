@@ -1,28 +1,39 @@
-@keyframes sidebarEnter {
+@keyframes slideInLeft {
   from {
-    opacity: 0;
-    transform: translateX(20px);
+    transform: translateX(-100%);
   }
   to {
-    opacity: 1;
     transform: translateX(0);
   }
 }
 
 .sidebar {
-  width: 260px;
-  flex-shrink: 0;
+  position: fixed;
+  left: 0;
+  right: auto;
+  top: 90px;
+  height: calc(100vh - 90px);
+  width: 320px;
   background: var(--bg-white);
-  border-radius: 20px;
-  padding: 16px 16px 12px;
-  display: flex;
-  flex-direction: column;
-  border: 1px solid rgba(15, 23, 42, 0.06);
-  animation: sidebarEnter 0.4s ease-out;
+  border-radius: 0;
+  padding: 24px 20px;
+  box-shadow: 0 0 20px rgba(0, 0, 0, 0.3);
+  z-index: 1000;
+  animation: slideInLeft 0.3s ease-out;
 }
 
+.backdrop {
+  position: fixed;
+  top: 64px;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.4);
+  z-index: 999;
+}
 .sidebarHeader {
   position: relative;
+  margin-bottom: 20px;
 }
 
 .sidebarTitle {
@@ -41,8 +52,12 @@
   margin: 0;
   padding: 0;
   list-style: none;
+  flex-grow: 1;
+  overflow-y: auto;
 }
-
+.memberItem:hover {
+  background-color: var(--bg-light);
+}
 .memberItem {
   padding-block: 4px;
 }
@@ -50,12 +65,18 @@
 .memberName {
   font-size: 0.95rem;
 }
-
+.inputContainer {
+  padding: 10px 0;
+  position: relative;
+}
 .suggestionsList {
-  border: 1px solid rgba(0,0,0,0.1);
+  position: absolute;
+  width: 100%;
+  border: 1px solid rgba(0, 0, 0, 0.1);
   border-radius: 6px;
   margin-top: 4px;
   background-color: var(--bg-white);
+  z-index: 1001;
 }
 
 .suggestionItem {
@@ -67,43 +88,35 @@
   background-color: #eee;
 }
 
-/* מודאל */
-.inviteModal {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  background-color: var(--bg-white);
-  box-shadow: 0px 4px 6px rgba(0,0,0,0.1);
-  border-radius: 12px;
-  padding: 24px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 16px;
-  min-width: 280px;
+.actionButtonBox {
+  padding: 10px 0;
   text-align: center;
-  border: 2px solid var(--primary-dark);
-  animation: pop 0.3s ease-out;
 }
 
-.inviteModalButton {
-  background-color: var(--primary);
-  color: #fff;
+.leaveGroupButton {
+  background-color: var(--debt-color) !important;
+  color: white !important;
+  font-weight: 700 !important;
+  border-radius: 25px !important;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  width: 100%;
+}
+.leaveGroupButton:hover {
+  background-color: #c0392b !important;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 10px rgba(239, 68, 68, 0.4);
 }
 
-.inviteModalIcons {
-  display: flex;
-  gap: 16px;
+.inviteButton {
+  background-color: var(--primary-color) !important;
+  color: white !important;
+  font-weight: 700 !important;
+  border-radius: 25px !important;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  width: 100%;
 }
-
-@keyframes pop {
-  0% {
-    transform: translate(-50%, -50%) scale(0.7);
-    opacity: 0;
-  }
-  100% {
-    transform: translate(-50%, -50%) scale(1);
-    opacity: 1;
-  }
+.inviteButton:hover {
+  background-color: var(--secondary-color) !important;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 10px rgba(13, 148, 136, 0.4);
 }
