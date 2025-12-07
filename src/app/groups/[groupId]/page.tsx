@@ -22,7 +22,7 @@ import AdvancedExpense from "@/app/components/AdvancedExpense/AdvancedExpense";
 import { useLoginStore } from "@/app/store/loginStore";
 import { formatILS } from "@/app/utils/money";
 import Link from "next/link";
-
+import CustomModal from "@/app/components/CustomModal/CustomModal";
 import {
   Box,
   CircularProgress,
@@ -31,6 +31,7 @@ import {
   Fab,
   Paper,
   Typography,
+  Button,
 } from "@mui/material";
 import AddIcon from "@mui/icons-material/Add";
 
@@ -51,6 +52,9 @@ export default function GroupPage() {
     "dateDesc" | "dateAsc" | "amountDesc" | "amountAsc"
   >("dateDesc");
 
+  const [isConfirmModalOpen, setIsConfirmModalOpen] = useState(false);
+  const [pendingStatus, setPendingStatus] = useState<boolean | null>(null);
+
   const {
     state,
     startDraftExpense,
@@ -66,10 +70,7 @@ export default function GroupPage() {
     setGroupActiveStatus,
   } = useGroupData(groupId, userId);
 
-  const handleToggleActive = async (
-    event: React.ChangeEvent<HTMLInputElement>
-  ) => {
-    const newStatus = event.target.checked;
+  const updateStatusConfirmed = async (newStatus: boolean) => {
     const currentGroupId = state.group?.id;
     if (!currentGroupId) return;
 
@@ -80,6 +81,40 @@ export default function GroupPage() {
       alert(`אירעה שגיאה בעדכון מצב הקבוצה. נסה שוב.`);
     }
   };
+
+  const handleToggleSwitch = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const newStatus = event.target.checked;
+    setPendingStatus(newStatus);
+    setIsConfirmModalOpen(true);
+  };
+
+  const handleConfirmStatusChange = () => {
+    if (pendingStatus !== null) {
+      updateStatusConfirmed(pendingStatus);
+    }
+    setIsConfirmModalOpen(false);
+    setPendingStatus(null);
+  };
+
+  const handleCancelStatusChange = () => {
+    setIsConfirmModalOpen(false);
+    setPendingStatus(null);
+  };
+
+  // const handleToggleActive = async (
+  //   event: React.ChangeEvent<HTMLInputElement>
+  // ) => {
+  //   const newStatus = event.target.checked;
+  //   const currentGroupId = state.group?.id;
+  //   if (!currentGroupId) return;
+
+  //   try {
+  //     await setGroupActiveStatus(newStatus);
+  //   } catch (error) {
+  //     console.error("Error updating group status:", error);
+  //     alert(`אירעה שגיאה בעדכון מצב הקבוצה. נסה שוב.`);
+  //   }
+  // };
 
   useEffect(() => {
     console.log(
@@ -200,7 +235,7 @@ export default function GroupPage() {
                 control={
                   <Switch
                     checked={isActiveStatus}
-                    onChange={handleToggleActive}
+                    onChange={handleToggleSwitch}
                     name="isActiveSwitch"
                     color="primary"
                   />
@@ -289,7 +324,6 @@ export default function GroupPage() {
                 onEdit={openAdvancedForExisting}
                 hasDraft={!!state.draft}
                 disabled={!state.group.isActive}
-
               />
             </Box>
 
@@ -343,6 +377,46 @@ export default function GroupPage() {
           onClose={closeAdvanced}
           onSave={handleAdvancedSave}
         />
+
+        <CustomModal
+          open={isConfirmModalOpen}
+          onClose={handleCancelStatusChange}
+        >
+          <h3 style={{ margin: 0, textAlign: "center" }}>אישור שינוי סטטוס</h3>
+          <p
+            style={{
+              marginTop: "16px",
+              textAlign: "center",
+              fontSize: "1.1rem",
+            }}
+          >
+            האם אתה בטוח שברצונך להפוך את הקבוצה ל-
+            <strong>{pendingStatus ? "פעילה" : "לא פעילה"}</strong>?
+          </p>
+          <Box
+            style={{
+              display: "flex",
+              justifyContent: "space-around",
+              marginTop: "24px",
+              gap: "16px",
+            }}
+          >
+            <Button
+              variant="outlined"
+              onClick={handleCancelStatusChange}
+              sx={{ flex: 1 }}
+            >
+              ביטול
+            </Button>
+            <Button
+              variant="outlined"
+              onClick={handleConfirmStatusChange}
+              sx={{ flex: 1 }}
+            >
+              אישור
+            </Button>
+          </Box>
+        </CustomModal>
       </Container>
     </>
   );
