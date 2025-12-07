@@ -9,6 +9,7 @@ import {
   Typography,
 } from "@mui/material";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
+import Header from "../components/Header/Header";
 
 interface FAQItem {
   q: string;
@@ -60,43 +61,47 @@ export default function FAQPage() {
   );
 
   return (
-    <Container maxWidth="md" sx={{ mt: 6, mb: 10, direction: "rtl" }}>
-      <Typography
-        variant="h4"
-        fontWeight={800}
-        textAlign="center"
-        color="primary"
-        mb={4}
-      >
-        שאלות נפוצות
-      </Typography>
+    <>
+      <Header/>
+      <Container maxWidth="md" sx={{ mt: 6, mb: 10, direction: "rtl" }}>
+        <Typography
+          variant="h4"
+          fontWeight={800}
+          textAlign="center"
+          color="primary"
+          mb={4}
+        >
+          שאלות נפוצות
+        </Typography>
 
-      {items.map(({ q, a }, i) => {
-        const panelId = `panel${i}`;
-        return (
-          <Accordion
-            key={i}
-            expanded={expanded === panelId}
-            onChange={handleChange(panelId)}
-            sx={{
-              borderRadius: "14px !important",
-              mb: 2,
-              boxShadow: "0 6px 18px rgba(0,0,0,0.07)",
-              "&:before": { display: "none" },
-            }}
-          >
-            <AccordionSummary expandIcon={<ExpandMoreIcon />}>
-              <Typography fontWeight={700}>{q}</Typography>
-            </AccordionSummary>
+        {items.map(({ q, a }, i) => {
+          const panelId = `panel${i}`;
+          return (
+            <Accordion
+              key={i}
+              expanded={expanded === panelId}
+              onChange={handleChange(panelId)}
+              sx={{
+                borderRadius: "14px !important",
+                mb: 2,
+                boxShadow: "0 6px 18px rgba(0,0,0,0.07)",
+                "&:before": { display: "none" },
+              }}
+            >
+              <AccordionSummary expandIcon={<ExpandMoreIcon />}>
+                <Typography fontWeight={700}>{q}</Typography>
+              </AccordionSummary>
 
-            <AccordionDetails>
-              <Typography color="text.secondary" lineHeight={1.7}>
-                {a}
-              </Typography>
-            </AccordionDetails>
-          </Accordion>
-        );
-      })}
-    </Container>
+              <AccordionDetails>
+                <Typography color="text.secondary" lineHeight={1.7}>
+                  {a}
+                </Typography>
+              </AccordionDetails>
+            </Accordion>
+          );
+        })}
+      </Container>
+     </>
+
   );
 }

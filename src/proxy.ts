@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 import { verifyAuthToken } from "@/app/services/server/auth";
 
-const PROTECTED_PAGES = ["/groups", "/dashboard", "/profile", "/about"];
+const PROTECTED_PAGES = ["/groups", "/dashboard", "/profile"];
 const PROTECTED_API = ["/api/groups", "/api/dashboard", "/api/profile"];
 
 function isProtected(pathname: string, paths: string[]) {
@@ -65,7 +65,6 @@ export const config = {
     "/groups/:path*",
     "/dashboard/:path*",
     "/profile/:path*",
-    "/about/:path*",
     "/api/groups/:path*",
     "/api/dashboard/:path*",
     "/api/profile/:path*",

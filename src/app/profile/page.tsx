@@ -8,10 +8,10 @@ import {
   Typography,
   CircularProgress,
   Avatar,
+  Button,
 } from "@mui/material";
 import SaveOutlinedIcon from "@mui/icons-material/SaveOutlined";
 import EditOutlinedIcon from "@mui/icons-material/EditOutlined";
-import toast, { Toaster } from "react-hot-toast";
 import { useRef, useState, useEffect } from "react";
 import { useLoginStore } from "@/app/store/loginStore";
 import { useFilePreview } from "@/app/hooks/useFilePreview";
@@ -19,7 +19,10 @@ import { updateUserProfile } from "@/app/services/client/profileService";
 import { uploadToCloudinary } from "@/app/services/client/uploadService";
 import Header from "@/app/components/Header/Header";
 import Footer from "../components/Footer/Footer";
+import CustomModal from "../components/CustomModal/CustomModal";
 import styles from "./profile.module.css";
+
+type ModalType = "success" | "error";
 
 export default function ProfilePage() {
   const { loggedUser, setLoggedUser } = useLoginStore();
@@ -29,6 +32,10 @@ export default function ProfilePage() {
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [editMode, setEditMode] = useState(false);
+
+  const [modalOpen, setModalOpen] = useState(false);
+  const [modalMessage, setModalMessage] = useState("");
+  const [modalType, setModalType] = useState<ModalType>("success");
 
   useEffect(() => {
     setName(user?.name ?? "");
@@ -43,9 +50,14 @@ export default function ProfilePage() {
 
   if (!user) return null;
 
+  const openModal = (type: ModalType, message: string) => {
+    setModalType(type);
+    setModalMessage(message);
+    setModalOpen(true);
+  };
+
   const onSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-
 
     if (!editMode) {
       return;
@@ -54,13 +66,12 @@ export default function ProfilePage() {
     const trimmedName = name.trim();
     if (!trimmedName) {
       setError("שם הוא שדה חובה");
-      toast.error("נא למלא שם");
+      openModal("error", "נא למלא שם");
       return;
     }
 
     const hasNameChange = trimmedName !== user.name;
     const hasAvatarChange = !!avatarFile;
-
 
     if (!hasNameChange && !hasAvatarChange) {
       setEditMode(false);
@@ -76,7 +87,7 @@ export default function ProfilePage() {
         uploadedAvatarUrl = await uploadToCloudinary(avatarFile);
       } catch (err) {
         setSaving(false);
-        toast.error("שגיאה בהעלאת תמונה");
+        openModal("error", "שגיאה בהעלאת תמונה");
         return;
       }
     }
@@ -92,16 +103,15 @@ export default function ProfilePage() {
       setLoggedUser(result.user);
       setEditMode(false);
       setError(null);
-      toast.success("הפרופיל עודכן");
+      openModal("success", "הפרופיל עודכן בהצלחה");
     } else {
-      toast.error("נא לתקן שגיאות");
+      openModal("error", " קרתה שגיאה בזמן עדכון הפרופיל ");
     }
   };
 
   return (
     <>
       <Header />
-      <Toaster position="bottom-center" />
 
       <Box className={styles.pageRoot}>
         <Container maxWidth="sm">
@@ -198,6 +208,20 @@ export default function ProfilePage() {
       </Box>
 
       <Footer />
+
+      <CustomModal open={modalOpen} onClose={() => setModalOpen(false)}>
+        <Box display="flex" flexDirection="column" gap={2}>
+          <Typography variant="h6" textAlign="center">
+            {modalType === "success" ? "פעולה בוצעה" : "שגיאה"}
+          </Typography>
+          <Typography textAlign="center">{modalMessage}</Typography>
+          <Box display="flex" justifyContent="center" mt={1}>
+            <Button variant="contained" onClick={() => setModalOpen(false)}>
+              סגירה
+            </Button>
+          </Box>
+        </Box>
+      </CustomModal>
     </>
   );
 }

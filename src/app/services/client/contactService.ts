@@ -1,7 +1,7 @@
 export async function sendContactMessage(data: {
   email: string;
   name: string,
-  subject: string;
+  subject:string
   message: string;
 }) {
   const res = await fetch("/api/contact", {
