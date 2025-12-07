@@ -1,26 +1,24 @@
-// src/app/api/contact/route.ts
 import { NextResponse } from "next/server";
-import { sendEmail } from "@/app/services/server/remindersService"; // הנתיב שלך
+import { sendEmail } from "@/app/services/server/remindersService"; 
 
 export async function POST(req: Request) {
   try {
     const body = await req.json();
     const { name, email, subject, message } = body;
 
-    if (!email || !message) {
+    if (!email || !message ||!name) {
       return NextResponse.json(
         { error: "חסר מידע בטופס" },
         { status: 400 }
       );
     }
 
-    // מייל שיגיע אלייך
     const adminEmail = process.env.MAIL_USER;
 
     const text = `
 התקבלה פנייה חדשה מאתר GrouPay:
 
-שם: ${name || "לא נמסר"}
+שם: ${name}
 אימייל: ${email}
 נושא: ${subject || "ללא נושא"}
 
@@ -30,8 +28,7 @@ ${message}
 -----------------------
     `;
 
-    // שליחה למייל שלך
-    await sendEmail(adminEmail!, `פנייה חדשה מ-${email}: ${subject}`, text);
+    await sendEmail(adminEmail!, `פנייה חדשה מ-${name}: ${subject}`, text);
 
     return NextResponse.json({ success: true });
   } catch (err) {

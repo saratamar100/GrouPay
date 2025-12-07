@@ -11,7 +11,6 @@ const Footer = () => {
     <footer className={styles.footer}>
       <div className={styles.footerContainer}>
         <div className={styles.columns}>
-          {/* עמודת קישורים */}
           <div className={styles.linksColumn}>
             <h4 className={styles.linksTitle}>ניווט מהיר</h4>
             <ul className={styles.linksList}>
@@ -27,7 +26,6 @@ const Footer = () => {
             </ul>
           </div>
 
-          {/* עמודת רשתות + טקסט תומך */}
           <div className={styles.socialColumn}>
             <h4 className={styles.linksTitle}>נשארים בקשר</h4>
             <p className={styles.supportText}>
@@ -67,7 +65,7 @@ const Footer = () => {
         </div>
 
         <div className={styles.bottomRow}>
-          © {new Date().getFullYear()} GrouPay — כל הזכויות שמורות
+          © {new Date().getFullYear()} GrouPay  כל הזכויות שמורות
         </div>
       </div>
     </footer>

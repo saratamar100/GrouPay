@@ -13,6 +13,8 @@ import { useRouter, usePathname } from "next/navigation";
 import styles from "./Header.module.css";
 import { useLoginStore } from "@/app/store/loginStore";
 import { fetchLogout } from "@/app/services/client/logoutService";
+import { signInWithGoogle } from "@/app/services/client/authHelpers";
+import { addUser } from "@/app/services/client/login";
 import ExitToAppIcon from "@mui/icons-material/ExitToApp";
 import HomeIcon from "@mui/icons-material/Home";
 import InfoIcon from "@mui/icons-material/Info";
@@ -23,9 +25,11 @@ const Header: React.FC = () => {
   const pathname = usePathname();
 
   const loggedUser = useLoginStore((state) => state.loggedUser);
+  const setLoggedUser = useLoginStore((state) => state.setLoggedUser);
   const logout = useLoginStore((state) => state.logout);
 
   const [menuAnchor, setMenuAnchor] = useState<null | HTMLElement>(null);
+  const [loading, setLoading] = useState(false);
 
   const handleAvatarClick = (event: React.MouseEvent<HTMLElement>) => {
     setMenuAnchor(event.currentTarget);
@@ -33,14 +37,52 @@ const Header: React.FC = () => {
 
   const handleLogout = () => {
     logout();
-    fetchLogout()
+    fetchLogout();
     setMenuAnchor(null);
     router.push("/");
   };
 
+const handleLogin = async () => {
+  if (loading) return;
+  setLoading(true);
+
+  try {
+    const user = await signInWithGoogle();
+    if (!user) {
+      setLoading(false);
+      return;
+    }
+
+    const userData = {
+      name: user.displayName,
+      email: user.email,
+      photoURL: user.photoURL,
+    };
+
+    const addedUser = await addUser(userData);
+
+    if (addedUser) {
+      setLoggedUser(addedUser);
+      router.push("/dashboard"); 
+    }
+  } catch (error) {
+    console.error("Error sending user data to server:", error);
+  } finally {
+    setLoading(false);
+  }
+};
+
+  const handleProfileIconClick = (event: React.MouseEvent<HTMLElement>) => {
+    if (!loggedUser) {
+      handleLogin();
+      return;
+    }
+    handleAvatarClick(event);
+  };
+
   const isDashboard = pathname === "/dashboard";
   const isAbout = pathname === "/about";
-  const isProfile = pathname.startsWith("/profile");
+  const isProfile = pathname ==="/profile";
 
   return (
     <AppBar>
@@ -68,41 +110,38 @@ const Header: React.FC = () => {
             <InfoIcon />
           </IconButton>
 
-         
-            <>
-              <IconButton
-                className={isProfile ? styles.activeIcon : styles.iconButton}
-                onClick={handleAvatarClick}
-              >
-                <PersonIcon sx={{ fontSize: 32 }} />
-              </IconButton>
+          <IconButton
+            className={isProfile ? styles.activeIcon : styles.iconButton}
+            onClick={handleProfileIconClick}
+            disabled={loading}
+          >
+            <PersonIcon sx={{ fontSize: 32 }} />
+          </IconButton>
 
-              <Menu
-                anchorEl={menuAnchor}
-                open={Boolean(menuAnchor)}
-                onClose={() => setMenuAnchor(null)}
-                className={styles.menu}
+          {loggedUser && (
+            <Menu
+              anchorEl={menuAnchor}
+              open={Boolean(menuAnchor)}
+              onClose={() => setMenuAnchor(null)}
+              className={styles.menu}
+            >
+              <MenuItem
+                onClick={() => {
+                  router.push("/profile");
+                  setMenuAnchor(null);
+                }}
+                className={styles.menuItem}
               >
-                <MenuItem
-                  onClick={() => {
-                    router.push("/profile");
-                    setMenuAnchor(null);
-                  }}
-                  className={styles.menuItem}
-                >
-                  <PersonIcon fontSize="small" />
-                  <span>פרופיל</span>
-                </MenuItem>
+                <PersonIcon fontSize="small" />
+                <span>פרופיל</span>
+              </MenuItem>
 
-                <MenuItem
-                  onClick={handleLogout}
-                  className={styles.logoutItem}
-                >
-                  <ExitToAppIcon fontSize="small" />
-                  <span>התנתקות</span>
-                </MenuItem>
-              </Menu>
-            </>
+              <MenuItem onClick={handleLogout} className={styles.logoutItem}>
+                <ExitToAppIcon fontSize="small" />
+                <span>התנתקות</span>
+              </MenuItem>
+            </Menu>
+          )}
         </Box>
       </Toolbar>
     </AppBar>

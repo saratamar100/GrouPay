@@ -14,7 +14,6 @@
   gap: 1.5rem;
 }
 
-/* שתי עמודות */
 .columns {
   display: flex;
   justify-content: space-between;
@@ -29,14 +28,12 @@
   min-width: 220px;
 }
 
-/* כותרות */
 .linksTitle {
   font-size: 1rem;
   font-weight: 700;
   margin-bottom: 0.75rem;
 }
 
-/* רשימת קישורים */
 .linksList {
   list-style: none;
   padding: 0;
@@ -60,14 +57,12 @@
   transform: translateX(-3px);
 }
 
-/* טקסט תומך ליד האייקונים */
 .supportText {
   font-size: 0.9rem;
   opacity: 0.9;
   margin: 0 0 0.75rem 0;
 }
 
-/* אייקונים – משתמשים במחלקות שלך, רק קצת משדרגים */
 .socialIcons {
   display: flex;
   justify-content: flex-start;
@@ -98,7 +93,6 @@
   border-color: rgba(255, 255, 255, 0.9);
 }
 
-/* שורת תחתית */
 .bottomRow {
   border-top: 1px solid rgba(255, 255, 255, 0.28);
   padding-top: 0.75rem;
@@ -107,14 +101,51 @@
   opacity: 0.95;
 }
 
-/* רספונסיבי */
 @media (max-width: 768px) {
+  .footer {
+    padding: 1.75rem 0 1.5rem;
+  }
+
+  .footerContainer {
+    padding-inline: 1.25rem;
+  }
+
   .columns {
     flex-direction: column;
-    gap: 1.5rem;
+    gap: 1.25rem;
+    align-items: stretch;
+    text-align: center;
+  }
+
+  .linksColumn,
+  .socialColumn {
+    min-width: auto;
+  }
+
+  .linksTitle {
+    margin-bottom: 0.5rem;
+  }
+
+  .linksList li {
+    margin-bottom: 0.3rem;
+  }
+
+  .linksList a {
+    font-size: 0.9rem;
+  }
+
+  .supportText {
+    font-size: 0.85rem;
+    margin-bottom: 1rem;
   }
 
   .socialIcons {
-    justify-content: flex-start;
+    justify-content: center;
+    gap: 0.75rem;
+  }
+
+  .bottomRow {
+    font-size: 0.8rem;
+    line-height: 1.5;
   }
 }
