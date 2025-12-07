@@ -5,6 +5,11 @@ import { Debt, Payment } from "@/app/types/types";
 import styles from "./GroupBalanceDisplay.module.css";
 import { fetchGroupBalance } from "@/app/services/client/balanceService";
 import { useLoginStore } from "@/app/store/loginStore";
+import { formatILS } from "@/app/utils/money";
+import { getGroup } from "@/app/services/client/groupService";
+
+import { Box, Link, Typography } from "@mui/material";
+
 import {
   createPayment,
   fetchPendingPayments,
@@ -22,6 +27,7 @@ export function GroupBalanceDisplay({ groupId }: GroupBalanceDisplayProps) {
   const [completedPayments, setCompletedPayments] = useState<Payment[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [groupName, setGroupName] = useState<string | null>(null);
 
   const currentUser = useLoginStore((state) => state.loggedUser);
   const currentUserId = currentUser?.id;
@@ -34,6 +40,11 @@ export function GroupBalanceDisplay({ groupId }: GroupBalanceDisplayProps) {
       setError(null);
 
       try {
+        const groupDetails = await getGroup(groupId, currentUserId);
+
+        // שמירת השם ב-State
+        setGroupName(groupDetails.name);
+
         const [balanceData, pendingData, completedData] = await Promise.all([
           fetchGroupBalance(groupId, currentUserId as string),
           fetchPendingPayments(groupId, currentUserId as string),
@@ -51,7 +62,8 @@ export function GroupBalanceDisplay({ groupId }: GroupBalanceDisplayProps) {
     }
 
     loadData();
-  }, [groupId, currentUserId]);
+  }, [groupId, groupName, currentUserId]);
+  console.log("groupname" + groupName);
 
   const totalBalance = useMemo(
     () => debts.reduce((sum, debt) => sum + debt.amount, 0),
@@ -77,7 +89,7 @@ export function GroupBalanceDisplay({ groupId }: GroupBalanceDisplayProps) {
   const handleCreatePayment = async (debt: Debt) => {
     if (!currentUserId) return;
     try {
-      await createPayment(debt.member, Math.abs(debt.amount), groupId, {
+      await createPayment(debt.member, debt.amount, groupId, {
         id: currentUserId,
         name: currentUser?.name || "Unknown",
       });
@@ -104,14 +116,35 @@ export function GroupBalanceDisplay({ groupId }: GroupBalanceDisplayProps) {
       {/* יתרות בחשבון */}
       <div className={styles.balanceCard}>
         <header className={styles.header}>
+          <Box className={styles.breadcrumb}>
+            <Link href="/dashboard" className={styles.linkLike}>
+              <Typography component="span" className={styles.bcBase}>
+                הקבוצות שלי
+              </Typography>
+            </Link>
+
+            <span className={styles.bcSep}> ‹ </span>
+
+            <Link href={`/groups/${groupId}`} className={styles.linkLike}>
+              <Typography component="span" className={styles.bcBase}>
+                {groupName}
+              </Typography>
+            </Link>
+
+            <span className={styles.bcSep}> ‹ </span>
+
+            <Typography component="span" className={styles.bcCurrent}>
+              היתרות שלי
+            </Typography>
+          </Box>
+
           <h2>יתרות בחשבון</h2>
           <div className={styles.totalBalance}>
             <span>סך הכל: </span>
             <span
               className={totalBalance >= 0 ? styles.positive : styles.negative}
             >
-              {totalBalance > 0 ? "+" : ""}
-              {totalBalance.toFixed(2)}
+              {formatILS(totalBalance)}
             </span>
           </div>
         </header>
@@ -123,11 +156,9 @@ export function GroupBalanceDisplay({ groupId }: GroupBalanceDisplayProps) {
 
           {debts.map((debt) => {
             const isDebt = debt.amount < 0;
-            const absAmount = Math.abs(debt.amount);
-
             return (
               <div key={debt.member.id} className={styles.transactionRow}>
-                <span className={styles.amount}>{absAmount.toFixed(0)}</span>
+                <span className={styles.amount}>{debt.amount.toFixed(2)}</span>
                 <span className={styles.name}>{debt.member.name}</span>
                 <span
                   className={`${styles.status} ${
@@ -165,7 +196,7 @@ export function GroupBalanceDisplay({ groupId }: GroupBalanceDisplayProps) {
 
             return (
               <div key={p.id} className={styles.transactionRow}>
-                <span className={styles.amount}>{p.amount}</span>
+                <span className={styles.amount}>{p.amount.toFixed(2)}</span>
                 <span className={styles.name}>{otherUser.name}</span>
                 {isPayer && <span className={styles.status}>ממתין לאישור</span>}
                 {!isPayer && (
@@ -193,7 +224,7 @@ export function GroupBalanceDisplay({ groupId }: GroupBalanceDisplayProps) {
 
             return (
               <div key={p.id} className={styles.transactionRow}>
-                <span className={styles.amount}>{p.amount}</span>
+                <span className={styles.amount}>{p.amount.toFixed(2)}</span>
                 <span className={styles.name}>{otherUser.name}</span>
                 <span className={styles.status}>
                   {isPayer

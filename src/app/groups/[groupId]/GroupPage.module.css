@@ -203,3 +203,17 @@
     justify-content: space-between;
   }
 }
+
+.dimmedContent {
+  opacity: 0.5;
+  filter: grayscale(40%);
+}
+
+.dimmedContent .statusToggleContainer {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.contentAndControls {
+  margin-top: 10px;
+}

@@ -3,7 +3,6 @@
 import { useEffect, useMemo, useState } from "react";
 import type { Member } from "@/app/types/types";
 import type { SplitDetail } from "@/app/types/types";
-import { toMoney, round2 } from "@/app/utils/money";
 import { calcEqual, isEqualSplit } from "@/app/utils/split";
 import { buildSplit } from "@/app/utils/advancedExpense";
 import { useFilePreview } from "@/app/hooks/useFilePreview";
@@ -87,7 +86,7 @@ export function useAdvancedExpense({
   );
 
   const diff = useMemo(
-    () => round2((Number(amountValue) || 0) - (sum || 0)),
+    () => (Number(amountValue) || 0) - (sum || 0),
     [amountValue, sum]
   );
 
@@ -119,7 +118,7 @@ export function useAdvancedExpense({
   };
 
   const setAmountFor = (id: string, value: string) => {
-    setPerUser((p) => ({ ...p, [id]: toMoney(value) }));
+    setPerUser((p) => ({ ...p, [id]: Number(value) }));
   };
 
   
