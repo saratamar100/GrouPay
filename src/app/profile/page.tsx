@@ -12,35 +12,28 @@ import {
 import SaveOutlinedIcon from "@mui/icons-material/SaveOutlined";
 import EditOutlinedIcon from "@mui/icons-material/EditOutlined";
 import toast, { Toaster } from "react-hot-toast";
-import { useRef } from "react";
-import {User} from "@/app/types/types"
-
+import { useRef, useState, useEffect } from "react";
 import { useLoginStore } from "@/app/store/loginStore";
-import { useProfile } from "@/app/hooks/useProfile";
 import { useFilePreview } from "@/app/hooks/useFilePreview";
-import Header from "@/app/components/Header/Header"
+import { updateUserProfile } from "@/app/services/client/profileService";
+import { uploadToCloudinary } from "@/app/services/client/uploadService";
+import Header from "@/app/components/Header/Header";
 import Footer from "../components/Footer/Footer";
 import styles from "./profile.module.css";
 
 export default function ProfilePage() {
-  const loginStore = useLoginStore();
-  const user = loginStore.loggedUser;
+  const { loggedUser, setLoggedUser } = useLoginStore();
+  const user = loggedUser;
 
-  
- 
-  const {
-    canEdit,
-    setCanEdit,
-    drafts,
-    errors,
-    touched,
-    saving,
-    handleChange,
-    handleBlur,
-    handleFocus,
-    save,
-    setDrafts,
-  } = useProfile(user);
+  const [name, setName] = useState(user?.name ?? "");
+  const [saving, setSaving] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [editMode, setEditMode] = useState(false);
+
+  useEffect(() => {
+    setName(user?.name ?? "");
+    setError(null);
+  }, [user?.name]);
 
   const fileInputRef = useRef<HTMLInputElement | null>(null);
 
@@ -50,123 +43,161 @@ export default function ProfilePage() {
 
   if (!user) return null;
 
-  const handleSave = (user: User) => {
-      loginStore.setLoggedUser(user);
-  };
+  const onSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
 
-  const handleAvatarClick = () => {
-    if (!canEdit) return;
-    fileInputRef.current?.click();
-  };
 
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const f = e.target.files?.[0];
-    if (f) {
-      setFile(f);
-    }
-  };
-
-  const handleAction = async () => {
-    if (!canEdit) {
-      setDrafts({
-        name: user.name,
-      });
-      setCanEdit(true);
+    if (!editMode) {
       return;
     }
 
-    const result = await save(avatarFile);
+    const trimmedName = name.trim();
+    if (!trimmedName) {
+      setError("שם הוא שדה חובה");
+      toast.error("נא למלא שם");
+      return;
+    }
 
-    if (result.success) {
-      if (result.user) {
-        handleSave(result.user)
+    const hasNameChange = trimmedName !== user.name;
+    const hasAvatarChange = !!avatarFile;
+
+
+    if (!hasNameChange && !hasAvatarChange) {
+      setEditMode(false);
+      setError(null);
+      return;
+    }
+
+    setSaving(true);
+
+    let uploadedAvatarUrl: string | undefined;
+    if (avatarFile) {
+      try {
+        uploadedAvatarUrl = await uploadToCloudinary(avatarFile);
+      } catch (err) {
+        setSaving(false);
+        toast.error("שגיאה בהעלאת תמונה");
+        return;
       }
-      toast.success("הפרופיל עודכן בהצלחה");
+    }
+
+    const result = await updateUserProfile(
+      user.id,
+      trimmedName,
+      uploadedAvatarUrl
+    );
+    setSaving(false);
+
+    if (result.success && result.user) {
+      setLoggedUser(result.user);
+      setEditMode(false);
+      setError(null);
+      toast.success("הפרופיל עודכן");
     } else {
-      toast.error("נא לתקן שגיאות או לנסות שוב");
+      toast.error("נא לתקן שגיאות");
     }
   };
 
   return (
     <>
-      <Header/>
+      <Header />
       <Toaster position="bottom-center" />
 
       <Box className={styles.pageRoot}>
         <Container maxWidth="sm">
           <Paper elevation={10} className={styles.card}>
-            <input
-              type="file"
-              accept="image/*"
-              ref={fileInputRef}
-              style={{ display: "none" }}
-              onChange={handleFileChange}
-            />
+            <form onSubmit={onSubmit}>
+              <input
+                type="file"
+                accept="image/*"
+                ref={fileInputRef}
+                style={{ display: "none" }}
+                onChange={(e) => {
+                  const f = e.target.files?.[0];
+                  if (f) setFile(f);
+                }}
+              />
 
-            <Avatar className={`${styles.avatar} ${canEdit ? styles.avatarEditable : ""}`}
-              src={previewUrl || user.photoURL || undefined}
-              onClick={handleAvatarClick}
-           
-            >
-              {user.name[0]}
-            </Avatar>
-
-            <Typography variant="h4" className={styles.title}>
-              פרופיל משתמש
-            </Typography>
-
-            <Stack spacing={2} sx={{ mt: 2 }}>
-              <div className={styles.fieldBlock}>
-                <label className={styles.fieldLabel}>שם מלא</label>
-                {!canEdit ? (
-                  <div className={styles.fieldText}>{user.name}</div>
-                ) : (
-                  <>
-                    <input
-                      className={`${styles.fieldInput} ${
-                        touched.name && errors.name
-                          ? styles.fieldInputError
-                          : ""
-                      }`}
-                      value={drafts.name}
-                      onChange={(e) => handleChange("name", e.target.value)}
-                      onFocus={() => handleFocus("name")}
-                      onBlur={() => handleBlur("name")}
-                    />
-                    {touched.name && errors.name && (
-                      <span className={styles.errorText}>{errors.name}</span>
-                    )}
-                  </>
-                )}
-              </div>
-
-              <div className={styles.fieldBlock}>
-                <label className={styles.fieldLabel}>אימייל</label>
-                <div className={styles.fieldText}>{user.email}</div>
-              </div>
-            </Stack>
-
-            <div className={styles.ctaRow}>
-              <button
-                type="button"
-                onClick={handleAction}
-                className={`${styles.fabInline} ${
-                  canEdit ? styles.fabSave : styles.fabEdit
+              <Avatar
+                className={`${styles.avatar} ${
+                  editMode ? styles.avatarEditable : ""
                 }`}
-                disabled={saving}
+                src={previewUrl || user.photoURL || undefined}
+                onClick={() => {
+                  if (editMode) fileInputRef.current?.click();
+                }}
               >
-                {saving ? (
-                  <CircularProgress size={28} sx={{ color: "white" }} />
-                ) : canEdit ? (
-                  <SaveOutlinedIcon style={{ fontSize: "1.8rem" }} />
+                {user.name[0]}
+              </Avatar>
+
+              <Typography variant="h4" className={styles.title}>
+                פרופיל משתמש
+              </Typography>
+
+              <Stack spacing={2} sx={{ mt: 2 }}>
+                <div className={styles.fieldBlock}>
+                  <label className={styles.fieldLabel}>שם מלא</label>
+
+                  {!editMode ? (
+                    <div className={styles.fieldText}>{user.name}</div>
+                  ) : (
+                    <>
+                      <input
+                        className={`${styles.fieldInput} ${
+                          error ? styles.fieldInputError : ""
+                        }`}
+                        value={name}
+                        onChange={(e) => {
+                          setName(e.target.value);
+                          setError(null);
+                        }}
+                      />
+                      {error && (
+                        <span className={styles.errorText}>{error}</span>
+                      )}
+                    </>
+                  )}
+                </div>
+
+                <div className={styles.fieldBlock}>
+                  <label className={styles.fieldLabel}>אימייל</label>
+                  <div className={styles.fieldText}>{user.email}</div>
+                </div>
+              </Stack>
+
+              <div className={styles.ctaRow}>
+                {!editMode ? (
+                  <button
+                    type="button"
+                    className={`${styles.fabInline} ${styles.fabEdit}`}
+                    onClick={(ev) => {
+                      ev.preventDefault();
+                      ev.stopPropagation();
+                      setEditMode(true);
+                    }}
+                  >
+                    <EditOutlinedIcon style={{ fontSize: "1.8rem" }} />
+                  </button>
                 ) : (
-                  <EditOutlinedIcon style={{ fontSize: "1.8rem" }} />
+                  <button
+                    type="submit"
+                    className={`${styles.fabInline} ${styles.fabSave}`}
+                    disabled={saving}
+                  >
+                    {saving ? (
+                      <CircularProgress size={28} sx={{ color: "white" }} />
+                    ) : (
+                      <SaveOutlinedIcon style={{ fontSize: "1.8rem" }} />
+                    )}
+                  </button>
                 )}
-              </button>
-            </div>
+              </div>
+            </form>
           </Paper>
         </Container>
       </Box>
+
+      <Footer />
     </>
   );
 }

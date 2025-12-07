@@ -2,26 +2,119 @@
   background: var(--bg-linear);
   padding: 2rem 0;
   margin-top: auto;
-
+  color: var(--bg-white);
 }
-
 
 .footerContainer {
   max-width: 1280px;
   margin: 0 auto;
   padding: 0 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
 }
 
+/* שתי עמודות */
+.columns {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 3rem;
+  direction: rtl;
+}
+
+.linksColumn,
+.socialColumn {
+  flex: 1;
+  min-width: 220px;
+}
+
+/* כותרות */
+.linksTitle {
+  font-size: 1rem;
+  font-weight: 700;
+  margin-bottom: 0.75rem;
+}
+
+/* רשימת קישורים */
+.linksList {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.linksList li {
+  margin-bottom: 0.4rem;
+}
+
+.linksList a {
+  color: var(--bg-white);
+  text-decoration: none;
+  font-size: 0.95rem;
+  opacity: 0.9;
+  transition: opacity 0.2s ease, transform 0.15s ease;
+}
+
+.linksList a:hover {
+  opacity: 1;
+  transform: translateX(-3px);
+}
+
+/* טקסט תומך ליד האייקונים */
+.supportText {
+  font-size: 0.9rem;
+  opacity: 0.9;
+  margin: 0 0 0.75rem 0;
+}
+
+/* אייקונים – משתמשים במחלקות שלך, רק קצת משדרגים */
 .socialIcons {
   display: flex;
-  justify-content: center;
+  justify-content: flex-start;
   align-items: center;
-  gap: 1.5rem;
+  gap: 1rem;
 }
 
 .socialIcon {
   color: var(--bg-white);
   display: flex;
   align-items: center;
+  justify-content: center;
   text-decoration: none;
+  width: 40px;
+  height: 40px;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.45);
+  backdrop-filter: blur(6px);
+  background: rgba(255, 255, 255, 0.12);
+  transition: transform 0.2s ease, box-shadow 0.2s ease,
+    background 0.2s ease, border-color 0.2s ease;
+}
+
+.socialIcon:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 18px rgba(0, 0, 0, 0.22);
+  background: rgba(255, 255, 255, 0.18);
+  border-color: rgba(255, 255, 255, 0.9);
+}
+
+/* שורת תחתית */
+.bottomRow {
+  border-top: 1px solid rgba(255, 255, 255, 0.28);
+  padding-top: 0.75rem;
+  text-align: center;
+  font-size: 0.85rem;
+  opacity: 0.95;
+}
+
+/* רספונסיבי */
+@media (max-width: 768px) {
+  .columns {
+    flex-direction: column;
+    gap: 1.5rem;
+  }
+
+  .socialIcons {
+    justify-content: flex-start;
+  }
 }

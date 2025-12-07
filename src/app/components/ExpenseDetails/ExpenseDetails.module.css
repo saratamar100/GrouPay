@@ -118,6 +118,61 @@
   overflow: visible;
 }
 
+.graphCard {
+  margin-top: 0;
+  padding: 12px 14px 10px;
+  border-radius: 16px;
+  background: #ffffff;
+  box-shadow: 0 4px 14px rgba(6, 124, 128, 0.12);
+}
+
+.sectionTitle {
+  font-size: 14px;
+  font-weight: 600;
+  margin-bottom: 10px;
+  color: #6b7280;
+}
+
+.graphInner {
+  display: flex;
+  gap: 16px;
+  align-items: center;
+}
+
+.legendWrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  direction: rtl;
+  min-width: 140px;
+}
+
+.legendItem {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.legendColor {
+  width: 14px;
+  height: 14px;
+  border-radius: 4px;
+}
+
+.legendText {
+  font-size: 0.9rem;
+  color: var(--text-main);
+  font-weight: 500;
+}
+
+.graphWrapper {
+  position: relative;
+  height: 200px;
+  overflow: visible;
+  flex: 1;
+}
+
+
 
 .recharts-tooltip-wrapper,
 .recharts-default-tooltip {

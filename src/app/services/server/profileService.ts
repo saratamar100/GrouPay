@@ -40,6 +40,8 @@ export async function updateUserProfileService(
   const updatedUser = await users.findOneAndUpdate(
     { _id: userObjectId },
     { $set: updateFields },
+    { returnDocument: "after" }
+
   );
 
 

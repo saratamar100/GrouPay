@@ -144,7 +144,7 @@ export function GroupBalanceDisplay({ groupId }: GroupBalanceDisplayProps) {
             <span
               className={totalBalance >= 0 ? styles.positive : styles.negative}
             >
-              {formatILS(totalBalance)}
+              {formatILS(Number(totalBalance.toFixed(2)))}            
             </span>
           </div>
         </header>

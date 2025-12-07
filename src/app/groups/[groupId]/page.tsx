@@ -288,6 +288,8 @@ export default function GroupPage() {
                 onDelete={deleteExpense}
                 onEdit={openAdvancedForExisting}
                 hasDraft={!!state.draft}
+                disabled={!state.group.isActive}
+
               />
             </Box>
 

@@ -12,6 +12,8 @@ export function GroupExpenseRow({
   onEdit,
   payer,
   onOpenDetails,
+  disabled
+
 }: {
   userId: string | undefined;
   e: Expense;
@@ -19,6 +21,8 @@ export function GroupExpenseRow({
   onEdit?: (id: string) => void;
   payer?: Member;
   onOpenDetails?: (expense: Expense) => void;
+  disabled?: boolean;
+
 }) {
   return (
     <Paper elevation={0} className={styles.row}>
@@ -44,18 +48,20 @@ export function GroupExpenseRow({
 
           {userId === payer?.id && (
             <>
-              <IconButton
+              {!disabled && (<IconButton
                 size="small"
                 className={styles.editBtn}
                 onClick={(event) => {
                   event.stopPropagation(); 
                   onEdit?.(e.id);
+                  
                 }}
+
               >
                 <EditOutlinedIcon fontSize="small" />
-              </IconButton>
+              </IconButton>)}
 
-              <IconButton
+              {!disabled && <IconButton
                 size="small"
                 className={styles.deleteBtn}
                 onClick={(event) => {
@@ -64,7 +70,7 @@ export function GroupExpenseRow({
                 }}
               >
                 <DeleteOutlineIcon fontSize="small" />
-              </IconButton>
+              </IconButton>}
             </>
           )}
         </div>
