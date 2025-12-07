@@ -13,7 +13,7 @@ import {
 } from "@mui/material";
 import type { Member,SplitDetail } from "@/app/types/types";
 import { useAdvancedExpense } from "@/app/hooks/useAdvancedExpense";
-import {  formatILS } from "@/app/utils/money";
+import { toMoney, formatILS } from "@/app/utils/money";
 import styles from "./AdvancedExpense.module.css";
 import { useState } from "react";
 
@@ -128,7 +128,7 @@ export default function AdvancedExpense({
               size="small"
               fullWidth
               value={amountValue}
-              onChange={(e) => setAmountValue(Number(e.target.value) || 0)}
+              onChange={(e) => setAmountValue(toMoney(e.target.value))}
               className={styles.metaInput}
             />
           </div>

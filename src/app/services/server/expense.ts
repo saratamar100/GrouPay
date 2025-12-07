@@ -1,13 +1,9 @@
 import { ObjectId } from "mongodb";
 import { getDb } from "./mongo";
 import { calculateTotalDebt } from "./debtsService";
-import { round2 } from "@/app/utils/money";
 
 type MemberInput = { id: string; name: string };
 type SplitInput = { userId: string; amount: number };
-
-
-
 
 export async function createExpense(params: {
   groupId: string;
@@ -44,40 +40,29 @@ export async function createExpense(params: {
     throw err;
   }
 
+  const memberMap = new Map<string, string>(
+    members.map((m: any) => [m.id.toString(), m.name])
+  );
+
+
+
   if (!members || !Array.isArray(members) || members.length === 0) {
     const err = new Error("Members must be a non-empty array");
     (err as any).status = 400;
     throw err;
   }
 
-  const memberMap = new Map<string, string>(
-    members.map((m: any) => [m.id.toString(), m.name])
-  );
-
   let finalSplit: SplitInput[];
 
   if (!split || split.length === 0) {
-    const perHead = round2(amount / members.length);
-    let remaining = amount;
-
-    finalSplit = members.map((m, index) => {
-      const share =
-        index === members.length - 1 ? round2(remaining) : perHead;
-      remaining = round2(remaining - share);
-
-      return {
-        userId: m.id,
-        amount: share,
-      };
-    });
-  } else {
-    const roundedSplit: SplitInput[] = split.map((s) => ({
-      userId: s.userId,
-      amount: round2(Number(s.amount || 0)),
+    const equalShare = amount / members.length;
+    finalSplit = members.map((m) => ({
+      userId: m.id,
+      amount: equalShare,
     }));
-
-    const total = roundedSplit.reduce(
-      (sum, s) => sum + s.amount,
+  } else {
+    const total = split.reduce(
+      (sum: number, s: SplitInput) => sum + Number(s.amount || 0),
       0
     );
 
@@ -87,7 +72,7 @@ export async function createExpense(params: {
       throw err;
     }
 
-    finalSplit = roundedSplit;
+    finalSplit = split;
   }
 
   const db = await getDb("groupay_db");
@@ -96,16 +81,16 @@ export async function createExpense(params: {
 
   const expenseDoc = {
     name: name.trim(),
-    amount: round2(amount),
-    payer: payer
-      ? {
-          id: new ObjectId(payer),
-          name: memberMap.get(payer),
-        }
-      : null,
+    amount,
+   payer: payer
+          ? {
+              id: new ObjectId(payer),
+              name: memberMap.get(payer),
+            }
+          : null,
     split: finalSplit.map((s) => ({
       userId: new ObjectId(s.userId),
-      amount: round2(s.amount),
+      amount: s.amount,
     })),
     date: new Date(),
     receiptUrl: receiptUrl ?? null,
@@ -130,7 +115,6 @@ export async function createExpense(params: {
     ...expenseDoc,
   };
 }
-
 
 export async function getGroupExpenses(groupId: string) {
   if (!ObjectId.isValid(groupId)) {
@@ -279,12 +263,6 @@ export async function updateExpense(params: {
     throw err;
   }
 
-  if (!ObjectId.isValid(userId)) {
-    const err = new Error("Invalid or missing userId");
-    (err as any).status = 400;
-    throw err;
-  }
-
   if (
     name === undefined &&
     amount === undefined &&
@@ -298,33 +276,13 @@ export async function updateExpense(params: {
 
   const db = await getDb("groupay_db");
   const expensesCol = db.collection("expense");
-  const groupsCol = db.collection("group");
 
-  const gid = new ObjectId(groupId);
   const eid = new ObjectId(expenseId);
-  const uid = new ObjectId(userId);
-
   const current = await expensesCol.findOne({ _id: eid });
+
   if (!current) {
-    const err = new Error("Expense not found");
+    const err = new Error("Expense not found in the specified group");
     (err as any).status = 404;
-    throw err;
-  }
-
-  const group = await groupsCol.findOne(
-    { _id: gid, expenses: eid },
-    { projection: { _id: 1, isActive: 1, name: 1 } }
-  );
-
-  if (!group) {
-    const err = new Error("Expense does not belong to the specified group");
-    (err as any).status = 404;
-    throw err;
-  }
-
-  if (!group.isActive) {
-    const err = new Error(`הקבוצה "${group.name}" אינה פעילה — אי אפשר לערוך הוצאה`);
-    (err as any).status = 403;
     throw err;
   }
 
@@ -336,9 +294,9 @@ export async function updateExpense(params: {
     throw err;
   }
 
-  if (!new ObjectId(payerId).equals(uid)) {
+  if (!new ObjectId(payerId).equals(new ObjectId(userId))) {
     const err: any = new Error("You do not have permission");
-    err.status = 403;
+    (err as any).status = 403;
     throw err;
   }
 
@@ -387,11 +345,12 @@ export async function updateExpense(params: {
     throw err;
   }
 
-  try {
+   try {
     await calculateTotalDebt(groupId);
   } catch (err) {
-    console.error("Failed to recalculate debts after expense update:", err);
+    console.error("Failed to recalculate debts after expense deletion:", err);
   }
+
 
   return { ok: true };
 }
@@ -435,24 +394,7 @@ export async function deleteExpense(
     throw err;
   }
 
-  const group = await groupsCol.findOne(
-    { _id: gid, expenses: eid },
-    { projection: { _id: 1, isActive: 1, name: 1 } }
-  );
-
-  if (!group) {
-    const err = new Error("Expense does not belong to the specified group");
-    (err as any).status = 404;
-    throw err;
-  }
-
-  if (!group.isActive) {
-    const err = new Error(`הקבוצה "${group.name}" אינה פעילה — אי אפשר למחוק הוצאה`);
-    (err as any).status = 403;
-    throw err;
-  }
-
-  const payerId = expense.payer?.id;
+  const payerId = expense.payer.id;
 
   if (!payerId || !ObjectId.isValid(payerId)) {
     const err = new Error("Invalid payer id");
@@ -463,6 +405,17 @@ export async function deleteExpense(
   if (!new ObjectId(payerId).equals(uid)) {
     const err: any = new Error("You do not have permission");
     err.status = 403;
+    throw err;
+  }
+
+  const group = await groupsCol.findOne(
+    { _id: gid, expenses: eid },
+    { projection: { _id: 1 } }
+  );
+
+  if (!group) {
+    const err = new Error("Expense does not belong to the specified group");
+    (err as any).status = 404;
     throw err;
   }
 

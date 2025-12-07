@@ -1,9 +1,10 @@
+
+
 .toolbar {
   display: flex;
   justify-content: space-between;
   padding: 0 24px;
-  display: flex;
-  min-height: 64px;
+  min-height: 86px;
 }
 
 .rightSection {
@@ -25,10 +26,11 @@
   display: flex;
   align-items: center;
   gap: 8px;
+
 }
 
 .iconButton {
-  color: rgba(255, 255, 255, 0.7) !important;
+  color: rgba(255,255,255,0.7) !important;
 }
 
 .activeIcon {
@@ -38,6 +40,7 @@
 .iconButton:hover {
   color: var(--bg-white) !important;
 }
+
 
 .menu .MuiPaper-root {
   border-radius: 12px;
@@ -58,24 +61,4 @@
   color: #d32f2f !important;
 }
 
-@media (max-width: 900px) {
-  :global(.MuiAppBar-root) {
-    border-radius: 0 !important;
-    box-shadow: none !important;
-    width: 100vw !important;
-    left: 0 !important;
-    margin: 0 !important;
-  }
 
-  .toolbar {
-    padding-left: 0 !important;
-    padding-right: 0 !important;
-    margin: 0 !important;
-    width: 100%;
-  }
-
-  .rightSection,
-  .leftSection {
-    padding: 0 16px;
-  }
-}
