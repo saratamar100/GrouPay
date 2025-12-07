@@ -1,0 +1,73 @@
+.pageRoot {
+  direction: rtl;
+  min-height: 90vh;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  padding-top: 3rem;
+  background: #f8fcfc;
+}
+
+.card {
+  width: 100%;
+  max-width: 520px;
+  padding: 2rem 2.2rem;
+  border-radius: 18px;
+  background: var(--bg-white);
+}
+
+.title {
+  font-weight: 800 !important;
+  color: var(--primary);
+  margin-bottom: 8px;
+  text-align: right;
+}
+
+.subtitle {
+  color: var(--text-muted);
+  margin-bottom: 1.8rem;
+  font-size: 0.9rem;
+  text-align: right;
+}
+
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 1.2rem;
+}
+
+.input :global(.MuiInputBase-root) {
+  border-radius: 12px;
+}
+
+.input :global(.MuiOutlinedInput-notchedOutline) {
+  border-color: rgba(6, 124, 128, 0.2);
+}
+
+.input :global(.Mui-focused .MuiOutlinedInput-notchedOutline) {
+  border-color: var(--primary);
+}
+
+.input :global(.MuiInputLabel-root.Mui-focused) {
+  color: var(--primary);
+}
+
+.button {
+  background: var(--primary) !important;
+  padding: 0.7rem 0;
+  font-weight: 600;
+  border-radius: 12px;
+}
+
+
+.rtlField :global(.MuiInputLabel-root) {
+  left: auto !important;
+  right: 12px !important;
+  text-align: right !important;
+  transform-origin: right !important;
+}
+
+.rtlField input {
+  direction: rtl;
+  text-align: right;
+}

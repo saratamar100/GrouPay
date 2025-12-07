@@ -11,12 +11,15 @@ export function GroupExpensesList({
   onDelete,
   onEdit,
   hasDraft,
+  disabled
 }: {
   userId: string | undefined;
   expenses: Expense[];
   onDelete: (id: string) => void;
   onEdit?: (id: string) => void;
   hasDraft?: boolean;
+  disabled?: boolean;
+
 }) {
   const [selectedExpense, setSelectedExpense] = useState<Expense | null>(null);
   const [isDetailsOpen, setIsDetailsOpen] = useState(false);
@@ -53,6 +56,8 @@ export function GroupExpensesList({
             onDelete={onDelete}
             onEdit={onEdit}
             onOpenDetails={handleOpenDetails} 
+            disabled ={disabled}
+
           />
         ))}
       </div>

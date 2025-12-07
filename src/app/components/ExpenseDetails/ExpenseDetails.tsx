@@ -17,6 +17,8 @@ import {
   Legend,
 } from "recharts";
 import type { Expense, Member } from "@/app/types/types";
+import { formatILS } from "@/app/utils/money";
+
 import styles from "./ExpenseDetails.module.css";
 
 type SplitItem = {
@@ -94,28 +96,32 @@ export default function ExpenseDetails({
           )}
         </Box>
 
-        {splitData.length > 0 && (
-          <Box className={styles.graphCard}>
-            <Typography className={styles.sectionTitle}>{ `סך הכל:  ${totalAmount.toLocaleString("he-IL")} ₪`}</Typography>
-
+      {splitData.length > 0 && (
+        <Box className={styles.graphCard}>
+      
+          <Typography className={styles.sectionTitle}>
+              סך הכל: {formatILS(totalAmount)}
+          </Typography>
+          
+          <Box className={styles.graphInner}>
+        
             <Box className={styles.graphWrapper}>
               <ResponsiveContainer width="100%" height={220}>
                 <PieChart>
-              <Pie
-                data={splitData}
-                dataKey="value"
-                nameKey="name"
-                cx="50%"
-                cy="45%"
-                outerRadius={80}
-                paddingAngle={0}      
-                stroke="none"       
-              >
-                {splitData.map((item, index) => (
-                  <Cell key={index} fill={item.color} />
-                ))}
-              </Pie>
-         
+                  <Pie
+                    data={splitData}
+                    dataKey="value"
+                    nameKey="name"
+                    cx="50%"
+                    cy="45%"
+                    outerRadius={80}
+                    paddingAngle={0}
+                    stroke="none"
+                  >
+                    {splitData.map((item, index) => (
+                      <Cell key={index} fill={item.color} />
+                    ))}
+                  </Pie>
 
                   <Tooltip
                     formatter={(value, _name, props: any) => [
@@ -123,13 +129,25 @@ export default function ExpenseDetails({
                       props.payload?.name || "",
                     ]}
                   />
-
-                
                 </PieChart>
               </ResponsiveContainer>
             </Box>
+
+             <Box className={styles.legendWrapper}>
+              {splitData.map((item, i) => (
+                <Box key={i} className={styles.legendItem}>
+                  <Box
+                    className={styles.legendColor}
+                    style={{ backgroundColor: item.color }}
+                  />
+                  <Typography className={styles.legendText}>{item.name}</Typography>
+                </Box>
+              ))}
+            </Box>
           </Box>
-        )}
+        </Box>
+      )}
+
       </DialogContent>
     </Dialog>
   );
