@@ -25,6 +25,8 @@ export default function ContactPage() {
       message,
     });
 
+    await sendContactMessage({ email, name, message });
+
     setModalOpen(true);
 
     setEmail("");
