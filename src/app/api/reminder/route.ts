@@ -7,7 +7,7 @@ export async function GET(req: Request) {
   //     status: 401,
   //   });
   // }
-  monthlyReminder();
+  await monthlyReminder();
   console.log("Monthly reminders triggered");
   return new Response("Monthly reminders triggered");
 }
