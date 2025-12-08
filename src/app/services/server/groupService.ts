@@ -1,5 +1,7 @@
 import { ObjectId } from "mongodb";
 import { getDb } from "@/app/services/server/mongo";
+import { inactiveGroupReminder } from "@/app/services/server/remindersService";
+
 
 export async function getGroupWithExpensesService(
   groupId: string,
@@ -119,5 +121,58 @@ export async function getGroupWithExpensesService(
     members,
     expenses: expensesList,
     isActive: group.isActive,
+  };
+}
+
+export async function updateGroupActiveStatus(params: {
+  groupId: string;
+  newStatus: boolean;
+}) {
+  const { groupId, newStatus } = params;
+
+  if (!groupId || !ObjectId.isValid(groupId) || typeof newStatus !== "boolean") {
+    return {
+      status: 400,
+      body: { message: "Invalid request data" },
+    };
+  }
+
+  const db = await getDb("groupay_db");
+
+  const currentGroup = await db
+    .collection("group")
+    .findOne({ _id: new ObjectId(groupId) }, { projection: { isActive: 1 } });
+
+  if (!currentGroup) {
+    return {
+      status: 404,
+      body: { message: "Group not found" },
+    };
+  }
+
+  const currentStatus = currentGroup.isActive;
+  const isTransitionToInactive = currentStatus === true && newStatus === false;
+
+  if (isTransitionToInactive) {
+    await inactiveGroupReminder(groupId);
+  }
+
+  const result = await db
+    .collection("group")
+    .updateOne(
+      { _id: new ObjectId(groupId) },
+      { $set: { isActive: newStatus } }
+    );
+
+  if (result.matchedCount === 0) {
+    return {
+      status: 404,
+      body: { message: "Group not found" },
+    };
+  }
+
+  return {
+    status: 200,
+    body: { isActive: newStatus },
   };
 }

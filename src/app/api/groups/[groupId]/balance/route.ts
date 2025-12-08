@@ -1,7 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getDb } from "@/app/services/server/mongo";
-import { ObjectId } from "mongodb";
-import { Debt, Member } from "@/app/types/types";
+import { fetchGroupBalanceForUser } from "@/app/services/server/groupBalanceService";
 
 export async function GET(
   req: NextRequest,
@@ -12,78 +10,15 @@ export async function GET(
     const groupId = params.groupId;
 
     const { searchParams } = new URL(req.url);
-    const currentUserId = searchParams.get("userId"); 
+    const currentUserId = searchParams.get("userId") || "";
 
-    if (
-      !ObjectId.isValid(groupId) ||
-      !currentUserId ||
-      !ObjectId.isValid(currentUserId)
-    ) {
-      return NextResponse.json(
-        { error: "Invalid Group or User ID format" },
-        { status: 400 }
-      );
-    }
-
-    if (!ObjectId.isValid(groupId) || !ObjectId.isValid(currentUserId)) {
-      return NextResponse.json(
-        { error: "Invalid Group or User ID format" },
-        { status: 400 }
-      );
-    }
-
-    const db = await getDb("groupay_db");
-    const groupsCollection = db.collection("group");
-
-    const group = await groupsCollection.findOne({
-      _id: new ObjectId(groupId),
-    });
-    if (!group || !group.group_debts || typeof group.group_debts !== "object") {
-      return NextResponse.json(
-        { error: "Group or debts not found" },
-        { status: 404 }
-      );
-    }
-
-    const myDebtsArray = group.group_debts[currentUserId];
-
-    if (!myDebtsArray || myDebtsArray.length === 0) {
-      return NextResponse.json([], { status: 200 });
-    }
-
-    const otherUserObjectIds = myDebtsArray.map((d: any) => d.id);
-    if (otherUserObjectIds.length === 0) {
-      return NextResponse.json([], { status: 200 });
-    }
-
-    const usersCollection = db.collection("user");
-    const otherUsers = await usersCollection
-      .find({ _id: { $in: otherUserObjectIds } })
-      .toArray();
-
-    const userMap = new Map<string, string>();
-    otherUsers.forEach((user: any) => {
-      userMap.set(user._id.toString(), user.name);
+    const { status, body } = await fetchGroupBalanceForUser({
+      groupId,
+      currentUserId,
     });
 
-    const finalDebts: Debt[] = myDebtsArray
-      .map((debt: any) => {
-        const memberIdString = debt.id.toString();
-        const memberName = userMap.get(memberIdString) || "משתמש לא ידוע";
-
-        return {
-          member: {
-            id: memberIdString,
-            name: memberName,
-          },
-          amount: Number(debt.amount),
-        };
-      })
-      .filter((d: Debt) => d.amount !== 0);
-
-    return NextResponse.json(finalDebts, { status: 200 });
-  } catch (e) {
-    console.error("GET Group Balance Error:", e);
+    return NextResponse.json(body, { status });
+  } catch {
     return NextResponse.json({ error: "Server error" }, { status: 500 });
   }
 }
