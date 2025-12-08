@@ -9,8 +9,9 @@ import {
   updateExpense,
 } from "@/app/services/client/groupService";
 import type { SplitDetail } from "@/app/types/types";
-import {uploadToCloudinary} from "@/app/services/client/uploadService"
+import { uploadToCloudinary } from "@/app/services/client/uploadService";
 import { useLoginStore } from "@/app/store/loginStore";
+import { setGroupActiveStatusApi } from "@/app/services/client/statusService";
 
 type DraftExpense = Omit<Expense, "id" | "payer"> & {
   id: "DRAFT";
@@ -57,6 +58,7 @@ export interface GroupDataResult {
   openAdvancedForExisting: (expenseId: string) => void;
   closeAdvanced: () => void;
   setGroupActiveStatus: (newStatus: boolean) => Promise<void>;
+  updateGroupNameLocally: (newName: string) => void;
   handleAdvancedSave: (payload: {
     split: SplitDetail[];
     receiptFile?: File | null;
@@ -144,7 +146,7 @@ export function useGroupData(
       setDraft((d) => {
         if (!d) return d;
         if (key === "amount") {
-          return { ...d, amount: value} as DraftExpense;
+          return { ...d, amount: value } as DraftExpense;
         }
         return { ...d, [key]: value } as DraftExpense;
       });
@@ -173,7 +175,7 @@ export function useGroupData(
           ? draft.split.map((s: any) => ({
               userId: s.id ?? s.userId ?? s.user,
               amount: Number(s.amount) || 0,
-              name : s.name
+              name: s.name,
             }))
           : [];
 
@@ -195,21 +197,21 @@ export function useGroupData(
   }, [draft, group]);
 
   const deleteExpense = useCallback(
-  async (id: string) => {
-    if (!group) return;
-    try {
-      setSaving(true);
-      await delExpense(group.id, id, userId);
-      const fresh = await getGroupExpenses(group.id);
-      setGroup({ ...group, expenses: fresh });
-    } catch (e: any) {
-      alert(e?.message || "שגיאה במחיקת ההוצאה");
-    } finally {
-      setSaving(false);
-    }
-  },
-  [group, userId]
-);
+    async (id: string) => {
+      if (!group) return;
+      try {
+        setSaving(true);
+        await delExpense(group.id, id, userId);
+        const fresh = await getGroupExpenses(group.id);
+        setGroup({ ...group, expenses: fresh });
+      } catch (e: any) {
+        alert(e?.message || "שגיאה במחיקת ההוצאה");
+      } finally {
+        setSaving(false);
+      }
+    },
+    [group, userId]
+  );
 
   /*========Advanced Expenced========*/
 
@@ -223,7 +225,7 @@ export function useGroupData(
         const id = item.id ?? item.userId ?? item.user ?? "";
         const member = group.members.find((m) => m.id === id);
         return {
-          userId:id,
+          userId: id,
           name: member?.name ?? "",
           amount: Number(item.amount) || 0,
         };
@@ -254,7 +256,7 @@ export function useGroupData(
           const id = item.id ?? item.userId ?? item.user ?? "";
           const member = group.members.find((m) => m.id === id);
           return {
-            userId:id,
+            userId: id,
             name: member?.name ?? "",
             amount: Number(item.amount) || 0,
           };
@@ -332,11 +334,11 @@ export function useGroupData(
         try {
           setSaving(true);
 
-        const apiSplit = finalSplitUI.map((s) => ({
-          userId: s.userId,
-          amount: s.amount,
-          name: s.name
-        }));
+          const apiSplit = finalSplitUI.map((s) => ({
+            userId: s.userId,
+            amount: s.amount,
+            name: s.name,
+          }));
 
           await createExpense(group.id, group.members, {
             name: finalName,
@@ -374,10 +376,10 @@ export function useGroupData(
         try {
           setSaving(true);
 
-        const apiSplit = finalSplitUI.map((s) => ({
-          userId: s.userId,
-          amount: s.amount,
-        }));
+          const apiSplit = finalSplitUI.map((s) => ({
+            userId: s.userId,
+            amount: s.amount,
+          }));
 
           await updateExpense(group.id, adv.expenseId, userId, {
             name: finalName,
@@ -404,17 +406,14 @@ export function useGroupData(
   const setGroupActiveStatus = useCallback(
     async (newStatus: boolean) => {
       if (!group || !groupId) return;
+
       setGroup((prevGroup) => {
         if (!prevGroup) return prevGroup;
         return { ...prevGroup, isActive: newStatus };
       });
 
       try {
-        await fetch(`/api/groups/${groupId}/status`, {
-          method: "PATCH",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ isActive: newStatus }),
-        });
+        await setGroupActiveStatusApi(groupId, newStatus);
       } catch (error) {
         console.error("API error during status toggle:", error);
         setGroup((prevGroup) => {
@@ -425,6 +424,19 @@ export function useGroupData(
       }
     },
     [group, groupId, setGroup]
+  );
+
+  const updateGroupNameLocally = useCallback(
+    (newName: string) => {
+      setGroup((prevGroup) => {
+        if (!prevGroup) return prevGroup;
+        return {
+          ...prevGroup,
+          name: newName,
+        };
+      });
+    },
+    [setGroup]
   );
 
   return {
@@ -448,5 +460,6 @@ export function useGroupData(
     closeAdvanced,
     handleAdvancedSave,
     setGroupActiveStatus,
+    updateGroupNameLocally,
   } as GroupDataResult;
 }

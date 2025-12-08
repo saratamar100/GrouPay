@@ -32,16 +32,19 @@
   z-index: 999;
 }
 .sidebarHeader {
-  position: relative;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
   margin-bottom: 20px;
 }
 
 .sidebarTitle {
-  position: absolute;
-  left: 50%;
-  transform: translateX(-50%);
-  text-align: center;
   font-weight: 700;
+  flex-grow: 1;
+  padding-inline-end: 12px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .sidebarDivider {

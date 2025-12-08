@@ -2,7 +2,6 @@ import { ObjectId } from "mongodb";
 import { getDb } from "@/app/services/server/mongo";
 import { inactiveGroupReminder } from "@/app/services/server/remindersService";
 
-
 export async function getGroupWithExpensesService(
   groupId: string,
   userId: string
@@ -130,7 +129,11 @@ export async function updateGroupActiveStatus(params: {
 }) {
   const { groupId, newStatus } = params;
 
-  if (!groupId || !ObjectId.isValid(groupId) || typeof newStatus !== "boolean") {
+  if (
+    !groupId ||
+    !ObjectId.isValid(groupId) ||
+    typeof newStatus !== "boolean"
+  ) {
     return {
       status: 400,
       body: { message: "Invalid request data" },
@@ -175,4 +178,54 @@ export async function updateGroupActiveStatus(params: {
     status: 200,
     body: { isActive: newStatus },
   };
+}
+
+export async function updateGroupNameInDb(params: {
+  groupId: string;
+  newName: string;
+}) {
+  const { groupId, newName } = params;
+
+  if (!ObjectId.isValid(groupId)) {
+    console.warn(`DB Service: Invalid ObjectId format received: ${groupId}`);
+    return {
+      status: 400,
+      body: { message: "מזהה קבוצה לא תקין (פורמט ObjectId שגוי)." },
+    };
+  }
+  if (newName.trim().length < 2) {
+    console.warn(`DB Service: Name too short: ${newName}`);
+    return {
+      status: 400,
+      body: { message: "שם קבוצה קצר מדי. חייב להיות 2 תווים לפחות." },
+    };
+  }
+
+  try {
+    const db = await getDb("groupay_db");
+
+    const result = await db
+      .collection("group")
+      .updateOne(
+        { _id: new ObjectId(groupId) },
+        { $set: { name: newName.trim() } }
+      );
+
+    if (result.matchedCount === 0) {
+      return {
+        status: 404,
+        body: { message: "קבוצה לא נמצאה או לא ניתן לעדכן." },
+      };
+    }
+    return {
+      status: 200,
+      body: { updatedName: newName.trim() },
+    };
+  } catch (error) {
+    console.error("MongoDB error in updateGroupNameInDb:", error);
+    return {
+      status: 500,
+      body: { message: "שגיאת DB פנימית בעדכון השם." },
+    };
+  }
 }
