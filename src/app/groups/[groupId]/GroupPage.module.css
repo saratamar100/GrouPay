@@ -217,3 +217,44 @@
 .contentAndControls {
   margin-top: 10px;
 }
+.balanceRow {
+  display: flex;
+  justify-content: flex-end;
+  direction: rtl;
+  margin: 4px 0 8px;
+}
+
+.balanceActions {
+  display: flex;
+  flex-direction: row-reverse;
+  align-items: center;
+  gap: 24px;
+}
+
+.textAction {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: none;
+  border: none;
+  padding: 0;
+  color: var(--primary);
+  cursor: pointer;
+  font-size: 1rem;
+  font-weight: 500;
+  text-decoration: none;
+  transition: opacity 0.2s ease;
+}
+
+.textAction:hover:not(:disabled) {
+  opacity: 0.75;
+}
+
+.textAction:disabled {
+  opacity: 0.4;
+  cursor: default;
+}
+
+.actionIcon {
+  font-size: 18px;
+}

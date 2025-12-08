@@ -35,6 +35,9 @@ import {
   Button,
 } from "@mui/material";
 import AddIcon from "@mui/icons-material/Add";
+import DownloadOutlinedIcon from "@mui/icons-material/DownloadOutlined"; 
+import AccountBalanceWalletOutlinedIcon from "@mui/icons-material/AccountBalanceWalletOutlined";
+
 
 import styles from "./GroupPage.module.css";
 
@@ -103,20 +106,10 @@ export default function GroupPage() {
     setPendingStatus(null);
   };
 
-  // const handleToggleActive = async (
-  //   event: React.ChangeEvent<HTMLInputElement>
-  // ) => {
-  //   const newStatus = event.target.checked;
-  //   const currentGroupId = state.group?.id;
-  //   if (!currentGroupId) return;
-
-  //   try {
-  //     await setGroupActiveStatus(newStatus);
-  //   } catch (error) {
-  //     console.error("Error updating group status:", error);
-  //     alert(`אירעה שגיאה בעדכון מצב הקבוצה. נסה שוב.`);
-  //   }
-  // };
+  const handleExportExcel = () => {
+    if (!groupId || !userId) return;
+    window.open(`/api/groups/${groupId}/export?userId=${userId}`, "_blank");
+  };
 
   useEffect(() => {
     console.log(
@@ -222,6 +215,7 @@ export default function GroupPage() {
               </Box>
 
               <Box className={styles.breadcrumb}>
+               
                 <Typography component="span" className={styles.bcCurrent}>
                   {state.group.name}
                 </Typography>
@@ -253,17 +247,37 @@ export default function GroupPage() {
               onClick={() => setIsMembersOpen(true)}
             >
               {state.group.name}
-            </Typography>
+              </Typography>
 
             <Box className={styles.balanceRow}>
-              <Link
-                href={`/groups/${groupId}/balance`}
-                className={styles.balanceLinkText}
-              >
-                היתרות שלי
-              </Link>
+
+
+              <Box className={styles.balanceRow}>
+              <div className={styles.balanceActions}>
+                <button
+                  type="button"
+                  className={styles.textAction}
+                  onClick={() => router.push(`/groups/${groupId}/balance`)}
+                >
+                  <AccountBalanceWalletOutlinedIcon className={styles.actionIcon} />
+                  <span>היתרות שלי</span>
+                </button>
+
+                <button
+                  type="button"
+                  className={styles.textAction}
+                  onClick={handleExportExcel}
+                  disabled={expenses.length === 0}
+                >
+                  <DownloadOutlinedIcon className={styles.actionIcon} />
+                  <span>ייצוא לאקסל</span>
+                </button>
+              </div>
             </Box>
 
+</Box>
+
+       
             <Divider className={styles.divider} />
 
             <Box
