@@ -79,3 +79,43 @@
 .deleteBtn:hover {
   background: linear-gradient(135deg, #ffcdd2, #ef9a9a) !important;
 }
+
+.confirmActions {
+  margin-top: 14px;
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+  width: 100%;
+}
+
+.confirmBtn {
+  flex: 1;
+  border-radius: 999px !important;
+  padding-block: 8px !important;
+  font-weight: 600 !important;
+  font-size: 0.9rem !important;
+}
+
+.confirmPrimary {
+  background: var(--bg-linear) !important;
+  color: #ffffff !important;
+  border: none !important;
+  box-shadow: 0 6px 12px rgba(6, 124, 128, 0.35);
+}
+
+.confirmPrimary:hover {
+  transform: translateY(-2px);
+}
+
+
+.confirmSecondary {
+  background: #f5fafb !important;
+  color: var(--primary) !important;
+  border: 1px solid rgba(6, 124, 128, 0.25) !important;
+  box-shadow: none !important;
+}
+
+.confirmSecondary:hover {
+  transform: translateY(-2px);
+}
+
