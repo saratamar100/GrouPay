@@ -13,6 +13,7 @@
 
 .logo {
   height: 75px;
+  cursor: pointer;
 }
 
 .brandText {

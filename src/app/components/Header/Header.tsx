@@ -42,35 +42,35 @@ const Header: React.FC = () => {
     router.push("/");
   };
 
-const handleLogin = async () => {
-  if (loading) return;
-  setLoading(true);
+  const handleLogin = async () => {
+    if (loading) return;
+    setLoading(true);
 
-  try {
-    const user = await signInWithGoogle();
-    if (!user) {
+    try {
+      const user = await signInWithGoogle();
+      if (!user) {
+        setLoading(false);
+        return;
+      }
+
+      const userData = {
+        name: user.displayName,
+        email: user.email,
+        photoURL: user.photoURL,
+      };
+
+      const addedUser = await addUser(userData);
+
+      if (addedUser) {
+        setLoggedUser(addedUser);
+        router.push("/dashboard");
+      }
+    } catch (error) {
+      console.error("Error sending user data to server:", error);
+    } finally {
       setLoading(false);
-      return;
     }
-
-    const userData = {
-      name: user.displayName,
-      email: user.email,
-      photoURL: user.photoURL,
-    };
-
-    const addedUser = await addUser(userData);
-
-    if (addedUser) {
-      setLoggedUser(addedUser);
-      router.push("/dashboard"); 
-    }
-  } catch (error) {
-    console.error("Error sending user data to server:", error);
-  } finally {
-    setLoading(false);
-  }
-};
+  };
 
   const handleProfileIconClick = (event: React.MouseEvent<HTMLElement>) => {
     if (!loggedUser) {
@@ -82,17 +82,19 @@ const handleLogin = async () => {
 
   const isDashboard = pathname === "/dashboard";
   const isAbout = pathname === "/about";
-  const isProfile = pathname ==="/profile";
+  const isProfile = pathname === "/profile";
 
   return (
     <AppBar>
       <Toolbar className={styles.toolbar}>
         <Box className={styles.rightSection}>
-          <img
-            src="/images/groupay-white-logo.png"
-            alt="GrouPay Logo"
-            className={styles.logo}
-          />
+          <button onClick={() => router.push("/dashboard")}>
+            <img
+              src="/images/groupay-white-logo.png"
+              alt="GrouPay Logo"
+              className={styles.logo}
+            />
+          </button>
         </Box>
 
         <Box className={styles.leftSection}>
