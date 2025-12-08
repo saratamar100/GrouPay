@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getGroupWithExpensesService } from "@/app/services/server/group";
+import { getGroupWithExpensesService } from "@/app/services/server/groupService";
 
 export async function GET(
   req: NextRequest,
