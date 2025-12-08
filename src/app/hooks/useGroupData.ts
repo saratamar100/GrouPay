@@ -195,26 +195,21 @@ export function useGroupData(
   }, [draft, group]);
 
   const deleteExpense = useCallback(
-    async (id: string) => {
-      if (!group) return;
-      const ok =
-        typeof window === "undefined"
-          ? true
-          : window.confirm("למחוק את ההוצאה הזו?");
-      if (!ok) return;
-      try {
-        setSaving(true);
-        await delExpense(group.id, id, userId);
-        const fresh = await getGroupExpenses(group.id);
-        setGroup({ ...group, expenses: fresh });
-      } catch (e: any) {
-        alert(e?.message || "שגיאה במחיקת ההוצאה");
-      } finally {
-        setSaving(false);
-      }
-    },
-    [group]
-  );
+  async (id: string) => {
+    if (!group) return;
+    try {
+      setSaving(true);
+      await delExpense(group.id, id, userId);
+      const fresh = await getGroupExpenses(group.id);
+      setGroup({ ...group, expenses: fresh });
+    } catch (e: any) {
+      alert(e?.message || "שגיאה במחיקת ההוצאה");
+    } finally {
+      setSaving(false);
+    }
+  },
+  [group, userId]
+);
 
   /*========Advanced Expenced========*/
 
