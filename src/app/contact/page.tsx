@@ -16,7 +16,7 @@ export default function ContactPage() {
   const [modalOpen, setModalOpen] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
+    e.preventDefault();
 
     await sendContactMessage({
       email,
@@ -25,7 +25,7 @@ export default function ContactPage() {
       message,
     });
 
-    await sendContactMessage({ email, name,subject, message });
+    await sendContactMessage({ email, name, subject, message });
 
     setModalOpen(true);
 
@@ -43,10 +43,6 @@ export default function ContactPage() {
         <Paper elevation={3} className={styles.card}>
           <Typography variant="h4" className={styles.title}>
             צרו קשר
-          </Typography>
-
-          <Typography className={styles.subtitle}>
-            זמן תגובה ממוצע: עד יום עסקים אחד
           </Typography>
 
           <form onSubmit={handleSubmit} className={styles.form}>
@@ -89,6 +85,9 @@ export default function ContactPage() {
               placeholder="תוכן הפנייה"
             />
 
+            <Typography className={styles.subtitle}>
+             התגובה תתקבל תוך 7 ימי עסקים
+            </Typography>
             <Button type="submit" variant="contained" className={styles.button}>
               שליחת פנייה
             </Button>
