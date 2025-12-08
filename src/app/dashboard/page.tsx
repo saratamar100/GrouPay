@@ -126,7 +126,7 @@ export default function DashboardTest() {
                 color="primary"
               />
             }
-            label={showAllGroups ? "הצג הכל" : "הצג קבוצות פעילות"}
+            label={showAllGroups ? "הצג רק קבוצות פעילות" : "הצג  הכל"}
             labelPlacement="start"
           />
 
