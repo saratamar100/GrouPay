@@ -206,9 +206,6 @@ export default function ProfilePage() {
           </Paper>
         </Container>
       </Box>
-
-      <Footer />
-
       <CustomModal open={modalOpen} onClose={() => setModalOpen(false)}>
         <Box display="flex" flexDirection="column" gap={2}>
           <Typography variant="h6" textAlign="center">

@@ -63,3 +63,9 @@ export interface Payment {
   date: Date;
   status: Status;
 }
+
+export interface Review {
+  _id: string;
+  userName: string;
+  content: string;
+}

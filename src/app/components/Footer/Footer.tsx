@@ -18,7 +18,7 @@ const Footer = () => {
                 <Link href="/faq">שאלות ותשובות</Link>
               </li>
               <li>
-                <Link href="/recommendations">המלצות משתמשים</Link>
+                <Link href="/reviews">המלצות משתמשים</Link>
               </li>
               <li>
                 <Link href="/contact">צור קשר</Link>
