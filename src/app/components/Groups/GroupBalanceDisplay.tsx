@@ -140,7 +140,7 @@ export function GroupBalanceDisplay({ groupId }: GroupBalanceDisplayProps) {
             <span
               className={totalBalance >= 0 ? styles.positive : styles.negative}
             >
-              {formatILS(Number(totalBalance.toFixed(2)))}            
+              {formatILS(Math.abs(totalBalance))}
             </span>
           </div>
         </header>
@@ -161,7 +161,7 @@ export function GroupBalanceDisplay({ groupId }: GroupBalanceDisplayProps) {
 
             return (
               <div key={debt.member.id} className={styles.transactionRow}>
-                <span className={styles.amount}>{debt.amount.toFixed(2)}</span>
+                <span className={styles.amount}>{formatILS(Math.abs(debt.amount))}</span>
                 <span className={styles.name}>{debt.member.name}</span>
                 <span
                   className={`${styles.status} ${
@@ -198,7 +198,7 @@ export function GroupBalanceDisplay({ groupId }: GroupBalanceDisplayProps) {
 
             return (
               <div key={p.id} className={styles.transactionRow}>
-                <span className={styles.amount}>{p.amount.toFixed(2)}</span>
+                <span className={styles.amount}>{formatILS(Math.abs(p.amount))}</span>
                 <span className={styles.name}>{otherUser.name}</span>
                 {isPayer && <span className={styles.status}>ממתין לאישור</span>}
                 {!isPayer && (
@@ -225,7 +225,7 @@ export function GroupBalanceDisplay({ groupId }: GroupBalanceDisplayProps) {
 
             return (
               <div key={p.id} className={styles.transactionRow}>
-                <span className={styles.amount}>{p.amount.toFixed(2)}</span>
+                <span className={styles.amount}>{formatILS(Math.abs(p.amount))}</span>
                 <span className={styles.name}>{otherUser.name}</span>
                 <span className={styles.status}>
                   {isPayer
