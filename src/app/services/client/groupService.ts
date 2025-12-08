@@ -121,3 +121,23 @@ export async function createGroup(
   const data: Group = await res.json();
   return data;
 }
+
+export async function updateGroupNameApi(
+  groupId: string,
+  newName: string
+): Promise<{ updatedName: string }> {
+  const res = await fetch(`/api/groups/${groupId}/name`, {
+    method: "PATCH",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ name: newName }),
+  });
+
+  if (!res.ok) {
+    const errorData = await res
+      .json()
+      .catch(() => ({ message: "Failed to update group name." }));
+    throw new Error(errorData.message || "שגיאה בשרת. הסטטוס לא השתנה.");
+  }
+  const data = await res.json();
+  return { updatedName: data.updatedName };
+}

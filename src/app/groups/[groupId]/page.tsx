@@ -23,6 +23,7 @@ import { useLoginStore } from "@/app/store/loginStore";
 import { formatILS } from "@/app/utils/money";
 import Link from "next/link";
 import CustomModal from "@/app/components/CustomModal/CustomModal";
+
 import {
   Box,
   CircularProgress,
@@ -68,6 +69,7 @@ export default function GroupPage() {
     closeAdvanced,
     handleAdvancedSave,
     setGroupActiveStatus,
+    updateGroupNameLocally,
   } = useGroupData(groupId, userId);
 
   const updateStatusConfirmed = async (newStatus: boolean) => {
@@ -360,6 +362,8 @@ export default function GroupPage() {
               groupId={groupId}
               onClose={() => setIsMembersOpen(false)}
               onMemberAdded={reload}
+              groupName={state.group.name}
+              onGroupNameUpdated={updateGroupNameLocally}
             />
           )}
         </Paper>

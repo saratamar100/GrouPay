@@ -27,6 +27,7 @@ import {
   addMemberToGroup,
 } from "@/app/services/client/addUserService";
 import { removeMemberFromGroup } from "@/app/services/client/removeMemberService";
+import { updateGroupNameApi } from "@/app/services/client/groupService";
 
 type Member = {
   id: string;
@@ -39,7 +40,9 @@ type Props = {
   currentUserId: string | undefined;
   groupId: string;
   onClose: () => void;
-  onMemberAdded?: () => void; // חדש
+  onMemberAdded?: () => void;
+  groupName: string;
+  onGroupNameUpdated: (newName: string) => void;
 };
 
 export function GroupMembersSidebar({
@@ -49,6 +52,8 @@ export function GroupMembersSidebar({
   groupId,
   onClose,
   onMemberAdded,
+  groupName,
+  onGroupNameUpdated,
 }: Props) {
   const [isAdding, setIsAdding] = useState(false);
   const [allUsers, setAllUsers] = useState<User[]>([]);
@@ -61,6 +66,12 @@ export function GroupMembersSidebar({
   const [cannotLeaveMessage, setCannotLeaveMessage] = useState("");
   const [removeSuccessModalOpen, setRemoveSuccessModalOpen] = useState(false);
   const [removeSuccessMessage, setRemoveSuccessMessage] = useState("");
+
+  const [isEditingName, setIsEditingName] = useState(false);
+  const [nameInputValue, setNameInputValue] = useState(groupName);
+  const [isSavingName, setIsSavingName] = useState(false);
+
+  useEffect(() => setNameInputValue(groupName), [groupName]);
 
   const router = useRouter();
 
@@ -77,6 +88,37 @@ export function GroupMembersSidebar({
     }
     loadUsers();
   }, []);
+
+  const handleSaveName = async () => {
+    const trimmedName = nameInputValue.trim();
+    if (trimmedName.length < 2 || trimmedName === groupName) {
+      setNameInputValue(groupName);
+      setIsEditingName(false);
+      return;
+    }
+
+    if (trimmedName.length < 2) {
+      alert("שם הקבוצה חייב להיות באורך של 2 תווים לפחות.");
+      return;
+    }
+
+    setIsSavingName(true);
+
+    try {
+      const result = await updateGroupNameApi(groupId, trimmedName);
+      const newName = result.updatedName;
+      onGroupNameUpdated(newName);
+      setNameInputValue(newName);
+      setIsEditingName(false);
+    } catch (error: any) {
+      console.error("Failed to save group name:", error);
+      alert(error.message || "שגיאה בעדכון שם הקבוצה בשרת.");
+      setNameInputValue(groupName);
+      setIsEditingName(false);
+    } finally {
+      setIsSavingName(false);
+    }
+  };
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
@@ -118,7 +160,6 @@ export function GroupMembersSidebar({
       setInputValue("");
       setSuggestions([]);
 
-      // חדש - קורא ל-reload של הדף הראשי
       if (typeof onMemberAdded === "function") {
         onMemberAdded();
       }
@@ -169,12 +210,48 @@ export function GroupMembersSidebar({
     <>
       <aside className={styles.sidebar}>
         <Box className={styles.sidebarHeader}>
-          <Typography variant="h6" className={styles.sidebarTitle}>
-            חברי הקבוצה
-          </Typography>
-          <IconButton size="small" onClick={onClose}>
-            <CloseIcon />
-          </IconButton>
+          {isEditingName ? (
+            <TextField
+              value={nameInputValue}
+              onChange={(e) => setNameInputValue(e.target.value)}
+              onBlur={handleSaveName}
+              onKeyDown={(e) => {
+                if (e.key === "Enter") {
+                  handleSaveName();
+                  e.currentTarget.blur();
+                }
+              }}
+              size="small"
+              fullWidth
+              variant="standard"
+              autoFocus
+              disabled={isSavingName}
+              InputProps={{
+                style: {
+                  fontSize: "1.25rem",
+                  fontWeight: 700,
+                  textAlign: "right",
+                },
+              }}
+            />
+          ) : (
+            <Typography
+              variant="h6"
+              className={styles.sidebarTitle}
+              onClick={() => setIsEditingName(true)}
+              sx={{ cursor: "pointer", flexGrow: 1 }}
+            >
+              {nameInputValue}
+            </Typography>
+          )}
+
+          {isSavingName ? (
+            <CircularProgress size={24} sx={{ ml: 1 }} />
+          ) : (
+            <IconButton size="small" onClick={onClose} disabled={isSavingName}>
+              <CloseIcon />
+            </IconButton>
+          )}
         </Box>
 
         <Divider className={styles.sidebarDivider} />
