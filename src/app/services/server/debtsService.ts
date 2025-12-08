@@ -46,7 +46,7 @@ export const calculateTotalDebt = async (groupId: string) => {
       );
 
       owedAmounts[payeeId] = round2(
-        (owedAmounts[payeeId] || 0) + round2(payment.amount)
+        (owedAmounts[payeeId] || 0) - round2(payment.amount)
       );
     }
     //to correct??
