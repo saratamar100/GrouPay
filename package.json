@@ -17,6 +17,7 @@
     "@mui/material-nextjs": "^7.3.5",
     "@sendgrid/mail": "^8.1.6",
     "concurrently": "^9.2.1",
+    "exceljs": "^4.4.0",
     "firebase": "^12.6.0",
     "jose": "^6.1.2",
     "mongodb": "^6.20.0",
@@ -32,6 +33,7 @@
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4",
+    "@types/exceljs": "^0.5.3",
     "@types/node": "^20",
     "@types/nodemailer": "^7.0.4",
     "@types/react": "^19.2.4",
