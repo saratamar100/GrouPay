@@ -41,8 +41,6 @@ export function GroupBalanceDisplay({ groupId }: GroupBalanceDisplayProps) {
 
       try {
         const groupDetails = await getGroup(groupId, currentUserId);
-
-        // שמירת השם ב-State
         setGroupName(groupDetails.name);
 
         const [balanceData, pendingData, completedData] = await Promise.all([
@@ -63,7 +61,6 @@ export function GroupBalanceDisplay({ groupId }: GroupBalanceDisplayProps) {
 
     loadData();
   }, [groupId, groupName, currentUserId]);
-  console.log("groupname" + groupName);
 
   const totalBalance = useMemo(
     () => debts.reduce((sum, debt) => sum + debt.amount, 0),
@@ -113,7 +110,6 @@ export function GroupBalanceDisplay({ groupId }: GroupBalanceDisplayProps) {
 
   return (
     <div className={styles.pageContainer}>
-      {/* יתרות בחשבון */}
       <div className={styles.balanceCard}>
         <header className={styles.header}>
           <Box className={styles.breadcrumb}>
@@ -156,6 +152,13 @@ export function GroupBalanceDisplay({ groupId }: GroupBalanceDisplayProps) {
 
           {debts.map((debt) => {
             const isDebt = debt.amount < 0;
+            const alreadyPending = pendingPayments.some(
+              (p) =>
+                p.payer.id === currentUserId &&
+                p.payee.id === debt.member.id &&
+                Math.abs(p.amount) === Math.abs(debt.amount)
+            );
+
             return (
               <div key={debt.member.id} className={styles.transactionRow}>
                 <span className={styles.amount}>{debt.amount.toFixed(2)}</span>
@@ -167,7 +170,7 @@ export function GroupBalanceDisplay({ groupId }: GroupBalanceDisplayProps) {
                 >
                   {isDebt ? "חוב" : "זכות"}
                 </span>
-                {isDebt && (
+                {isDebt && !alreadyPending && (
                   <button
                     className={`${styles.actionButton} ${styles.payButton}`}
                     onClick={() => handleCreatePayment(debt)}
@@ -180,7 +183,6 @@ export function GroupBalanceDisplay({ groupId }: GroupBalanceDisplayProps) {
           })}
         </div>
 
-        {/* תשלומים ממתינים */}
         <header className={styles.header} style={{ marginTop: "2rem" }}>
           <h2>תשלומים ממתינים</h2>
         </header>
@@ -212,7 +214,6 @@ export function GroupBalanceDisplay({ groupId }: GroupBalanceDisplayProps) {
           })}
         </div>
 
-        {/* תשלומים שהושלמו */}
         <header className={styles.header} style={{ marginTop: "2rem" }}>
           <h2>תשלומים שהושלמו</h2>
         </header>
