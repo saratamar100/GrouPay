@@ -97,6 +97,7 @@ interface GroupCreationPayload {
   memberIds: string[];
   notifications: boolean;
   isActive: boolean;
+  budget: number | undefined
 }
 export async function createGroup(
   payload: GroupCreationPayload

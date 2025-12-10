@@ -7,7 +7,6 @@ import { useLoginStore } from "@/app/store/loginStore";
 import { fetchAllUsers } from "@/app/services/client/userService";
 import { createGroup } from "@/app/services/client/groupService";
 import styles from "./CreateGroupForm.module.css";
-import { Checkbox } from "@mui/material";
 
 interface CreateGroupFormProps {}
 
@@ -15,6 +14,8 @@ export function CreateGroupForm({}: CreateGroupFormProps) {
   const router = useRouter();
   const [groupName, setGroupName] = useState("");
   const [notifications, setNotifications] = useState(false);
+
+  const [budget, setBudget] = useState<string>("");
 
   const [allUsers, setAllUsers] = useState<User[]>([]);
   const [isUsersLoading, setIsUsersLoading] = useState(true);
@@ -95,14 +96,24 @@ export function CreateGroupForm({}: CreateGroupFormProps) {
 
     if (groupName.trim() === "") {
       setError("יש להזין שם קבוצה.");
+      setIsLoading(false);
       return;
     }
+
+    let budgetNumber: number | undefined = undefined;
+    if (budget.trim() !== "") {
+      const n = Number(budget);
+      if (Number.isNaN(n) || n < 0) {
+        setError("התקציב צריך להיות מספר חיובי.");
+        setIsLoading(false);
+        return;
+      }
+      budgetNumber = n;
+    }
+
     const finalMemberIds = Array.from(
       new Set([...selectedMemberIds, currentUserId])
     );
-
-    setIsLoading(true);
-    setError(null);
 
     try {
       const createdGroup = await createGroup({
@@ -110,6 +121,7 @@ export function CreateGroupForm({}: CreateGroupFormProps) {
         memberIds: finalMemberIds,
         notifications: notifications ?? true,
         isActive: true,
+        budget: budgetNumber, 
       });
 
       router.push(`/groups/${createdGroup.id}`);
@@ -147,6 +159,23 @@ export function CreateGroupForm({}: CreateGroupFormProps) {
         </div>
 
         <div className={styles.formGroup}>
+          <label htmlFor="groupBudget" className={styles.label}>
+תקציב קבוע (לא חובה)          </label>
+          <input
+            id="groupBudget"
+            type="number"
+            min={0}
+            step={1}
+            value={budget}
+            onChange={(e) => setBudget(e.target.value)}
+            placeholder="למשל 1500 ₪"
+            disabled={isLoading}
+            className={styles.input}
+          />
+         
+        </div>
+
+        <div className={styles.formGroup}>
           <label htmlFor="membersInput" className={styles.label}>
             משתתפים
           </label>
@@ -176,7 +205,7 @@ export function CreateGroupForm({}: CreateGroupFormProps) {
               value={currentInput}
               onChange={handleMemberInputChange}
               placeholder="הזן שם או מייל של משתתף..."
-              disabled={isLoading}
+              disabled={isLoading || isUsersLoading}
               autoComplete="off"
               className={styles.input}
             />
