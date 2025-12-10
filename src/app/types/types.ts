@@ -28,6 +28,7 @@ export interface Group {
   expenses: Expense[];
   isActive: boolean;
   notifications: boolean;
+  budget?:number
 }
 export interface Debt {
   member: Member;

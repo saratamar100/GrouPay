@@ -18,7 +18,7 @@ export async function getGroupWithExpensesService(
 
   const group = await groups.findOne(
     { _id: new ObjectId(groupId) },
-    { projection: { name: 1, members: 1, expenses: 1, isActive: 1 } }
+    { projection: { name: 1, members: 1, expenses: 1, isActive: 1, budget: 1 } }
   );
 
   if (!group) {
@@ -120,6 +120,7 @@ export async function getGroupWithExpensesService(
     members,
     expenses: expensesList,
     isActive: group.isActive,
+    budget: typeof group.budget === "number" ? group.budget : undefined,
   };
 }
 

@@ -7,8 +7,9 @@ export async function createGroup(params: {
   memberIds: string[];
   notifications?: boolean;
   isActive?: boolean;
+  budget? : number
 }) {
-  const { name, memberIds, notifications } = params;
+  const { name, memberIds, notifications ,budget } = params;
 
   if (!name || !memberIds || memberIds.length === 0) {
     return {
@@ -42,8 +43,9 @@ export async function createGroup(params: {
     group_debts: {},
     isActive: true,
     notifications: notifications ?? true,
-  };
+    ...(budget !== undefined ? { budget } : {}),
 
+  };
   const insertResult = await groupsCollection.insertOne(newGroupData);
   const newGroupIdAsObjectId = insertResult.insertedId;
 
