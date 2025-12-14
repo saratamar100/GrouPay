@@ -86,7 +86,7 @@ export function GroupBalanceDisplay({ groupId }: GroupBalanceDisplayProps) {
   const handleCreatePayment = async (debt: Debt) => {
     if (!currentUserId) return;
     try {
-      await createPayment(debt.member, debt.amount, groupId, {
+      await createPayment(debt.member, Math.abs(debt.amount), groupId, {
         id: currentUserId,
         name: currentUser?.name || "Unknown",
       });
