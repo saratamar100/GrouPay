@@ -1,9 +1,14 @@
 "use client";
 
 import Link from "next/link";
-import InstagramIcon from "@mui/icons-material/Instagram";
-import FacebookIcon from "@mui/icons-material/Facebook";
-import LinkedInIcon from "@mui/icons-material/LinkedIn";
+import {
+  FaInstagram,
+  FaFacebookF,
+  FaLinkedinIn,
+  FaXTwitter,
+  FaTiktok,
+} from "react-icons/fa6";
+
 import styles from "./Footer.module.css";
 
 const Footer = () => {
@@ -32,35 +37,49 @@ const Footer = () => {
               טיפים לחלוקת הוצאות, עדכונים על פיצ׳רים חדשים
               והשראה לקבוצות חכמות יותר.
             </p>
-            <div className={styles.socialIcons}>
-              <a
-                href="https://www.instagram.com/pikudhaoref?igsh=MWhxMnA5ZGpkcXFuOQ=="
-                className={styles.socialIcon}
-                aria-label="Instagram"
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                <InstagramIcon sx={{ fontSize: 32 }} />
-              </a>
-              <a
-                href="https://www.facebook.com/share/17Mc5L1kjK/?mibextid=wwXIfr"
-                className={styles.socialIcon}
-                aria-label="Facebook"
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                <FacebookIcon sx={{ fontSize: 32 }} />
-              </a>
-              <a
-                href="https://www.linkedin.com/in/shulamit-mor-yossef/"
-                className={styles.socialIcon}
-                aria-label="LinkedIn"
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                <LinkedInIcon sx={{ fontSize: 32 }} />
-              </a>
-            </div>
+          <div className={styles.socialIcons}>
+            <a
+              href="https://www.instagram.com/israeliairforce/"
+              className={styles.socialIcon}
+              aria-label="Instagram"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              <FaInstagram size={32} />
+            </a>
+
+            <a
+              href="https://www.facebook.com/share/17Mc5L1kjK/?mibextid=wwXIfr"
+              className={styles.socialIcon}
+              aria-label="Facebook"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              <FaFacebookF size={32} />
+            </a>
+
+            <a
+              href="https://www.linkedin.com/in/shulamit-mor-yossef/"
+              className={styles.socialIcon}
+              aria-label="LinkedIn"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              <FaLinkedinIn size={32} />
+            </a>
+
+          
+            <a
+              href="https://www.tiktok.com/@tikshuv.idf?lang=he-IL"
+              className={styles.socialIcon}
+              aria-label="TikTok"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              <FaTiktok size={32} />
+            </a>
+        </div>
+
           </div>
         </div>
 

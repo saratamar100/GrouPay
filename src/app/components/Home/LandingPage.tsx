@@ -50,7 +50,7 @@ export function LandingPage() {
       icon: <InsightsIcon sx={{ fontSize: 56 }} />,
       title: "מתחשבנים בקליק",
       description:
-        "בסוף הטיול, Groupay מחשב אוטומטית מי חייב למי וכמה. בלי כאב ראש, בלי טעויות.",
+        " Groupay מחשב אוטומטית מי חייב למי וכמה. בלי כאב ראש, בלי טעויות.",
     },
   ];
 
