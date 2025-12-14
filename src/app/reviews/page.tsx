@@ -1,8 +1,12 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Box, Button, TextField, Typography, Container } from "@mui/material";
+import { Box, Button, TextField, Typography, Container, Fab} from "@mui/material";
 import DeleteIcon from "@mui/icons-material/Delete";
+import AddIcon from "@mui/icons-material/Add";
+import CloseIcon from "@mui/icons-material/Close";
+
+
 import { useLoginStore } from "@/app/store/loginStore";
 import { Review } from "@/app/types/types";
 import Header from "@/app/components/Header/Header";
@@ -16,7 +20,6 @@ export default function ReviewsPage() {
   const [isAnonymous, setIsAnonymous] = useState(false);
   const [showInput, setShowInput] = useState(false);
 
-  // למודל
   const [modalOpen, setModalOpen] = useState(false);
   const [reviewToDelete, setReviewToDelete] = useState<string | null>(null);
 
@@ -41,13 +44,12 @@ export default function ReviewsPage() {
     await loadReviews();
   };
 
-  // פותח את המודאל עם ה-id של הביקורת למחיקה
+
   const confirmDelete = (id: string) => {
     setReviewToDelete(id);
     setModalOpen(true);
   };
 
-  // מאשר מחיקה
   const handleDelete = async () => {
     if (reviewToDelete) {
       await deleteReview(reviewToDelete);
@@ -57,7 +59,6 @@ export default function ReviewsPage() {
     setReviewToDelete(null);
   };
 
-  // מבטל מחיקה
   const handleCancel = () => {
     setModalOpen(false);
     setReviewToDelete(null);
@@ -108,48 +109,62 @@ export default function ReviewsPage() {
         </Box>
 
         {loggedUser && !showInput && (
-          <Box className={styles.addButtonBox}>
-            <Button
-              variant="contained"
-              onClick={() => setShowInput(true)}
-              className={styles.addButton}
-            >
-              +
-            </Button>
-          </Box>
+          <Box className={styles.addRow}>
+            <Fab color="primary" onClick={() => setShowInput(true)}>
+              <AddIcon sx={{ fontSize: 30 }} />
+            </Fab>
+          </Box>    
         )}
 
-        {loggedUser && showInput && (
-          <Box className={styles.reviewInputBox}>
-            <TextField
-              label="הביקורת שלך"
-              fullWidth
-              multiline
-              rows={3}
-              value={content}
-              onChange={(e) => setContent(e.target.value)}
-              className={styles.reviewTextField}
-            />
 
-            <label className={styles.anonymousCheckbox}>
-              <input
-                type="checkbox"
-                checked={isAnonymous}
-                onChange={() => setIsAnonymous(!isAnonymous)}
-                className="mr-2"
-              />
-              פרסום אנונימי
-            </label>
+        
 
-            <Button
-              variant="contained"
-              onClick={submitReview}
-              className={styles.submitButton}
-            >
-              פרסם
-            </Button>
-          </Box>
-        )}
+      {loggedUser && showInput && (
+  <Box className={styles.reviewInputBox}>
+
+    <Box className={styles.closeRow}>
+      <Button
+        onClick={() => {
+          setShowInput(false);
+          setContent("");
+          setIsAnonymous(false);
+        }}
+        className={styles.closeButton}
+      >
+        <CloseIcon fontSize="small" />
+      </Button>
+    </Box>
+
+    <TextField
+      label="הביקורת שלך"
+      fullWidth
+      multiline
+      rows={3}
+      value={content}
+      onChange={(e) => setContent(e.target.value)}
+      className={styles.reviewTextField}
+    />
+
+    <label className={styles.anonymousCheckbox}>
+      <input
+        type="checkbox"
+        checked={isAnonymous}
+        onChange={() => setIsAnonymous(!isAnonymous)}
+      />
+      פרסום אנונימי
+    </label>
+
+    <Button
+      variant="contained"
+      onClick={submitReview}
+      className={styles.submitButton}
+      disabled={!content.trim()}
+    >
+      פרסם
+    </Button>
+  </Box>
+)}
+
       </Container>
 
       {/* מודאל מחיקה */}
