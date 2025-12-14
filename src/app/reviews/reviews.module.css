@@ -9,7 +9,13 @@
   font-weight: 800;
   color: var(--primary);
   margin-bottom: 2rem;
+
 }
+
+.reviewsContainer > div {
+  margin-top: 1rem;
+}
+
 
 .reviewInputBox {
   margin-bottom: 3rem;
@@ -39,8 +45,17 @@
   color: var(--text-muted);
   display: flex;
   align-items: center;
-  margin-bottom: 1rem;
+  gap: 10px;          /* היה קטן מדי — עכשיו יש ריווח אמיתי */
+  margin-top: 1rem;   /* רווח מהטקסטפילד */
+  margin-bottom: 1.2rem;
 }
+
+.anonymousCheckbox input {
+  width: 16px;
+  height: 16px;
+  cursor: pointer;
+}
+
 
 .submitButton {
   border-radius: 24px !important;
@@ -74,24 +89,30 @@
   color: var(--text-muted);
 }
 
-.addButtonBox {
-  text-align: center;
-  margin-bottom: 1rem;
+.addRow {
+  display: flex;
+  justify-content: center;
+  margin-top: 24px;
 }
 
-.addButton {
-  border-radius: 50%;
-  width: 50px;
-  height: 50px;
-  min-width: 50px;
-  font-size: 24px;
-  line-height: 1;
-  background-color: var(--primary);
-  color: #fff;
-  transition: background-color 0.3s ease, transform 0.2s ease;
+.fabAdd {
+  box-shadow: 0 10px 30px rgba(6, 124, 128, 0.35);
 }
 
-.addButton:hover {
-  background-color: var(--primary-dark);
-  transform: scale(1.05); 
+.closeRow {
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: 6px;
+}
+
+.closeButton {
+  min-width: 0 !important;
+  padding: 4px !important;
+  border-radius: 8px !important;
+  color: var(--text-muted) !important;
+  background: transparent !important;
+}
+
+.closeButton:hover {
+  background: rgba(0, 0, 0, 0.06) !important;
 }

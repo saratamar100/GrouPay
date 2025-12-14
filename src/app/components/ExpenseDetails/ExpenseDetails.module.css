@@ -199,3 +199,24 @@
 :global(.recharts-wrapper svg) {
   -webkit-tap-highlight-color: transparent;
 }
+
+@media (max-width: 600px) {
+  .graphInner {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .graphWrapper {
+    width: 100%;
+    height: 220px;
+  }
+
+  .legendWrapper {
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: center;
+    min-width: 0; 
+  }
+}
+
+

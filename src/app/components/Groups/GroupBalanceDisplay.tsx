@@ -8,7 +8,7 @@ import { useLoginStore } from "@/app/store/loginStore";
 import { formatILS } from "@/app/utils/money";
 import { getGroup } from "@/app/services/client/groupService";
 
-import { Box, Link, Typography } from "@mui/material";
+import { Box, Link, Typography, CircularProgress } from "@mui/material";
 
 import {
   createPayment,
@@ -67,9 +67,17 @@ export function GroupBalanceDisplay({ groupId }: GroupBalanceDisplayProps) {
     [debts]
   );
 
-  if (!currentUserId) return <div>משתמש לא מחובר.</div>;
-  if (isLoading) return <div>טוען נתונים...</div>;
-  if (error) return <div>שגיאה: {error}</div>;
+ if (isLoading) {
+  return (
+    <div className={styles.pageContainer}>
+      <div className={styles.loaderWrapper}>
+        <CircularProgress />
+      </div>
+    </div>
+  );
+}
+
+if (error) return <div>שגיאה: {error}</div>;
 
   const refreshData = async () => {
     if (!currentUserId) return;

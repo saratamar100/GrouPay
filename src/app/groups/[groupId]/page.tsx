@@ -191,7 +191,7 @@ export default function GroupPage() {
   return (
     <>
       <Header />
-
+{/* 
       <Container component="section" className={styles.pageRoot}>
         <Paper
           elevation={4}
@@ -435,7 +435,259 @@ export default function GroupPage() {
             </Button>
           </Box>
         </CustomModal>
-      </Container>
+      </Container> */}
+
+      <Container
+  component="section"
+  className={`${styles.pageRoot} ${isMembersOpen ? styles.withSidebar : ""}`}
+>
+  <Paper
+  className={`${styles.pageShell} ${
+    isGroupInactive ? styles.dimmedContent : ""
+  }`}
+>
+
+     <main className={styles.main}>
+            <Box className={styles.topBar}>
+              <Box className={styles.total}>
+                <Typography component="span" className={styles.totalLabel}>
+                  סה״כ:
+                </Typography>
+                <Typography
+                  component="strong"
+                  className={styles.totalValue}
+                  dir="ltr"
+                >
+                  {formatILS(totalExpenses)}
+                </Typography>
+              </Box>
+
+              <Box className={styles.breadcrumb}>
+               
+                <Typography component="span" className={styles.bcCurrent}>
+                  {state.group.name}
+                </Typography>
+                <span className={styles.bcSep}>‹</span>
+                <Link href="/dashboard" className={styles.linkLike}>
+                  הקבוצות שלי
+                </Link>
+              </Box>
+            </Box>
+
+            <Box className={styles.statusToggleContainer}>
+              <FormControlLabel
+                control={
+                  <Switch
+                    checked={isActiveStatus}
+                    onChange={handleToggleSwitch}
+                    name="isActiveSwitch"
+                    color="primary"
+                  />
+                }
+                label={isActiveStatus ? "קבוצה פעילה" : "קבוצה לא פעילה"}
+                labelPlacement="start"
+              />
+            </Box>
+
+            <Typography
+              variant="h4"
+              className={styles.title}
+              onClick={() => setIsMembersOpen(true)}
+            >
+              {state.group.name}
+              </Typography>
+
+            <Box className={styles.balanceRow}>
+
+
+              <Box className={styles.balanceRow}>
+              <div className={styles.balanceActions}>
+                <button
+                  type="button"
+                  className={styles.textAction}
+                  onClick={() => router.push(`/groups/${groupId}/balance`)}
+                >
+                  <AccountBalanceWalletOutlinedIcon className={styles.actionIcon} />
+                  <span>היתרות שלי</span>
+                </button>
+
+                <button
+                  type="button"
+                  className={styles.textAction}
+                  onClick={handleExportExcel}
+                  disabled={expenses.length === 0}
+                >
+                  <DownloadOutlinedIcon className={styles.actionIcon} />
+                  <span>ייצוא לאקסל</span>
+                </button>
+              </div>
+            </Box>
+
+</Box>
+
+       
+            <Divider className={styles.divider} />
+
+            <Box
+              className={
+                styles.controlsSection + " " + styles.contentAndControls
+              }
+            >
+              <Box className={styles.filterOptionsBar}>
+                <FormControl size="small" sx={{ minWidth: 120 }}>
+                  <InputLabel>שולם ע״י</InputLabel>
+                  <Select
+                    value={filterPayerId || ""}
+                    label="שולם ע״י"
+                    onChange={(e) => setFilterPayerId(e.target.value as string)}
+                  >
+                    <MenuItem value="">כל המשלמים</MenuItem>
+                    {members.map((member) => (
+                      <MenuItem key={member.id} value={member.id}>
+                        {member.name}
+                      </MenuItem>
+                    ))}
+                  </Select>
+                </FormControl>
+
+                <FormControl size="small" sx={{ minWidth: 120 }}>
+                  <InputLabel>מיון</InputLabel>
+                  <Select
+                    value={sortBy}
+                    label="מיון"
+                    onChange={(e) => setSortBy(e.target.value as typeof sortBy)}
+                  >
+                    <MenuItem value="dateDesc">תאריך: חדש לישן</MenuItem>
+                    <MenuItem value="dateAsc">תאריך: ישן לחדש</MenuItem>
+                    <MenuItem value="amountDesc">סכום: מהגבוה לנמוך</MenuItem>
+                    <MenuItem value="amountAsc">סכום: מהנמוך לגבוה</MenuItem>
+                  </Select>
+                </FormControl>
+              </Box>
+
+              <TextField
+                size="small"
+                label="חיפוש הוצאה"
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className={styles.searchField}
+                InputProps={{
+                  startAdornment: (
+                    <InputAdornment position="start">
+                      <SearchIcon />
+                    </InputAdornment>
+                  ),
+                }}
+              />
+            </Box>
+            <Box className={styles.cardsWrap}>
+              <GroupExpensesList
+                userId={userId}
+                expenses={filteredAndSortedExpenses}
+                onDelete={deleteExpense}
+                onEdit={openAdvancedForExisting}
+                hasDraft={!!state.draft}
+                disabled={!state.group.isActive}
+              />
+            </Box>
+
+            {state.draft && (
+              <Box className={styles.draftWrap}>
+                <GroupDraftRow
+                  draft={state.draft}
+                  onChange={updateDraftField}
+                  onConfirm={() => addFromDraft()}
+                  onCancel={cancelDraft}
+                  onAdvanced={openAdvancedForDraft}
+                  disabled={state.saving}
+                />
+              </Box>
+            )}
+
+            <Box className={styles.addRow}>
+              <Fab
+                color="primary"
+                aria-label="הוספת הוצאה"
+                onClick={startDraftExpense}
+                disabled={state.saving || !state.group?.isActive}
+              >
+                <AddIcon sx={{ fontSize: 30 }} />
+              </Fab>
+            </Box>
+    </main>
+  </Paper>
+
+ {isMembersOpen && groupId && (
+    <div className={styles.sidebarWrapper}>
+      <GroupMembersSidebar
+        open={isMembersOpen}
+        members={members}
+        currentUserId={userId}
+        groupId={groupId}
+        onClose={() => setIsMembersOpen(false)}
+        onMemberAdded={reload}
+        groupName={state.group.name}
+        onGroupNameUpdated={updateGroupNameLocally}
+      />
+    </div>
+  )}
+
+
+  <AdvancedExpense
+    open={state.adv.open}
+    title={
+      state.adv.mode === "existing" ? "עריכת הוצאה" : "הגדרות מתקדמות"
+    }
+    name={state.adv.name}
+    amount={state.adv.amount}
+    members={state.group?.members || []}
+    initialSplit={state.adv.split}
+    initialReceiptUrl={state.adv.receiptUrl}
+    onClose={closeAdvanced}
+    onSave={handleAdvancedSave}
+  />
+
+  <CustomModal
+    open={isConfirmModalOpen}
+    onClose={handleCancelStatusChange}
+  >
+    <h3 style={{ margin: 0, textAlign: "center" }}>אישור שינוי סטטוס</h3>
+    <p
+      style={{
+        marginTop: "16px",
+        textAlign: "center",
+        fontSize: "1.1rem",
+      }}
+    >
+      האם אתה בטוח שברצונך להפוך את הקבוצה ל-
+      <strong>{pendingStatus ? "פעילה" : "לא פעילה"}</strong>?
+    </p>
+    <Box
+      style={{
+        display: "flex",
+        justifyContent: "space-around",
+        marginTop: "24px",
+        gap: "16px",
+      }}
+    >
+      <Button
+        variant="outlined"
+        onClick={handleCancelStatusChange}
+        sx={{ flex: 1 }}
+      >
+        ביטול
+      </Button>
+      <Button
+        variant="outlined"
+        onClick={handleConfirmStatusChange}
+        sx={{ flex: 1 }}
+      >
+        אישור
+      </Button>
+    </Box>
+  </CustomModal>
+</Container>
+
     </>
   );
 }
