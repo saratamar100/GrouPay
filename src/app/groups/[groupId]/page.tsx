@@ -35,11 +35,11 @@ import {
   Button,
 } from "@mui/material";
 import AddIcon from "@mui/icons-material/Add";
-import DownloadOutlinedIcon from "@mui/icons-material/DownloadOutlined"; 
+import DownloadOutlinedIcon from "@mui/icons-material/DownloadOutlined";
 import AccountBalanceWalletOutlinedIcon from "@mui/icons-material/AccountBalanceWalletOutlined";
 
-
 import styles from "./GroupPage.module.css";
+import BudgetProgressBar from "@/app/chart/BudgetProgressBar";
 
 export default function GroupPage() {
   const route = useParams<{ id?: string; groupId?: string }>();
@@ -187,11 +187,12 @@ export default function GroupPage() {
 
   const isActiveStatus = state.group?.isActive || false;
   const isGroupInactive = !isActiveStatus;
+  const budget = state.group?.budget;
 
   return (
     <>
       <Header />
-{/* 
+      {/* 
       <Container component="section" className={styles.pageRoot}>
         <Paper
           elevation={4}
@@ -438,32 +439,37 @@ export default function GroupPage() {
       </Container> */}
 
       <Container
-  component="section"
-  className={`${styles.pageRoot} ${isMembersOpen ? styles.withSidebar : ""}`}
->
-  <Paper
-  className={`${styles.pageShell} ${
-    isGroupInactive ? styles.dimmedContent : ""
-  }`}
->
-
-     <main className={styles.main}>
+        component="section"
+        className={`${styles.pageRoot} ${
+          isMembersOpen ? styles.withSidebar : ""
+        }`}
+      >
+        <Paper
+          className={`${styles.pageShell} ${
+            isGroupInactive ? styles.dimmedContent : ""
+          }`}
+        >
+          <main className={styles.main}>
             <Box className={styles.topBar}>
-              <Box className={styles.total}>
-                <Typography component="span" className={styles.totalLabel}>
-                  סה״כ:
-                </Typography>
-                <Typography
-                  component="strong"
-                  className={styles.totalValue}
-                  dir="ltr"
-                >
-                  {formatILS(totalExpenses)}
-                </Typography>
-              </Box>
+              {budget && (
+                <BudgetProgressBar used={totalExpenses} total={budget} />
+              )}
+              {!budget && (
+                <Box className={styles.total}>
+                  <Typography component="span" className={styles.totalLabel}>
+                    סה״כ:
+                  </Typography>
+                  <Typography
+                    component="strong"
+                    className={styles.totalValue}
+                    dir="ltr"
+                  >
+                    {formatILS(totalExpenses)}
+                  </Typography>
+                </Box>
+              )}
 
               <Box className={styles.breadcrumb}>
-               
                 <Typography component="span" className={styles.bcCurrent}>
                   {state.group.name}
                 </Typography>
@@ -495,37 +501,35 @@ export default function GroupPage() {
               onClick={() => setIsMembersOpen(true)}
             >
               {state.group.name}
-              </Typography>
+            </Typography>
 
             <Box className={styles.balanceRow}>
-
-
               <Box className={styles.balanceRow}>
-              <div className={styles.balanceActions}>
-                <button
-                  type="button"
-                  className={styles.textAction}
-                  onClick={() => router.push(`/groups/${groupId}/balance`)}
-                >
-                  <AccountBalanceWalletOutlinedIcon className={styles.actionIcon} />
-                  <span>היתרות שלי</span>
-                </button>
+                <div className={styles.balanceActions}>
+                  <button
+                    type="button"
+                    className={styles.textAction}
+                    onClick={() => router.push(`/groups/${groupId}/balance`)}
+                  >
+                    <AccountBalanceWalletOutlinedIcon
+                      className={styles.actionIcon}
+                    />
+                    <span>היתרות שלי</span>
+                  </button>
 
-                <button
-                  type="button"
-                  className={styles.textAction}
-                  onClick={handleExportExcel}
-                  disabled={expenses.length === 0}
-                >
-                  <DownloadOutlinedIcon className={styles.actionIcon} />
-                  <span>ייצוא לאקסל</span>
-                </button>
-              </div>
+                  <button
+                    type="button"
+                    className={styles.textAction}
+                    onClick={handleExportExcel}
+                    disabled={expenses.length === 0}
+                  >
+                    <DownloadOutlinedIcon className={styles.actionIcon} />
+                    <span>ייצוא לאקסל</span>
+                  </button>
+                </div>
+              </Box>
             </Box>
 
-</Box>
-
-       
             <Divider className={styles.divider} />
 
             <Box
@@ -614,80 +618,78 @@ export default function GroupPage() {
                 <AddIcon sx={{ fontSize: 30 }} />
               </Fab>
             </Box>
-    </main>
-  </Paper>
+          </main>
+        </Paper>
 
- {isMembersOpen && groupId && (
-    <div className={styles.sidebarWrapper}>
-      <GroupMembersSidebar
-        open={isMembersOpen}
-        members={members}
-        currentUserId={userId}
-        groupId={groupId}
-        onClose={() => setIsMembersOpen(false)}
-        onMemberAdded={reload}
-        groupName={state.group.name}
-        onGroupNameUpdated={updateGroupNameLocally}
-      />
-    </div>
-  )}
+        {isMembersOpen && groupId && (
+          <div className={styles.sidebarWrapper}>
+            <GroupMembersSidebar
+              open={isMembersOpen}
+              members={members}
+              currentUserId={userId}
+              groupId={groupId}
+              onClose={() => setIsMembersOpen(false)}
+              onMemberAdded={reload}
+              groupName={state.group.name}
+              onGroupNameUpdated={updateGroupNameLocally}
+            />
+          </div>
+        )}
 
+        <AdvancedExpense
+          open={state.adv.open}
+          title={
+            state.adv.mode === "existing" ? "עריכת הוצאה" : "הגדרות מתקדמות"
+          }
+          name={state.adv.name}
+          amount={state.adv.amount}
+          members={state.group?.members || []}
+          initialSplit={state.adv.split}
+          initialReceiptUrl={state.adv.receiptUrl}
+          onClose={closeAdvanced}
+          onSave={handleAdvancedSave}
+        />
 
-  <AdvancedExpense
-    open={state.adv.open}
-    title={
-      state.adv.mode === "existing" ? "עריכת הוצאה" : "הגדרות מתקדמות"
-    }
-    name={state.adv.name}
-    amount={state.adv.amount}
-    members={state.group?.members || []}
-    initialSplit={state.adv.split}
-    initialReceiptUrl={state.adv.receiptUrl}
-    onClose={closeAdvanced}
-    onSave={handleAdvancedSave}
-  />
-
-  <CustomModal
-    open={isConfirmModalOpen}
-    onClose={handleCancelStatusChange}
-  >
-    <h3 style={{ margin: 0, textAlign: "center" }}>אישור שינוי סטטוס</h3>
-    <p
-      style={{
-        marginTop: "16px",
-        textAlign: "center",
-        fontSize: "1.1rem",
-      }}
-    >
-      האם אתה בטוח שברצונך להפוך את הקבוצה ל-
-      <strong>{pendingStatus ? "פעילה" : "לא פעילה"}</strong>?
-    </p>
-    <Box
-      style={{
-        display: "flex",
-        justifyContent: "space-around",
-        marginTop: "24px",
-        gap: "16px",
-      }}
-    >
-      <Button
-        variant="outlined"
-        onClick={handleCancelStatusChange}
-        sx={{ flex: 1 }}
-      >
-        ביטול
-      </Button>
-      <Button
-        variant="outlined"
-        onClick={handleConfirmStatusChange}
-        sx={{ flex: 1 }}
-      >
-        אישור
-      </Button>
-    </Box>
-  </CustomModal>
-</Container>
-
+        <CustomModal
+          open={isConfirmModalOpen}
+          onClose={handleCancelStatusChange}
+        >
+          <h3 style={{ margin: 0, textAlign: "center" }}>אישור שינוי סטטוס</h3>
+          <p
+            style={{
+              marginTop: "16px",
+              textAlign: "center",
+              fontSize: "1.1rem",
+            }}
+          >
+            האם אתה בטוח שברצונך להפוך את הקבוצה ל-
+            <strong>{pendingStatus ? "פעילה" : "לא פעילה"}</strong>?
+          </p>
+          <Box
+            style={{
+              display: "flex",
+              justifyContent: "space-around",
+              marginTop: "24px",
+              gap: "16px",
+            }}
+          >
+            <Button
+              variant="outlined"
+              onClick={handleCancelStatusChange}
+              sx={{ flex: 1 }}
+            >
+              ביטול
+            </Button>
+            <Button
+              variant="outlined"
+              onClick={handleConfirmStatusChange}
+              sx={{ flex: 1 }}
+            >
+              אישור
+            </Button>
+          </Box>
+        </CustomModal>
+      </Container>
     </>
   );
 }
