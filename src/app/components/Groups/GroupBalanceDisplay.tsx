@@ -214,7 +214,7 @@ if (error) return <div>שגיאה: {error}</div>;
                     className={`${styles.actionButton} ${styles.payButton}`}
                     onClick={() => handleConfirm(p)}
                   >
-                    אשר תקבול
+                    אשר קבלת תשלום
                   </button>
                 )}
               </div>

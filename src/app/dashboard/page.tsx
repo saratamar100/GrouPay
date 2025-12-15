@@ -7,6 +7,7 @@ import { useLoginStore } from "../store/loginStore";
 import { useRouter } from "next/navigation";
 import Header from "../components/Header/Header";
 import Footer from "../components/Footer/Footer";
+import { formatILS } from "../utils/money";
 
 import {
   Box,
@@ -28,6 +29,7 @@ export default function DashboardTest() {
   const [loadingGroups, setLoadingGroups] = useState(true);
   const [userChecked, setUserChecked] = useState(false);
   const [showAllGroups, setShowAllGroups] = useState(false);
+
 
   const user = useLoginStore((state) => state.loggedUser);
   const router = useRouter();
@@ -112,7 +114,7 @@ export default function DashboardTest() {
             <Box className={styles.totalInline}>
               <Typography className={styles.totalLabel}>סה״כ יתרה:</Typography>
               <Typography className={`${styles.totalValue} ${balanceClass}`}>
-                ₪{totalBalance.toFixed(0)}
+                {formatILS(totalBalance)}
               </Typography>
             </Box>
           </Box>
@@ -192,7 +194,8 @@ export default function DashboardTest() {
                         size="small"
                       />
                       <Typography className={styles.groupBalanceAmount}>
-                        ₪{balanceDisplay}
+                        {formatILS(totalBalance)}
+                        
                       </Typography>
                     </Box>
                   </CardContent>
