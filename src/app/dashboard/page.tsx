@@ -124,11 +124,10 @@ export default function DashboardTest() {
               <Switch
                 checked={showAllGroups}
                 onChange={(e) => setShowAllGroups(e.target.checked)}
-                name="showAllGroupsSwitch"
                 color="primary"
               />
             }
-            label={showAllGroups ? "הצג רק קבוצות פעילות" : "הצג  הכל"}
+            label={showAllGroups ? "הצג רק קבוצות פעילות" : "הצג הכל"}
             labelPlacement="start"
           />
 
@@ -155,8 +154,8 @@ export default function DashboardTest() {
           <div className={styles.groupsGrid}>
             {filteredGroups.map((g) => {
               const isDebt = g.balance < 0;
-              const balanceDisplay = Math.abs(g.balance).toFixed(0);
               const isGroupInactive = g.isActive === false;
+
               const cardClasses = [
                 styles.groupCard,
                 isGroupInactive && styles.inactiveCard,
@@ -193,9 +192,9 @@ export default function DashboardTest() {
                         className={isDebt ? styles.chipDebt : styles.chipCredit}
                         size="small"
                       />
+
                       <Typography className={styles.groupBalanceAmount}>
-                        {formatILS(totalBalance)}
-                        
+                        {formatILS(g.balance)}
                       </Typography>
                     </Box>
                   </CardContent>
