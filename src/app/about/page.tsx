@@ -50,12 +50,13 @@ const AboutPage: FC = () => {
           <Box className={styles.halfWidthCard}>
             <Paper className={styles.paperCard} elevation={3}>
               <Typography variant="h5" component="h2" gutterBottom>
-                יצירת קשר
+                 מה אנחנו עושים בפועל?
               </Typography>
               <Typography variant="body1" className={styles.textBody}>
-                לכל שאלה, תמיכה או שותפות, אתם מוזמנים ליצור איתנו קשר. אנחנו כאן בשבילכם:
-                <br />
-                📧 <strong>Email:</strong> support@groupay.com
+                אנחנו מרכזים את כל ההוצאות במקום אחד,
+דואגים לחלוקה מדויקת ולתמונה ברורה של היתרות,
+ומאפשרים מעקב נוח אחרי תשלומים.
+
               </Typography>
             </Paper>
           </Box>
