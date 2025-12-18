@@ -1,16 +1,26 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Box, Button, TextField, Typography, Container, Fab} from "@mui/material";
+import {
+  Box,
+  Button,
+  TextField,
+  Typography,
+  Container,
+  Fab,
+} from "@mui/material";
 import DeleteIcon from "@mui/icons-material/Delete";
 import AddIcon from "@mui/icons-material/Add";
 import CloseIcon from "@mui/icons-material/Close";
 
-
 import { useLoginStore } from "@/app/store/loginStore";
 import { Review } from "@/app/types/types";
 import Header from "@/app/components/Header/Header";
-import { fetchReviews, postReview, deleteReview } from "@/app/services/client/reviewsClient";
+import {
+  fetchReviews,
+  postReview,
+  deleteReview,
+} from "@/app/services/client/reviewsClient";
 import CustomModal from "@/app/components/CustomModal/CustomModal";
 import styles from "./reviews.module.css";
 
@@ -23,8 +33,11 @@ export default function ReviewsPage() {
   const [modalOpen, setModalOpen] = useState(false);
   const [reviewToDelete, setReviewToDelete] = useState<string | null>(null);
 
+  const [isAnalyzing, setIsAnalyzing] = useState(false);
+  const [aiModalOpen, setAiModalOpen] = useState(false);
+
   const loggedUser = useLoginStore((state) => state.loggedUser);
-  const MAIL_USER = process.env.NEXT_PUBLIC_MAIL_USER; 
+  const MAIL_USER = process.env.NEXT_PUBLIC_MAIL_USER;
 
   useEffect(() => {
     loadReviews();
@@ -36,14 +49,34 @@ export default function ReviewsPage() {
   };
 
   const submitReview = async () => {
-    if (!content) return;
+    if (!content.trim()) return;
 
-    await postReview(isAnonymous ? "" : loggedUser?.name || "", content);
-    setContent("");
-    setShowInput(false);
-    await loadReviews();
+    setIsAnalyzing(true);
+    try {
+      const res = await fetch("/api/aiReviews", {
+        method: "POST",
+        body: JSON.stringify({ content }),
+        headers: { "Content-Type": "application/json" },
+      });
+
+      const { isPositive } = await res.json();
+
+      if (!isPositive) {
+        setAiModalOpen(true);
+        setIsAnalyzing(false);
+        return;
+      }
+
+      await postReview(isAnonymous ? "" : loggedUser?.name || "", content);
+      setContent("");
+      setShowInput(false);
+      await loadReviews();
+    } catch (err) {
+      console.error("Submission error:", err);
+    } finally {
+      setIsAnalyzing(false);
+    }
   };
-
 
   const confirmDelete = (id: string) => {
     setReviewToDelete(id);
@@ -84,7 +117,11 @@ export default function ReviewsPage() {
             <Box
               key={rev._id}
               className={styles.reviewCard}
-              style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}
+              style={{
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "space-between",
+              }}
             >
               <Box>
                 <Typography className={styles.reviewUserName}>
@@ -113,58 +150,53 @@ export default function ReviewsPage() {
             <Fab color="primary" onClick={() => setShowInput(true)}>
               <AddIcon sx={{ fontSize: 30 }} />
             </Fab>
-          </Box>    
+          </Box>
         )}
 
+        {loggedUser && showInput && (
+          <Box className={styles.reviewInputBox}>
+            <Box className={styles.closeRow}>
+              <Button
+                onClick={() => {
+                  setShowInput(false);
+                  setContent("");
+                  setIsAnonymous(false);
+                }}
+                className={styles.closeButton}
+              >
+                <CloseIcon fontSize="small" />
+              </Button>
+            </Box>
 
-        
+            <TextField
+              label="הביקורת שלך"
+              fullWidth
+              multiline
+              rows={3}
+              value={content}
+              onChange={(e) => setContent(e.target.value)}
+              className={styles.reviewTextField}
+            />
 
-      {loggedUser && showInput && (
-  <Box className={styles.reviewInputBox}>
+            <label className={styles.anonymousCheckbox}>
+              <input
+                type="checkbox"
+                checked={isAnonymous}
+                onChange={() => setIsAnonymous(!isAnonymous)}
+              />
+              פרסום אנונימי
+            </label>
 
-    <Box className={styles.closeRow}>
-      <Button
-        onClick={() => {
-          setShowInput(false);
-          setContent("");
-          setIsAnonymous(false);
-        }}
-        className={styles.closeButton}
-      >
-        <CloseIcon fontSize="small" />
-      </Button>
-    </Box>
-
-    <TextField
-      label="הביקורת שלך"
-      fullWidth
-      multiline
-      rows={3}
-      value={content}
-      onChange={(e) => setContent(e.target.value)}
-      className={styles.reviewTextField}
-    />
-
-    <label className={styles.anonymousCheckbox}>
-      <input
-        type="checkbox"
-        checked={isAnonymous}
-        onChange={() => setIsAnonymous(!isAnonymous)}
-      />
-      פרסום אנונימי
-    </label>
-
-    <Button
-      variant="contained"
-      onClick={submitReview}
-      className={styles.submitButton}
-      disabled={!content.trim()}
-    >
-      פרסם
-    </Button>
-  </Box>
-)}
-
+            <Button
+              variant="contained"
+              onClick={submitReview}
+              className={styles.submitButton}
+              disabled={!content.trim() || isAnalyzing}
+            >
+              {isAnalyzing ? "בודק תוכן..." : "פרסם"}
+            </Button>
+          </Box>
+        )}
       </Container>
 
       {/* מודאל מחיקה */}
@@ -172,12 +204,38 @@ export default function ReviewsPage() {
         <Typography variant="h6" style={{ marginBottom: "16px" }}>
           האם אתה בטוח שברצונך למחוק את הביקורת הזו?
         </Typography>
-        <Box style={{ display: "flex", justifyContent: "flex-end", gap: "8px" }}>
+        <Box
+          style={{ display: "flex", justifyContent: "flex-end", gap: "8px" }}
+        >
           <Button variant="contained" onClick={handleCancel}>
             ביטול
           </Button>
           <Button variant="contained" onClick={handleDelete}>
             מחק
+          </Button>
+        </Box>
+      </CustomModal>
+
+      <CustomModal open={aiModalOpen} onClose={() => setAiModalOpen(false)}>
+        <Typography
+          variant="h6"
+          sx={{ fontWeight: 700, mb: 2, textAlign: "center", color: "#d32f2f" }}
+        >
+          שימו לב
+        </Typography>
+
+        <Typography sx={{ mb: 3, textAlign: "center" }}>
+          לא מדובר בהמלצה. במידה ונתקלת בבעיה טכנית או חוויה פחות טובה, נשמח
+          מאוד אם תיצור איתנו קשר ישירות כדי שנוכל לעזור.
+        </Typography>
+
+        <Box sx={{ display: "flex", justifyContent: "center" }}>
+          <Button
+            variant="contained"
+            onClick={() => setAiModalOpen(false)}
+            sx={{ borderRadius: "20px", px: 4 }}
+          >
+            הבנתי, תודה
           </Button>
         </Box>
       </CustomModal>
