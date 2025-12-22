@@ -2,7 +2,7 @@ import { useState } from "react";
 import type { Expense, Member } from "@/app/types/types";
 import { GroupExpenseRow } from "../GroupExpenseRow/GroupExpenseRow";
 import { Paper, Typography } from "@mui/material";
-import ExpenseDetails from "../ExpenseDetails/ExpenseDetails"; // תעדכני את הנתיב לפי הפרויקט שלך
+import ExpenseDetails from "../ExpenseDetails/ExpenseDetails"; 
 import styles from "./GroupExpensesList.module.css";
 
 export function GroupExpensesList({

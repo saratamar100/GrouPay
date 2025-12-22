@@ -14,16 +14,12 @@
   flex: 0 0 66%;
   display: flex;
 
-  /* רקע נקי כמו ה-sidebar */
   background: var(--bg-white);
 
-  /* רדיוס עדין ועגול כמו שלך */
   border-radius: 28px;
 
-  /* צל רך ועדין */
   box-shadow: 0 10px 30px rgba(15, 23, 42, 0.14);
 
-  /* ריווח עדין – כמו ה-sidebar */
   padding: 24px 22px;
 }
 
@@ -220,6 +216,20 @@
 
   .sidebar {
     width: 100%;
+  }
+  .sidebarWrapper {
+    position: fixed;
+    top: 64px; 
+    left: 0;
+    right: 0;
+    bottom: 0;
+
+    width: 100%;
+    height: calc(100vh - 64px);
+
+    flex: none;
+    z-index: 1000;
+    background: transparent;
   }
 
   .topBar {
